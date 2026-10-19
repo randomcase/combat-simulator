@@ -1,0 +1,143 @@
+{
+  "schema_version": "1.0.0",
+  "model_type": "MSTM-LDM",
+  "description": "Stochastic & Possibility State-Transition Matrix Model bounded by Statistical Process Control (SPC) thresholds",
+  "states": {
+    "S0": {
+      "code": "S0",
+      "phase": "Optimal Performance",
+      "cp_min": 1.33,
+      "cp_max": 99.0,
+      "sigma_min": 0.0,
+      "sigma_max": 1.0,
+      "combat_modifier": {
+        "damage_multiplier": 1.05,
+        "defense_multiplier": 1.05,
+        "accuracy_bonus": 0.05,
+        "stamina_regen_bonus": 1.2
+      },
+      "behavior": "Nominal combat operation; zero drift; frame-tight execution."
+    },
+    "S1": {
+      "code": "S1",
+      "phase": "Warning Threshold",
+      "cp_min": 1.0,
+      "cp_max": 1.33,
+      "sigma_min": 1.0,
+      "sigma_max": 2.5,
+      "combat_modifier": {
+        "damage_multiplier": 0.95,
+        "defense_multiplier": 0.92,
+        "accuracy_bonus": -0.04,
+        "stamina_regen_bonus": 0.9
+      },
+      "behavior": "Minor fatigue drift detected; elevated output variance; initial poise noise."
+    },
+    "S2": {
+      "code": "S2",
+      "phase": "Critical Failure (Stagger/Breach)",
+      "cp_min": 0.67,
+      "cp_max": 1.0,
+      "sigma_min": 2.5,
+      "sigma_max": 4.0,
+      "combat_modifier": {
+        "damage_multiplier": 0.78,
+        "defense_multiplier": 0.70,
+        "accuracy_bonus": -0.15,
+        "stamina_regen_bonus": 0.6
+      },
+      "behavior": "Systemic guard out-of-tolerance; persistent vulnerability propagation."
+    },
+    "S3": {
+      "code": "S3",
+      "phase": "Hard Shutdown (Incapacitated/KO)",
+      "cp_min": 0.0,
+      "cp_max": 0.67,
+      "sigma_min": 4.0,
+      "sigma_max": 99.0,
+      "combat_modifier": {
+        "damage_multiplier": 0.0,
+        "defense_multiplier": 0.25,
+        "accuracy_bonus": -1.0,
+        "stamina_regen_bonus": 0.0
+      },
+      "behavior": "Catastrophic poise/vitality cascade; immediate combat isolation."
+    }
+  },
+  "state_order": ["S0", "S1", "S2", "S3"],
+  "p_baseline": [
+    [0.85, 0.12, 0.03, 0.00],
+    [0.30, 0.55, 0.15, 0.00],
+    [0.05, 0.10, 0.60, 0.25],
+    [0.00, 0.00, 0.00, 1.00]
+  ],
+  "p_corrected": [
+    [0.92, 0.07, 0.01, 0.00],
+    [0.42, 0.55, 0.03, 0.00],
+    [0.25, 0.50, 0.23, 0.02],
+    [0.00, 0.00, 0.00, 1.00]
+  ],
+  "transformation_tensor": [
+    [ 0.07, -0.05, -0.02,  0.00],
+    [ 0.12,  0.00, -0.12,  0.00],
+    [ 0.20,  0.40, -0.37, -0.23],
+    [ 0.00,  0.00,  0.00,  0.00]
+  ],
+  "corrective_actions": [
+    {
+      "source": "S0",
+      "target": "S0",
+      "pb": 0.85,
+      "pc": 0.92,
+      "pi_index": 1.00,
+      "trigger": "Continuous steady-state tempo",
+      "algorithm": "Maintain baseline feedback gains"
+    },
+    {
+      "source": "S0",
+      "target": "S1",
+      "pb": 0.12,
+      "pc": 0.07,
+      "pi_index": 0.40,
+      "trigger": "Thermal expansion / stamina jitter",
+      "algorithm": "Proactive calibration pulse adjustment"
+    },
+    {
+      "source": "S1",
+      "target": "S0",
+      "pb": 0.30,
+      "pc": 0.42,
+      "pi_index": 0.70,
+      "trigger": "Self-stabilizing poise dampening",
+      "algorithm": "Passive return profile activation"
+    },
+    {
+      "source": "S1",
+      "target": "S2",
+      "pb": 0.15,
+      "pc": 0.03,
+      "pi_index": 0.25,
+      "trigger": "Sub-component guard misalignment",
+      "algorithm": "Structural Offset Bias Injection (-1.2 sigma_x)"
+    },
+    {
+      "source": "S2",
+      "target": "S0",
+      "pb": 0.05,
+      "pc": 0.25,
+      "pi_index": 0.10,
+      "trigger": "Tactical reset loop / Second Wind",
+      "algorithm": "Active loop re-initialization matrix filter"
+    },
+    {
+      "source": "S2",
+      "target": "S3",
+      "pb": 0.25,
+      "pc": 0.02,
+      "pi_index": 0.85,
+      "trigger": "Cascading vitality drop / structural snap",
+      "algorithm": "Dynamic Shunt Attenuation (12ms de-energize shield)"
+    }
+  ],
+  "possibility_override_threshold": 0.75
+}

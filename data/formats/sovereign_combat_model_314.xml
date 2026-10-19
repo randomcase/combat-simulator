@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SovereignSingleCastle piAnchor="3.14" ummahNodes="314">
+  <CharacterProfile id="CHAR-001-GOOD-WARLOCK" statPi="9.42" armorPi="1.57" weaponPi="3.14" form="Floating_314_Pi_Levitation" vfx="SPARKLES_AND_MISSILES">
+    <Commands>ORBIT(Single_Castle, r=3.14) -&gt; BOLSTER(All_Allies, aura=3.14x) -&gt; HEAL(Lowest_HP_Unit, threshold=62.8%) -&gt; SEAL_QUMQUM(Nearest_Warlock_Zalim, until_hp_depleted)</Commands>
+  </CharacterProfile>
+  <CharacterProfile id="CHAR-002-BADR-313-VANGUARD" statPi="6.28" armorPi="3.14" weaponPi="2.51" form="Walking_8Dir_Stride + Combat_Dual_Sayf_Crescent_Slash" vfx="SWORD_SWIPE">
+    <Commands>DEFEND(Caravan_Center, r=3.14) -&gt; INTERCEPT(Nearest_Attacker_To_Healer) -&gt; ATTACK(Enemy_Champion, mode=MUBARAZAH_UNTIL_HP_DEPLETED) -&gt; HOLD(Castle_Gate)</Commands>
+  </CharacterProfile>
+  <CharacterProfile id="CHAR-003-MAMLUK-LANCER" statPi="6.28" armorPi="4.71" weaponPi="3.14" form="Mounted_Mamluk_Gallop_3D + Couching_Lance_Shockwave_Charge" vfx="CAVALRY_CHARGE">
+    <Commands>PURSUE_A_STAR(Target=Enemy_Ranged_Or_Sorcerer, speed=6.28) -&gt; ATTACK(Nearest_To_Caravan_Flank, until_hp_depleted) -&gt; ORBIT(Besieged_Castle, r=6.28) -&gt; BOLSTER(Militia)</Commands>
+  </CharacterProfile>
+  <CharacterProfile id="CHAR-004-BIMARISTAN-HEALER" statPi="4.71" armorPi="1.25" weaponPi="0.94" form="Walking_8Dir_Stride + Floating_Emerald_Sparkle_Cast" vfx="SPARKLES_AND_VINEGAR_MIST">
+    <Commands>HEAL(Unit_Y_Lowest_HP, threshold=75.0%) -&gt; DEFEND(Unit_XX_Caravan_Straggler, r=3.14) -&gt; PURIFY(Poison_Cloud_Tile) -&gt; ATTACK_NEAREST_TO(Unit_YY_Healee, until_hp_depleted)</Commands>
+  </CharacterProfile>
+  <CharacterProfile id="CHAR-005-INBIQ-ALCHEMIST" statPi="4.71" armorPi="1.88" weaponPi="1.57" form="Walking_8Dir_Stride + Combat_Flask_Hurl_Arc" vfx="MISSILES_AND_CLOUDS">
+    <Commands>BOLSTER(Weapon_Damascus_Steel, buff=3.14) -&gt; ATTACK(Clustered_Enemy_Formation, vfx=POISON_ACID_OR_NAFT_MISSILE) -&gt; PURIFY(Syndication_Miasma) -&gt; DEFEND(Castle_Lab)</Commands>
+  </CharacterProfile>
+  <CharacterProfile id="CHAR-006-QAWS-SNIPER" statPi="4.71" armorPi="1.57" weaponPi="1.25" form="Walking_8Dir_Stride + Kneeling_Thumb_Draw_Arrow_Volley" vfx="ARROWS">
+    <Commands>HOLD(High_Elevation_Tile) -&gt; ATTACK(Enemy_Approaching_Ally_YY, range=7, until_hp_depleted) -&gt; DEFEND(Caravan_Flank) -&gt; SKIRMISH_KITE(Min_Dist=3.14)</Commands>
+  </CharacterProfile>
+  <CharacterProfile id="CHAR-007-MANJANIQ-SAPPER" statPi="6.28" armorPi="3.77" weaponPi="9.42" form="Walking_8Dir_Stride + Siege_Manjaniq_And_Bombard_Fire_Cycle" vfx="MISSILES">
+    <Commands>BOLSTER(Castle_Walls_And_Towers) -&gt; ATTACK(Enemy_Castle_Gate_Or_Tower, vfx=SIEGE_MISSILE, until_hp_depleted) -&gt; HOLD(Trench_Line) -&gt; DEFEND(Cannons)</Commands>
+  </CharacterProfile>
+  <CharacterProfile id="CHAR-008-RIBAT-MILITIA" statPi="4.71" armorPi="3.14" weaponPi="2.2" form="Walking_8Dir_Stride + Grounded_Spear_And_Shield_Phalanx_Thrust" vfx="SWORD_SWIPE_AND_SPARKLES">
+    <Commands>DEFEND(Caravan_Rearguard_Stragglers, r=3.14) -&gt; GUARD_INTERCEPT(Healer_And_Merchant) -&gt; ATTACK_NEAREST_TO(Protected_Ally_YY, until_hp_depleted) -&gt; HOLD(Ribat_Tower)</Commands>
+  </CharacterProfile>
+  <CharacterProfile id="CHAR-009-CARAVAN-EXPLORER" statPi="4.71" armorPi="1.25" weaponPi="0.94" form="Walking_8Dir_Camel_Caravan_Stride + Floating_Golden_Compass_And_Scroll_Projection" vfx="SPARKLES">
+    <Commands>TRADE(Nearest_Bazaar_Or_Port_Faire) -&gt; ORBIT(Neutral_Caravan, diplomatic_dawah=true) -&gt; UNCOVER(Syndication_Node) -&gt; BOLSTER(Castle_Treasury_Dinars)</Commands>
+  </CharacterProfile>
+  <CharacterProfile id="CHAR-010-OMANI-MARINER" statPi="5.34" armorPi="1.88" weaponPi="2.51" form="Walking_8Dir_Dhow_Captain_Stride + Combat_Swivel_Cannon_And_Khanjar_Slash" vfx="MISSILES_AND_SPARKLES">
+    <Commands>TRADE(Port_Faire_Node) -&gt; ORBIT(Coastal_Sea_Lane, r=6.28) -&gt; ATTACK(Pirate_Or_Syndicate_Fleet, vfx=BROADSIDES_AND_ARROWS) -&gt; BOLSTER(Vinegar_Cotton_Tobacco_Cargo)</Commands>
+  </CharacterProfile>
+  <CharacterProfile id="CHAR-011-SYNDICATION-SORCERER" statPi="4.71" armorPi="1.57" weaponPi="1.88" form="Floating_Dark_Miasma_Hover + Combat_Poison_Cloud_And_Shadow_Missile_Cast" vfx="POISON_CLOUD_AND_MISSILES">
+    <Commands>ORBIT(Syndication_Stronghold, r=3.14) -&gt; ATTACK(Caravan_Stragglers, vfx=POISON_CLOUD) -&gt; HOLD(Corrupt_Sanctum) -&gt; YIELD_WHEN_UNCOVERED(Convert_Or_Qumqum_Seal)</Commands>
+  </CharacterProfile>
+  <CharacterProfile id="CHAR-012-IMPERIAL-CATAPHRACT" statPi="5.65" armorPi="4.4" weaponPi="3.14" form="Mounted_Or_Foot_Heavy_Stride + Heavy_Broadsword_Swipe_And_Javelin_Cast" vfx="SWORD_SWIPE_AND_ARROWS">
+    <Commands>HOLD(Imperial_Fortress_Gate) -&gt; ATTACK(Vanguard_Approaching_Citadel, until_hp_depleted) -&gt; OFFER_MEDIATION_OR_CAPITULATION(When_Castle_Order_And_Justice_High)</Commands>
+  </CharacterProfile>
+</SovereignSingleCastle>

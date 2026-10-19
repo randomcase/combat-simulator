@@ -1,0 +1,99 @@
+[castle_engine]
+pi_anchor = 3.14
+ummah_nodes = 314
+
+[[characters]]
+profile_id = "CHAR-001-GOOD-WARLOCK"
+name = "Al-Hakim Zakeem Al-Muwahhid (The Good Warlock Devoted to Islam)"
+stat_weight_pi = 9.42
+armor_weight_pi = 1.57
+weapon_weight_pi = 3.14
+vfx_type = "SPARKLES_AND_MISSILES"
+
+[[characters]]
+profile_id = "CHAR-002-BADR-313-VANGUARD"
+name = "Hamzah Al-Badri (313 Core Muslim Vanguard Champion)"
+stat_weight_pi = 6.28
+armor_weight_pi = 3.14
+weapon_weight_pi = 2.51
+vfx_type = "SWORD_SWIPE"
+
+[[characters]]
+profile_id = "CHAR-003-MAMLUK-LANCER"
+name = "Baybars Al-Bunduqdari (Elite Mamluk Heavy Cavalry Lancer)"
+stat_weight_pi = 6.28
+armor_weight_pi = 4.71
+weapon_weight_pi = 3.14
+vfx_type = "CAVALRY_CHARGE"
+
+[[characters]]
+profile_id = "CHAR-004-BIMARISTAN-HEALER"
+name = "Rufaydah & Ibn Sina Al-Tabib (Support Bimaristan Field Healer)"
+stat_weight_pi = 4.71
+armor_weight_pi = 1.25
+weapon_weight_pi = 0.94
+vfx_type = "SPARKLES_AND_VINEGAR_MIST"
+
+[[characters]]
+profile_id = "CHAR-005-INBIQ-ALCHEMIST"
+name = "Jabir Al-Kimiyai (Alchemical Inbiq, Vinegar-Acid & Naft Master)"
+stat_weight_pi = 4.71
+armor_weight_pi = 1.88
+weapon_weight_pi = 1.57
+vfx_type = "MISSILES_AND_CLOUDS"
+
+[[characters]]
+profile_id = "CHAR-006-QAWS-SNIPER"
+name = "Sa'd Al-Rami (Composite Bow Sniper & Janissary Tufekci Marksman)"
+stat_weight_pi = 4.71
+armor_weight_pi = 1.57
+weapon_weight_pi = 1.25
+vfx_type = "ARROWS"
+
+[[characters]]
+profile_id = "CHAR-007-MANJANIQ-SAPPER"
+name = "Salman & Orban Al-Manjaniqi (Siege Engineer, Trench Builder & Cannoneer)"
+stat_weight_pi = 6.28
+armor_weight_pi = 3.77
+weapon_weight_pi = 9.42
+vfx_type = "MISSILES"
+
+[[characters]]
+profile_id = "CHAR-008-RIBAT-MILITIA"
+name = "Al-Murabit Al-Ansari (Ribat Frontier Militia & Straggler Guardian)"
+stat_weight_pi = 4.71
+armor_weight_pi = 3.14
+weapon_weight_pi = 2.2
+vfx_type = "SWORD_SWIPE_AND_SPARKLES"
+
+[[characters]]
+profile_id = "CHAR-009-CARAVAN-EXPLORER"
+name = "Ibn Battutah & 'Abd al-Rahman Al-Tajir (Auxiliary Caravan Master, Explorer & Diplomat)"
+stat_weight_pi = 4.71
+armor_weight_pi = 1.25
+weapon_weight_pi = 0.94
+vfx_type = "SPARKLES"
+
+[[characters]]
+profile_id = "CHAR-010-OMANI-MARINER"
+name = "Ahmad ibn Majid Al-Mu'allim (Auxiliary Omani/Yemeni Monsoon Navigator & Port Admiral)"
+stat_weight_pi = 5.34
+armor_weight_pi = 1.88
+weapon_weight_pi = 2.51
+vfx_type = "MISSILES_AND_SPARKLES"
+
+[[characters]]
+profile_id = "CHAR-011-SYNDICATION-SORCERER"
+name = "Kahin Al-Jibt (Oppositional Warlock Syndication Sorcerer & Miasma Weaver)"
+stat_weight_pi = 4.71
+armor_weight_pi = 1.57
+weapon_weight_pi = 1.88
+vfx_type = "POISON_CLOUD_AND_MISSILES"
+
+[[characters]]
+profile_id = "CHAR-012-IMPERIAL-CATAPHRACT"
+name = "Marzuban & Strategos (Oppositional Empire Frontier Commander / Prospective Convert)"
+stat_weight_pi = 5.65
+armor_weight_pi = 4.4
+weapon_weight_pi = 3.14
+vfx_type = "SWORD_SWIPE_AND_ARROWS"

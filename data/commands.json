@@ -1,0 +1,463 @@
+{
+  "schema_version": "1.0.0",
+  "model_type": "CADFG-SETL-COMMANDS-LDM",
+  "description": "Combat Action & Damage Formula Graph (CADFG) + Status Effect Tick Ledger (SETL) Command Catalog",
+  "commands": [
+    {
+      "id": "CMD_BASIC_STRIKE",
+      "name": "Tactical Strike",
+      "category": "OFFENSIVE_ATTACK",
+      "damage_type": "SLASH",
+      "stamina_cost": 12.0,
+      "mana_cost": 0.0,
+      "cooldown_ticks": 1,
+      "frame_data": { "startup": 4, "active": 3, "recovery": 6 },
+      "scaling": { "base_damage": 45.0, "attack_power_ratio": 0.85, "spell_power_ratio": 0.0 },
+      "poise_damage": 18.0,
+      "crit_bonus": 0.0,
+      "status_effects": [],
+      "spc_effect": { "cp_delta_self": 0.02, "sigma_delta_target": 0.12 }
+    },
+    {
+      "id": "CMD_SHIELD_SLAM",
+      "name": "Aegis Concussion Slam",
+      "category": "OFFENSIVE_CONTROL",
+      "damage_type": "BLUNT",
+      "stamina_cost": 28.0,
+      "mana_cost": 10.0,
+      "cooldown_ticks": 3,
+      "frame_data": { "startup": 7, "active": 4, "recovery": 9 },
+      "scaling": { "base_damage": 85.0, "attack_power_ratio": 0.95, "spell_power_ratio": 0.25 },
+      "poise_damage": 48.0,
+      "crit_bonus": 0.05,
+      "status_effects": [
+        { "id": "EFF_STAGGER", "name": "Concussed", "duration_ticks": 2, "stat_mod": { "attack_speed": -0.20, "accuracy": -0.10 }, "tick_damage": 0.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.05, "sigma_delta_target": 0.45 }
+    },
+    {
+      "id": "CMD_IRON_BULWARK",
+      "name": "Iron Bulwark Fortification",
+      "category": "DEFENSIVE_BUFF",
+      "damage_type": "TRUE",
+      "stamina_cost": 22.0,
+      "mana_cost": 20.0,
+      "cooldown_ticks": 5,
+      "frame_data": { "startup": 3, "active": 2, "recovery": 4 },
+      "scaling": { "base_damage": 0.0, "attack_power_ratio": 0.0, "spell_power_ratio": 0.0, "self_heal": 180.0 },
+      "poise_damage": 0.0,
+      "crit_bonus": 0.0,
+      "status_effects": [
+        { "id": "EFF_FORTIFIED", "name": "Iron Bulwark", "duration_ticks": 4, "target": "SELF", "stat_mod": { "armor": 65.0, "magic_resist": 45.0 }, "tick_damage": 0.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.22, "sigma_delta_target": 0.0 }
+    },
+    {
+      "id": "CMD_SEISMIC_CLEAVE",
+      "name": "Seismic Tectonic Cleave",
+      "category": "OFFENSIVE_HEAVY",
+      "damage_type": "BLUNT",
+      "stamina_cost": 36.0,
+      "mana_cost": 15.0,
+      "cooldown_ticks": 4,
+      "frame_data": { "startup": 10, "active": 5, "recovery": 12 },
+      "scaling": { "base_damage": 130.0, "attack_power_ratio": 1.35, "spell_power_ratio": 0.20 },
+      "poise_damage": 55.0,
+      "crit_bonus": 0.08,
+      "status_effects": [
+        { "id": "EFF_ARMOR_SUNDER", "name": "Sundered Plate", "duration_ticks": 3, "stat_mod": { "armor": -40.0 }, "tick_damage": 0.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.0, "sigma_delta_target": 0.52 }
+    },
+    {
+      "id": "CMD_BLOODLUST_FLURRY",
+      "name": "Crimson Bloodlust Flurry",
+      "category": "OFFENSIVE_COMBO",
+      "damage_type": "SLASH",
+      "stamina_cost": 34.0,
+      "mana_cost": 0.0,
+      "cooldown_ticks": 3,
+      "frame_data": { "startup": 5, "active": 8, "recovery": 8 },
+      "scaling": { "base_damage": 110.0, "attack_power_ratio": 1.45, "spell_power_ratio": 0.0, "lifesteal_ratio": 0.22 },
+      "poise_damage": 38.0,
+      "crit_bonus": 0.12,
+      "status_effects": [
+        { "id": "EFF_BLEED", "name": "Hemorrhage", "duration_ticks": 3, "stat_mod": {}, "tick_damage": 42.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.04, "sigma_delta_target": 0.40 }
+    },
+    {
+      "id": "CMD_RENDING_AXE",
+      "name": "Spine-Rending Cleaver",
+      "category": "OFFENSIVE_ATTACK",
+      "damage_type": "SLASH",
+      "stamina_cost": 26.0,
+      "mana_cost": 0.0,
+      "cooldown_ticks": 2,
+      "frame_data": { "startup": 6, "active": 4, "recovery": 7 },
+      "scaling": { "base_damage": 90.0, "attack_power_ratio": 1.20, "spell_power_ratio": 0.0 },
+      "poise_damage": 32.0,
+      "crit_bonus": 0.10,
+      "status_effects": [
+        { "id": "EFF_BLEED", "name": "Deep Laceration", "duration_ticks": 2, "stat_mod": { "armor": -20.0 }, "tick_damage": 35.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.0, "sigma_delta_target": 0.30 }
+    },
+    {
+      "id": "CMD_GUILLOTINE_DROP",
+      "name": "Apex Guillotine Execution",
+      "category": "OFFENSIVE_EXECUTE",
+      "damage_type": "TRUE",
+      "stamina_cost": 48.0,
+      "mana_cost": 20.0,
+      "cooldown_ticks": 5,
+      "frame_data": { "startup": 9, "active": 3, "recovery": 11 },
+      "scaling": { "base_damage": 155.0, "attack_power_ratio": 1.55, "spell_power_ratio": 0.0, "missing_hp_bonus_ratio": 0.65 },
+      "poise_damage": 65.0,
+      "crit_bonus": 0.15,
+      "status_effects": [],
+      "spc_effect": { "cp_delta_self": 0.08, "sigma_delta_target": 0.75 }
+    },
+    {
+      "id": "CMD_ADRENALINE_SURGE",
+      "name": "Berserker Adrenaline Surge",
+      "category": "OFFENSIVE_BUFF",
+      "damage_type": "TRUE",
+      "stamina_cost": 10.0,
+      "mana_cost": 15.0,
+      "cooldown_ticks": 4,
+      "frame_data": { "startup": 2, "active": 2, "recovery": 3 },
+      "scaling": { "base_damage": 0.0, "attack_power_ratio": 0.0, "spell_power_ratio": 0.0, "self_heal": 120.0 },
+      "poise_damage": 0.0,
+      "crit_bonus": 0.0,
+      "status_effects": [
+        { "id": "EFF_FRENZY", "name": "Adrenaline Overdrive", "duration_ticks": 3, "target": "SELF", "stat_mod": { "attack_power": 42.0, "attack_speed": 0.25 }, "tick_damage": 0.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.14, "sigma_delta_target": 0.0 }
+    },
+    {
+      "id": "CMD_RECKLESS_LUNGE",
+      "name": "Reckless Gore Charge",
+      "category": "OFFENSIVE_ATTACK",
+      "damage_type": "PIERCE",
+      "stamina_cost": 24.0,
+      "mana_cost": 0.0,
+      "cooldown_ticks": 2,
+      "frame_data": { "startup": 4, "active": 4, "recovery": 8 },
+      "scaling": { "base_damage": 82.0, "attack_power_ratio": 1.15, "spell_power_ratio": 0.0 },
+      "poise_damage": 28.0,
+      "crit_bonus": 0.08,
+      "status_effects": [],
+      "spc_effect": { "cp_delta_self": -0.04, "sigma_delta_target": 0.28 }
+    },
+    {
+      "id": "CMD_AETHER_NOVA",
+      "name": "Superheated Aether Nova",
+      "category": "OFFENSIVE_SPELL",
+      "damage_type": "FIRE",
+      "stamina_cost": 14.0,
+      "mana_cost": 46.0,
+      "cooldown_ticks": 3,
+      "frame_data": { "startup": 6, "active": 4, "recovery": 7 },
+      "scaling": { "base_damage": 125.0, "attack_power_ratio": 0.10, "spell_power_ratio": 1.45 },
+      "poise_damage": 34.0,
+      "crit_bonus": 0.10,
+      "status_effects": [
+        { "id": "EFF_IGNITE", "name": "Aether Burn", "duration_ticks": 3, "stat_mod": { "magic_resist": -25.0 }, "tick_damage": 45.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.05, "sigma_delta_target": 0.44 }
+    },
+    {
+      "id": "CMD_CRYO_LANCE",
+      "name": "Absolute Zero Cryo-Lance",
+      "category": "OFFENSIVE_SPELL",
+      "damage_type": "ICE",
+      "stamina_cost": 12.0,
+      "mana_cost": 36.0,
+      "cooldown_ticks": 2,
+      "frame_data": { "startup": 5, "active": 3, "recovery": 6 },
+      "scaling": { "base_damage": 95.0, "attack_power_ratio": 0.0, "spell_power_ratio": 1.25 },
+      "poise_damage": 30.0,
+      "crit_bonus": 0.08,
+      "status_effects": [
+        { "id": "EFF_CHILL", "name": "Cryo-Stasis", "duration_ticks": 2, "stat_mod": { "attack_speed": -0.22, "evasion": -0.08 }, "tick_damage": 20.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.04, "sigma_delta_target": 0.36 }
+    },
+    {
+      "id": "CMD_ARCANE_SINGULARITY",
+      "name": "Collapsed Arcane Singularity",
+      "category": "OFFENSIVE_ULTIMATE",
+      "damage_type": "ARCANE",
+      "stamina_cost": 20.0,
+      "mana_cost": 68.0,
+      "cooldown_ticks": 5,
+      "frame_data": { "startup": 8, "active": 5, "recovery": 9 },
+      "scaling": { "base_damage": 165.0, "attack_power_ratio": 0.15, "spell_power_ratio": 1.75 },
+      "poise_damage": 58.0,
+      "crit_bonus": 0.12,
+      "status_effects": [
+        { "id": "EFF_VOID_VULN", "name": "Event Horizon Breach", "duration_ticks": 3, "stat_mod": { "magic_resist": -45.0, "armor": -30.0 }, "tick_damage": 32.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.08, "sigma_delta_target": 0.68 }
+    },
+    {
+      "id": "CMD_VOLT_ARC",
+      "name": "High-Frequency Volt Arc",
+      "category": "OFFENSIVE_SPELL",
+      "damage_type": "LIGHTNING",
+      "stamina_cost": 10.0,
+      "mana_cost": 26.0,
+      "cooldown_ticks": 1,
+      "frame_data": { "startup": 3, "active": 3, "recovery": 5 },
+      "scaling": { "base_damage": 75.0, "attack_power_ratio": 0.0, "spell_power_ratio": 1.05 },
+      "poise_damage": 22.0,
+      "crit_bonus": 0.10,
+      "status_effects": [],
+      "spc_effect": { "cp_delta_self": 0.02, "sigma_delta_target": 0.24 }
+    },
+    {
+      "id": "CMD_MANA_BARRIER",
+      "name": "Refractive Aether Ward",
+      "category": "DEFENSIVE_BUFF",
+      "damage_type": "ARCANE",
+      "stamina_cost": 10.0,
+      "mana_cost": 35.0,
+      "cooldown_ticks": 4,
+      "frame_data": { "startup": 2, "active": 2, "recovery": 4 },
+      "scaling": { "base_damage": 0.0, "attack_power_ratio": 0.0, "spell_power_ratio": 0.0, "self_heal": 165.0 },
+      "poise_damage": 0.0,
+      "crit_bonus": 0.0,
+      "status_effects": [
+        { "id": "EFF_AETHER_WARD", "name": "Refractive Ward", "duration_ticks": 3, "target": "SELF", "stat_mod": { "magic_resist": 55.0, "armor": 45.0 }, "tick_damage": 0.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.20, "sigma_delta_target": 0.0 }
+    },
+    {
+      "id": "CMD_PHANTOM_LUNGE",
+      "name": "Phantom Shadowstep Lunge",
+      "category": "OFFENSIVE_ATTACK",
+      "damage_type": "PIERCE",
+      "stamina_cost": 28.0,
+      "mana_cost": 12.0,
+      "cooldown_ticks": 2,
+      "frame_data": { "startup": 3, "active": 3, "recovery": 5 },
+      "scaling": { "base_damage": 98.0, "attack_power_ratio": 1.30, "spell_power_ratio": 0.25 },
+      "poise_damage": 30.0,
+      "crit_bonus": 0.18,
+      "status_effects": [],
+      "spc_effect": { "cp_delta_self": 0.05, "sigma_delta_target": 0.35 }
+    },
+    {
+      "id": "CMD_VENOM_DAGGER",
+      "name": "Neurotoxin Fang Strike",
+      "category": "OFFENSIVE_DOT",
+      "damage_type": "PIERCE",
+      "stamina_cost": 22.0,
+      "mana_cost": 10.0,
+      "cooldown_ticks": 2,
+      "frame_data": { "startup": 3, "active": 2, "recovery": 4 },
+      "scaling": { "base_damage": 72.0, "attack_power_ratio": 0.95, "spell_power_ratio": 0.45 },
+      "poise_damage": 20.0,
+      "crit_bonus": 0.12,
+      "status_effects": [
+        { "id": "EFF_NEUROTOXIN", "name": "Neurotoxin Corrosion", "duration_ticks": 4, "stat_mod": { "accuracy": -0.08, "armor": -25.0 }, "tick_damage": 48.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.03, "sigma_delta_target": 0.38 }
+    },
+    {
+      "id": "CMD_DEATH_MARK_EXECUTE",
+      "name": "Nightfall Death Mark",
+      "category": "OFFENSIVE_EXECUTE",
+      "damage_type": "TRUE",
+      "stamina_cost": 42.0,
+      "mana_cost": 25.0,
+      "cooldown_ticks": 5,
+      "frame_data": { "startup": 5, "active": 3, "recovery": 7 },
+      "scaling": { "base_damage": 140.0, "attack_power_ratio": 1.50, "spell_power_ratio": 0.40, "missing_hp_bonus_ratio": 0.75 },
+      "poise_damage": 50.0,
+      "crit_bonus": 0.22,
+      "status_effects": [],
+      "spc_effect": { "cp_delta_self": 0.08, "sigma_delta_target": 0.72 }
+    },
+    {
+      "id": "CMD_SMOKE_EVASION",
+      "name": "Mirage Shroud Veil",
+      "category": "DEFENSIVE_BUFF",
+      "damage_type": "TRUE",
+      "stamina_cost": 18.0,
+      "mana_cost": 15.0,
+      "cooldown_ticks": 4,
+      "frame_data": { "startup": 2, "active": 2, "recovery": 3 },
+      "scaling": { "base_damage": 0.0, "attack_power_ratio": 0.0, "spell_power_ratio": 0.0, "self_heal": 110.0 },
+      "poise_damage": 0.0,
+      "crit_bonus": 0.0,
+      "status_effects": [
+        { "id": "EFF_MIRAGE", "name": "Phantom Evasion", "duration_ticks": 3, "target": "SELF", "stat_mod": { "evasion": 0.25, "crit_chance": 0.15 }, "tick_damage": 0.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.18, "sigma_delta_target": 0.0 }
+    },
+    {
+      "id": "CMD_SHADOW_LACERATE",
+      "name": "Twin-Fang Shadow Lacerate",
+      "category": "OFFENSIVE_COMBO",
+      "damage_type": "SLASH",
+      "stamina_cost": 30.0,
+      "mana_cost": 10.0,
+      "cooldown_ticks": 3,
+      "frame_data": { "startup": 4, "active": 5, "recovery": 6 },
+      "scaling": { "base_damage": 92.0, "attack_power_ratio": 1.25, "spell_power_ratio": 0.20, "lifesteal_ratio": 0.15 },
+      "poise_damage": 26.0,
+      "crit_bonus": 0.14,
+      "status_effects": [],
+      "spc_effect": { "cp_delta_self": 0.04, "sigma_delta_target": 0.32 }
+    },
+    {
+      "id": "CMD_JUDICIAL_DECREE",
+      "name": "Brehon Judicial Verdict",
+      "category": "OFFENSIVE_CONTROL",
+      "damage_type": "ARCANE",
+      "stamina_cost": 22.0,
+      "mana_cost": 34.0,
+      "cooldown_ticks": 3,
+      "frame_data": { "startup": 5, "active": 4, "recovery": 6 },
+      "scaling": { "base_damage": 105.0, "attack_power_ratio": 0.75, "spell_power_ratio": 0.95 },
+      "poise_damage": 42.0,
+      "crit_bonus": 0.08,
+      "status_effects": [
+        { "id": "EFF_SANCTION", "name": "Judicial Sanction", "duration_ticks": 3, "stat_mod": { "attack_power": -25.0, "spell_power": -25.0 }, "tick_damage": 25.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.10, "sigma_delta_target": 0.42 }
+    },
+    {
+      "id": "CMD_MATRIX_RECALIBRATE",
+      "name": "Transformation Tensor Recalibration",
+      "category": "SPC_CONTROL",
+      "damage_type": "TRUE",
+      "stamina_cost": 15.0,
+      "mana_cost": 28.0,
+      "cooldown_ticks": 4,
+      "frame_data": { "startup": 3, "active": 2, "recovery": 4 },
+      "scaling": { "base_damage": 45.0, "attack_power_ratio": 0.35, "spell_power_ratio": 0.55, "self_heal": 195.0 },
+      "poise_damage": 15.0,
+      "crit_bonus": 0.0,
+      "status_effects": [
+        { "id": "EFF_TENSOR_SYNC", "name": "SPC Tensor Lock", "duration_ticks": 4, "target": "SELF", "stat_mod": { "accuracy": 0.10, "armor": 35.0, "magic_resist": 35.0 }, "tick_damage": 0.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.35, "sigma_delta_target": 0.15 }
+    },
+    {
+      "id": "CMD_HALBERD_SWEEP",
+      "name": "Sovereign Halberd Crescent",
+      "category": "OFFENSIVE_ATTACK",
+      "damage_type": "SLASH",
+      "stamina_cost": 24.0,
+      "mana_cost": 12.0,
+      "cooldown_ticks": 2,
+      "frame_data": { "startup": 5, "active": 4, "recovery": 6 },
+      "scaling": { "base_damage": 88.0, "attack_power_ratio": 1.00, "spell_power_ratio": 0.45 },
+      "poise_damage": 34.0,
+      "crit_bonus": 0.06,
+      "status_effects": [],
+      "spc_effect": { "cp_delta_self": 0.04, "sigma_delta_target": 0.28 }
+    },
+    {
+      "id": "CMD_ORION_STARFALL",
+      "name": "Orion Cyclical Starfall",
+      "category": "OFFENSIVE_ULTIMATE",
+      "damage_type": "ARCANE",
+      "stamina_cost": 32.0,
+      "mana_cost": 48.0,
+      "cooldown_ticks": 4,
+      "frame_data": { "startup": 6, "active": 5, "recovery": 7 },
+      "scaling": { "base_damage": 148.0, "attack_power_ratio": 0.90, "spell_power_ratio": 1.10 },
+      "poise_damage": 55.0,
+      "crit_bonus": 0.12,
+      "status_effects": [
+        { "id": "EFF_STARFIRE", "name": "Celestial Aether Burn", "duration_ticks": 3, "stat_mod": { "armor": -30.0, "magic_resist": -30.0 }, "tick_damage": 38.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.10, "sigma_delta_target": 0.58 }
+    },
+    {
+      "id": "CMD_SOVEREIGN_VERDICT",
+      "name": "N0 Sovereign Verdict Strike",
+      "category": "OFFENSIVE_HEAVY",
+      "damage_type": "LIGHTNING",
+      "stamina_cost": 30.0,
+      "mana_cost": 26.0,
+      "cooldown_ticks": 3,
+      "frame_data": { "startup": 5, "active": 4, "recovery": 6 },
+      "scaling": { "base_damage": 115.0, "attack_power_ratio": 1.05, "spell_power_ratio": 0.85, "lifesteal_ratio": 0.15 },
+      "poise_damage": 44.0,
+      "crit_bonus": 0.10,
+      "status_effects": [],
+      "spc_effect": { "cp_delta_self": 0.08, "sigma_delta_target": 0.45 }
+    },
+    {
+      "id": "CMD_OFFSET_BIAS_PULSE",
+      "name": "Structural Offset Bias Injection (-1.2 Sigma)",
+      "category": "SPC_CONTROL",
+      "damage_type": "ARCANE",
+      "stamina_cost": 14.0,
+      "mana_cost": 24.0,
+      "cooldown_ticks": 4,
+      "frame_data": { "startup": 2, "active": 2, "recovery": 3 },
+      "scaling": { "base_damage": 55.0, "attack_power_ratio": 0.25, "spell_power_ratio": 0.65, "self_heal": 140.0 },
+      "poise_damage": 20.0,
+      "crit_bonus": 0.0,
+      "status_effects": [
+        { "id": "EFF_OFFSET_BIAS", "name": "Offset Bias Stabilizer", "duration_ticks": 3, "target": "SELF", "stat_mod": { "accuracy": 0.12, "evasion": 0.10 }, "tick_damage": 0.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.30, "sigma_delta_self": -1.20, "sigma_delta_target": 0.25 }
+    },
+    {
+      "id": "CMD_SHUNT_ATTENUATE",
+      "name": "Dynamic Shunt Attenuation (12ms Shield)",
+      "category": "SPC_EMERGENCY",
+      "damage_type": "TRUE",
+      "stamina_cost": 16.0,
+      "mana_cost": 22.0,
+      "cooldown_ticks": 5,
+      "frame_data": { "startup": 1, "active": 2, "recovery": 3 },
+      "scaling": { "base_damage": 0.0, "attack_power_ratio": 0.0, "spell_power_ratio": 0.0, "self_heal": 240.0 },
+      "poise_damage": 0.0,
+      "crit_bonus": 0.0,
+      "status_effects": [
+        { "id": "EFF_SHUNT_SHIELD", "name": "12ms Dynamic Shunt", "duration_ticks": 3, "target": "SELF", "stat_mod": { "armor": 80.0, "magic_resist": 80.0 }, "tick_damage": 0.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.42, "sigma_delta_self": -1.50, "sigma_delta_target": 0.0 }
+    },
+    {
+      "id": "CMD_POSSIBILITY_PURGE",
+      "name": "Possibility Space Override Purge (Pi > 0.75)",
+      "category": "SPC_OVERRIDE",
+      "damage_type": "TRUE",
+      "stamina_cost": 25.0,
+      "mana_cost": 35.0,
+      "cooldown_ticks": 5,
+      "frame_data": { "startup": 3, "active": 3, "recovery": 4 },
+      "scaling": { "base_damage": 110.0, "attack_power_ratio": 0.80, "spell_power_ratio": 0.80, "self_heal": 160.0 },
+      "poise_damage": 40.0,
+      "crit_bonus": 0.15,
+      "status_effects": [],
+      "spc_effect": { "cp_delta_self": 0.40, "sigma_delta_self": -1.40, "sigma_delta_target": 0.50 }
+    },
+    {
+      "id": "CMD_GUARD_STANCE",
+      "name": "Active Guard Recovery",
+      "category": "DEFENSIVE_RECOVERY",
+      "damage_type": "TRUE",
+      "stamina_cost": 0.0,
+      "mana_cost": 0.0,
+      "cooldown_ticks": 2,
+      "frame_data": { "startup": 2, "active": 4, "recovery": 2 },
+      "scaling": { "base_damage": 0.0, "attack_power_ratio": 0.0, "spell_power_ratio": 0.0, "self_heal": 95.0 },
+      "poise_damage": 0.0,
+      "crit_bonus": 0.0,
+      "status_effects": [
+        { "id": "EFF_GUARD", "name": "Braced Guard", "duration_ticks": 2, "target": "SELF", "stat_mod": { "armor": 40.0, "magic_resist": 40.0 }, "tick_damage": 0.0 }
+      ],
+      "spc_effect": { "cp_delta_self": 0.15, "sigma_delta_self": -0.50, "sigma_delta_target": 0.0 }
+    }
+  ]
+}

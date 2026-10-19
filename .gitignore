@@ -1,0 +1,23 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Java compiled classes
+engines/java/bin/
+*.class
+*.jar
+
+# Go binaries
+engines/go/*.exe
+engines/go/sim
+*.exe
+
+# Node / TypeScript
+node_modules/
+dist/
+
+# OS / Editor
+.DS_Store
+Thumbs.db

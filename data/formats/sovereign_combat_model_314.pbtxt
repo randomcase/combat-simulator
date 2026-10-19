@@ -1,0 +1,107 @@
+character_profile {
+  field_id: 1
+  profile_id: "CHAR-001-GOOD-WARLOCK"
+  stat_weight_pi: 9.42
+  armor_weight_pi: 1.57
+  weapon_weight_pi: 3.14
+  vfx_emitter: SPARKLES_AND_MISSILES
+}
+
+character_profile {
+  field_id: 2
+  profile_id: "CHAR-002-BADR-313-VANGUARD"
+  stat_weight_pi: 6.28
+  armor_weight_pi: 3.14
+  weapon_weight_pi: 2.51
+  vfx_emitter: SWORD_SWIPE
+}
+
+character_profile {
+  field_id: 3
+  profile_id: "CHAR-003-MAMLUK-LANCER"
+  stat_weight_pi: 6.28
+  armor_weight_pi: 4.71
+  weapon_weight_pi: 3.14
+  vfx_emitter: CAVALRY_CHARGE
+}
+
+character_profile {
+  field_id: 4
+  profile_id: "CHAR-004-BIMARISTAN-HEALER"
+  stat_weight_pi: 4.71
+  armor_weight_pi: 1.25
+  weapon_weight_pi: 0.94
+  vfx_emitter: SPARKLES_AND_VINEGAR_MIST
+}
+
+character_profile {
+  field_id: 5
+  profile_id: "CHAR-005-INBIQ-ALCHEMIST"
+  stat_weight_pi: 4.71
+  armor_weight_pi: 1.88
+  weapon_weight_pi: 1.57
+  vfx_emitter: MISSILES_AND_CLOUDS
+}
+
+character_profile {
+  field_id: 6
+  profile_id: "CHAR-006-QAWS-SNIPER"
+  stat_weight_pi: 4.71
+  armor_weight_pi: 1.57
+  weapon_weight_pi: 1.25
+  vfx_emitter: ARROWS
+}
+
+character_profile {
+  field_id: 7
+  profile_id: "CHAR-007-MANJANIQ-SAPPER"
+  stat_weight_pi: 6.28
+  armor_weight_pi: 3.77
+  weapon_weight_pi: 9.42
+  vfx_emitter: MISSILES
+}
+
+character_profile {
+  field_id: 8
+  profile_id: "CHAR-008-RIBAT-MILITIA"
+  stat_weight_pi: 4.71
+  armor_weight_pi: 3.14
+  weapon_weight_pi: 2.2
+  vfx_emitter: SWORD_SWIPE_AND_SPARKLES
+}
+
+character_profile {
+  field_id: 9
+  profile_id: "CHAR-009-CARAVAN-EXPLORER"
+  stat_weight_pi: 4.71
+  armor_weight_pi: 1.25
+  weapon_weight_pi: 0.94
+  vfx_emitter: SPARKLES
+}
+
+character_profile {
+  field_id: 10
+  profile_id: "CHAR-010-OMANI-MARINER"
+  stat_weight_pi: 5.34
+  armor_weight_pi: 1.88
+  weapon_weight_pi: 2.51
+  vfx_emitter: MISSILES_AND_SPARKLES
+}
+
+character_profile {
+  field_id: 11
+  profile_id: "CHAR-011-SYNDICATION-SORCERER"
+  stat_weight_pi: 4.71
+  armor_weight_pi: 1.57
+  weapon_weight_pi: 1.88
+  vfx_emitter: POISON_CLOUD_AND_MISSILES
+}
+
+character_profile {
+  field_id: 12
+  profile_id: "CHAR-012-IMPERIAL-CATAPHRACT"
+  stat_weight_pi: 5.65
+  armor_weight_pi: 4.4
+  weapon_weight_pi: 3.14
+  vfx_emitter: SWORD_SWIPE_AND_ARROWS
+}

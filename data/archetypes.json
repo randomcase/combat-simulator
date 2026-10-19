@@ -1,0 +1,373 @@
+{
+  "schema_version": "1.0.0",
+  "model_type": "ECAT-ARCHETYPE-LDM",
+  "description": "Entity-Component-Attribute Tensor (ECAT) & Utility AI Behavior Decision Matrix (UABDM) Archetype Catalog",
+  "archetypes": [
+    {
+      "id": "ARCH_VANGUARD",
+      "name": "Aegis Juggernaut",
+      "class_role": "Vanguard / Tank",
+      "armor_type": "HEAVY_PLATE",
+      "corrected_policy_enabled": true,
+      "base_attributes": {
+        "max_hp": 2400.0,
+        "max_stamina": 180.0,
+        "max_mana": 100.0,
+        "attack_power": 115.0,
+        "spell_power": 60.0,
+        "armor": 195.0,
+        "magic_resist": 135.0,
+        "crit_chance": 0.12,
+        "crit_multiplier": 1.65,
+        "evasion": 0.05,
+        "accuracy": 0.94,
+        "attack_speed": 0.90,
+        "move_speed": 4.2,
+        "max_poise": 160.0,
+        "tenacity": 0.45,
+        "armor_penetration": 0.10,
+        "magic_penetration": 0.05,
+        "stamina_regen": 14.0,
+        "mana_regen": 6.0
+      },
+      "ai_profile": {
+        "style": "DEFENSIVE_COUNTER",
+        "aggression_weight": 0.45,
+        "preservation_weight": 0.90,
+        "resource_conservation": 0.70,
+        "execute_threshold": 0.20,
+        "preferred_range": "MELEE"
+      },
+      "default_commands": [
+        "CMD_SHIELD_SLAM",
+        "CMD_IRON_BULWARK",
+        "CMD_SEISMIC_CLEAVE",
+        "CMD_SHUNT_ATTENUATE",
+        "CMD_BASIC_STRIKE",
+        "CMD_GUARD_STANCE"
+      ],
+      "sub_archetypes": [
+        {
+          "id": "SUB_VANGUARD_CITADEL",
+          "name": "Citadel Warden",
+          "stat_multipliers": { "max_hp": 1.18, "armor": 1.25, "attack_power": 0.90 }
+        },
+        {
+          "id": "SUB_VANGUARD_COLOSSUS",
+          "name": "Colossus Breaker",
+          "stat_multipliers": { "max_hp": 1.08, "attack_power": 1.18, "max_poise": 1.20 }
+        },
+        {
+          "id": "SUB_VANGUARD_TEMPLAR",
+          "name": "Runic Templar",
+          "stat_multipliers": { "magic_resist": 1.35, "spell_power": 1.30, "max_mana": 1.25 }
+        }
+      ]
+    },
+    {
+      "id": "ARCH_BERSERKER",
+      "name": "Crimson Ravager",
+      "class_role": "Berserker / Bruiser",
+      "armor_type": "MEDIUM_MAIL",
+      "corrected_policy_enabled": true,
+      "base_attributes": {
+        "max_hp": 1950.0,
+        "max_stamina": 220.0,
+        "max_mana": 80.0,
+        "attack_power": 168.0,
+        "spell_power": 40.0,
+        "armor": 110.0,
+        "magic_resist": 85.0,
+        "crit_chance": 0.28,
+        "crit_multiplier": 2.05,
+        "evasion": 0.10,
+        "accuracy": 0.91,
+        "attack_speed": 1.25,
+        "move_speed": 5.4,
+        "max_poise": 125.0,
+        "tenacity": 0.30,
+        "armor_penetration": 0.32,
+        "magic_penetration": 0.0,
+        "stamina_regen": 18.0,
+        "mana_regen": 5.0
+      },
+      "ai_profile": {
+        "style": "RELENTLESS_PRESSURE",
+        "aggression_weight": 0.95,
+        "preservation_weight": 0.30,
+        "resource_conservation": 0.35,
+        "execute_threshold": 0.30,
+        "preferred_range": "MELEE"
+      },
+      "default_commands": [
+        "CMD_BLOODLUST_FLURRY",
+        "CMD_RENDING_AXE",
+        "CMD_GUILLOTINE_DROP",
+        "CMD_ADRENALINE_SURGE",
+        "CMD_BASIC_STRIKE",
+        "CMD_RECKLESS_LUNGE"
+      ],
+      "sub_archetypes": [
+        {
+          "id": "SUB_BERSERKER_WARLORD",
+          "name": "Apex Warlord",
+          "stat_multipliers": { "attack_power": 1.15, "max_hp": 1.10, "armor": 1.10 }
+        },
+        {
+          "id": "SUB_BERSERKER_FRENZY",
+          "name": "Frenzy Dervish",
+          "stat_multipliers": { "attack_speed": 1.25, "crit_chance": 1.20, "armor": 0.85 }
+        },
+        {
+          "id": "SUB_BERSERKER_EXECUTIONER",
+          "name": "Dread Executioner",
+          "stat_multipliers": { "armor_penetration": 1.35, "crit_multiplier": 1.15 }
+        }
+      ]
+    },
+    {
+      "id": "ARCH_ARCANIST",
+      "name": "Chrono-Aether Weaver",
+      "class_role": "Arcanist / Control Mage",
+      "armor_type": "AETHER_SHROUD",
+      "corrected_policy_enabled": true,
+      "base_attributes": {
+        "max_hp": 1480.0,
+        "max_stamina": 130.0,
+        "max_mana": 280.0,
+        "attack_power": 55.0,
+        "spell_power": 195.0,
+        "armor": 70.0,
+        "magic_resist": 165.0,
+        "crit_chance": 0.24,
+        "crit_multiplier": 1.90,
+        "evasion": 0.14,
+        "accuracy": 0.97,
+        "attack_speed": 1.05,
+        "move_speed": 4.8,
+        "max_poise": 85.0,
+        "tenacity": 0.25,
+        "armor_penetration": 0.0,
+        "magic_penetration": 0.38,
+        "stamina_regen": 11.0,
+        "mana_regen": 22.0
+      },
+      "ai_profile": {
+        "style": "ZONING_BURST_CONTROL",
+        "aggression_weight": 0.75,
+        "preservation_weight": 0.75,
+        "resource_conservation": 0.65,
+        "execute_threshold": 0.25,
+        "preferred_range": "RANGED"
+      },
+      "default_commands": [
+        "CMD_AETHER_NOVA",
+        "CMD_CRYO_LANCE",
+        "CMD_ARCANE_SINGULARITY",
+        "CMD_OFFSET_BIAS_PULSE",
+        "CMD_MANA_BARRIER",
+        "CMD_VOLT_ARC"
+      ],
+      "sub_archetypes": [
+        {
+          "id": "SUB_ARCANIST_PYROMANCER",
+          "name": "Solar Pyromancer",
+          "stat_multipliers": { "spell_power": 1.22, "crit_multiplier": 1.12, "max_hp": 0.92 }
+        },
+        {
+          "id": "SUB_ARCANIST_CRYOMANCER",
+          "name": "Glacial Archon",
+          "stat_multipliers": { "armor": 1.30, "magic_resist": 1.15, "max_mana": 1.15 }
+        },
+        {
+          "id": "SUB_ARCANIST_VOIDCALLER",
+          "name": "Void Singularity Caller",
+          "stat_multipliers": { "magic_penetration": 1.30, "spell_power": 1.15 }
+        }
+      ]
+    },
+    {
+      "id": "ARCH_ASSASSIN",
+      "name": "Phantom Nightblade",
+      "class_role": "Assassin / Burst Duelist",
+      "armor_type": "LIGHT_LEATHER",
+      "corrected_policy_enabled": true,
+      "base_attributes": {
+        "max_hp": 1520.0,
+        "max_stamina": 240.0,
+        "max_mana": 120.0,
+        "attack_power": 175.0,
+        "spell_power": 95.0,
+        "armor": 82.0,
+        "magic_resist": 90.0,
+        "crit_chance": 0.42,
+        "crit_multiplier": 2.35,
+        "evasion": 0.26,
+        "accuracy": 0.98,
+        "attack_speed": 1.45,
+        "move_speed": 6.5,
+        "max_poise": 90.0,
+        "tenacity": 0.28,
+        "armor_penetration": 0.36,
+        "magic_penetration": 0.18,
+        "stamina_regen": 22.0,
+        "mana_regen": 10.0
+      },
+      "ai_profile": {
+        "style": "OPPORTUNISTIC_EXECUTION",
+        "aggression_weight": 0.88,
+        "preservation_weight": 0.60,
+        "resource_conservation": 0.50,
+        "execute_threshold": 0.35,
+        "preferred_range": "MELEE"
+      },
+      "default_commands": [
+        "CMD_PHANTOM_LUNGE",
+        "CMD_VENOM_DAGGER",
+        "CMD_DEATH_MARK_EXECUTE",
+        "CMD_SMOKE_EVASION",
+        "CMD_SHADOW_LACERATE",
+        "CMD_BASIC_STRIKE"
+      ],
+      "sub_archetypes": [
+        {
+          "id": "SUB_ASSASSIN_NIGHTBLADE",
+          "name": "Eclipse Nightblade",
+          "stat_multipliers": { "crit_chance": 1.18, "crit_multiplier": 1.15 }
+        },
+        {
+          "id": "SUB_ASSASSIN_VIPER",
+          "name": "Toxic Viper",
+          "stat_multipliers": { "attack_speed": 1.20, "spell_power": 1.30 }
+        },
+        {
+          "id": "SUB_ASSASSIN_DUELIST",
+          "name": "Mirage Riposte Duelist",
+          "stat_multipliers": { "evasion": 1.28, "max_poise": 1.25 }
+        }
+      ]
+    },
+    {
+      "id": "ARCH_TACTICIAN",
+      "name": "Brehon Arbiter",
+      "class_role": "Tactician / Matrix Stabilizer",
+      "armor_type": "COMPOSITE_REACTIVE",
+      "corrected_policy_enabled": true,
+      "base_attributes": {
+        "max_hp": 1880.0,
+        "max_stamina": 190.0,
+        "max_mana": 220.0,
+        "attack_power": 122.0,
+        "spell_power": 145.0,
+        "armor": 140.0,
+        "magic_resist": 145.0,
+        "crit_chance": 0.20,
+        "crit_multiplier": 1.80,
+        "evasion": 0.14,
+        "accuracy": 0.96,
+        "attack_speed": 1.12,
+        "move_speed": 5.0,
+        "max_poise": 135.0,
+        "tenacity": 0.48,
+        "armor_penetration": 0.18,
+        "magic_penetration": 0.22,
+        "stamina_regen": 16.0,
+        "mana_regen": 18.0
+      },
+      "ai_profile": {
+        "style": "ADAPTIVE_EQUILIBRIUM",
+        "aggression_weight": 0.65,
+        "preservation_weight": 0.85,
+        "resource_conservation": 0.80,
+        "execute_threshold": 0.25,
+        "preferred_range": "MID"
+      },
+      "default_commands": [
+        "CMD_JUDICIAL_DECREE",
+        "CMD_MATRIX_RECALIBRATE",
+        "CMD_HALBERD_SWEEP",
+        "CMD_OFFSET_BIAS_PULSE",
+        "CMD_SHUNT_ATTENUATE",
+        "CMD_BASIC_STRIKE"
+      ],
+      "sub_archetypes": [
+        {
+          "id": "SUB_TACTICIAN_JUSTICIAR",
+          "name": "High Justiciar",
+          "stat_multipliers": { "max_hp": 1.12, "armor": 1.15, "tenacity": 1.20 }
+        },
+        {
+          "id": "SUB_TACTICIAN_CHRONO",
+          "name": "Tempo Strategist",
+          "stat_multipliers": { "attack_speed": 1.18, "mana_regen": 1.25, "evasion": 1.15 }
+        },
+        {
+          "id": "SUB_TACTICIAN_INQUISITOR",
+          "name": "Logic Inquisitor",
+          "stat_multipliers": { "spell_power": 1.20, "magic_penetration": 1.25 }
+        }
+      ]
+    },
+    {
+      "id": "ARCH_SENTINEL",
+      "name": "Sovereign Orion Sentinel",
+      "class_role": "Sovereign Hybrid / Apex Vanguard",
+      "armor_type": "SOVEREIGN_AEGIS",
+      "corrected_policy_enabled": true,
+      "base_attributes": {
+        "max_hp": 2150.0,
+        "max_stamina": 210.0,
+        "max_mana": 200.0,
+        "attack_power": 152.0,
+        "spell_power": 150.0,
+        "armor": 155.0,
+        "magic_resist": 155.0,
+        "crit_chance": 0.26,
+        "crit_multiplier": 1.95,
+        "evasion": 0.15,
+        "accuracy": 0.97,
+        "attack_speed": 1.18,
+        "move_speed": 5.5,
+        "max_poise": 150.0,
+        "tenacity": 0.50,
+        "armor_penetration": 0.25,
+        "magic_penetration": 0.25,
+        "stamina_regen": 18.0,
+        "mana_regen": 16.0
+      },
+      "ai_profile": {
+        "style": "SOVEREIGN_OVERRIDE",
+        "aggression_weight": 0.80,
+        "preservation_weight": 0.82,
+        "resource_conservation": 0.75,
+        "execute_threshold": 0.28,
+        "preferred_range": "ALL"
+      },
+      "default_commands": [
+        "CMD_ORION_STARFALL",
+        "CMD_SOVEREIGN_VERDICT",
+        "CMD_POSSIBILITY_PURGE",
+        "CMD_SHUNT_ATTENUATE",
+        "CMD_SEISMIC_CLEAVE",
+        "CMD_BASIC_STRIKE"
+      ],
+      "sub_archetypes": [
+        {
+          "id": "SUB_SENTINEL_ROMULUS",
+          "name": "Romulus Template Architect",
+          "stat_multipliers": { "spell_power": 1.18, "armor": 1.12, "max_mana": 1.15 }
+        },
+        {
+          "id": "SUB_SENTINEL_REMUS",
+          "name": "Remus Boundary Auditor",
+          "stat_multipliers": { "attack_power": 1.18, "attack_speed": 1.12, "armor_penetration": 1.15 }
+        },
+        {
+          "id": "SUB_SENTINEL_APEX",
+          "name": "N0 Sovereign Prime",
+          "stat_multipliers": { "max_hp": 1.10, "attack_power": 1.10, "spell_power": 1.10 }
+        }
+      ]
+    }
+  ]
+}
