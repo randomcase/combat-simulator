@@ -2027,4 +2027,109 @@
       combatStyleDesc: "360° (2π) Full-Circle Sovereign Apex (1130.40° ×3.14 | 1130.97° ×π | 720° Spinor): Completes all 6 Equilateral Domains."
     }
   ];
+
+  /* ==========================================================================
+   * DECLARATIVE STUDIO HEADER, TELEMETRY, TABS, MODES, TOOLS & ACTIONS SCHEMA
+   * Abstracts all top-of-screen chrome into a clean data-driven specification
+   * ========================================================================== */
+  window.SOV_STUDIO_HEADER_SCHEMA = {
+    telemetryCards: [
+      {
+        id: "TEL_GLOBAL_PHASE",
+        label: "1. Global π Phase (θ°)",
+        valId: "hudGlobalAngleVal",
+        defaultVal: "248.4° (1.38π)",
+        rateId: "hudGlobalAnglePct",
+        defaultRate: "69% of 2π",
+        tooltip: "Global 3.14π Circular Phase Angle (0° → 360° / 0 → 2π rad)"
+      },
+      {
+        id: "TEL_COMPLETIONS",
+        label: "2. 360° (2π) Completions",
+        valId: "hudCompletedCirclesVal",
+        defaultVal: "12 Circles",
+        rateId: "hudCompletedCirclesRate",
+        defaultRate: "3.14x Pulse",
+        tooltip: "Completed 360° (2π) Full-Circle Combat Revolutions & 3.14x Completion Surge"
+      },
+      {
+        id: "TEL_TORQUE",
+        label: "3. Torque τ_π & Incidence φ°",
+        valId: "hudTorqueImpactVal",
+        defaultVal: "54.2 N·m·π",
+        rateId: "hudIncidenceVal",
+        defaultRate: "@ φ=135°",
+        tooltip: "Real-Time Procedural Tangential Torque Impact (τ_π) & Incidence Angle (φ°)"
+      },
+      {
+        id: "TEL_COMMAND_ARC",
+        label: "4. Command Arc (Δθ° & ω)",
+        valId: "hudSweepArcVal",
+        defaultVal: "DEFEND Δ180°",
+        rateId: "hudAngularSpeedVal",
+        defaultRate: "ω=130°/s",
+        tooltip: "Active Unit Command Sweep Arc Span (Δθ°) & Angular Velocity (ω °/s)"
+      },
+      {
+        id: "TEL_RESONANCE",
+        label: "5. Resonance & Orbit Ring",
+        valId: "hudResonanceHudVal",
+        defaultVal: "1.45x (VANGUARD)",
+        rateId: "hudOrbitRingHudVal",
+        defaultRate: "r=2.00π",
+        tooltip: "Selected Unit Archetype Resonance Multiplier & Concentric Orbit Ring (r·π)"
+      },
+      {
+        id: "TEL_AGENCY_GATE",
+        label: "6. Pre-Thought Agency Gate",
+        valId: "hudAgencyGateVal",
+        defaultVal: "01. Al-Mudabbir",
+        rateId: "hudAgencyCycleVal",
+        defaultRate: "(0° | #1)",
+        tooltip: "Pre-Thought Repository Agency Gate (12 Embedded MDs in agency/)"
+      }
+    ],
+    studioTabs: [
+      { id: "ALL", label: "🧭 All", active: true },
+      { id: "VIEWPORTS", label: "⭕ 4 Viewports" },
+      { id: "AGENCY", label: "♊ 12 Agents" },
+      { id: "COMMAND_FORGE", label: "⚡ Command Forge" },
+      { id: "TOURNAMENT", label: "🎲 Clash & MC" },
+      { id: "CASTLE_GOV", label: "🏰 Throne" },
+      { id: "LDM_LIBRARY", label: "📦 12 LDM & 68 Tomes" }
+    ],
+    combatModes: [
+      { id: "WORLD", label: "🌍 Mode: Circular World Rings" },
+      { id: "RPG", label: "🧙‍♂️ Mode: RPG Warlock Orbit" },
+      { id: "TD", label: "🗼 Mode: 360° Ribāṭ Defense" },
+      { id: "TDM", label: "⚔️ Mode: Concentric Ring TDM" },
+      { id: "BRAWL", label: "🛡️ Mode: Mubārazah 314° Duel" },
+      { id: "AMBUSH", label: "🐪 Mode: Orbital Caravan Rescue" },
+      { id: "SIEGE", label: "🏰 Mode: Concentric Castle Siege" }
+    ],
+    canvasTools: [
+      { id: "INSPECT", label: "🔍 Click: Polar Inspect (r·π, θ°)" },
+      { id: "SPAWN_UNIT", label: "🚀 Click: Spawn Unit on Ring" },
+      { id: "BUILD_TOWER", label: "🗼 Click: Build 360° Tower" }
+    ],
+    circularActions: [
+      { id: "PULSE_360", label: "⭕ 360° (2π) Completion Pulse (3.14x)" },
+      { id: "SWORD_SWIPE", label: "⚔️ 314° Damascus Cleave" },
+      { id: "ARROWS", label: "🏹 120° Composite Arrow Cone" },
+      { id: "MISSILES", label: "☄️ 90° Qumqum Vortex Salvo" },
+      { id: "POISON_VINEGAR", label: "☁️ 360° Blessed Vinegar Ring" },
+      { id: "MAMLUK_CHARGE", label: "🐎 180° Mamlūk Spiral Flank" },
+      { id: "AGENCY_AUTOTUNE", label: "♊ Run 12-Agent Pre-Thought Auto-Tune" }
+    ],
+    eraOptions: [
+      { value: "0", label: "Era I (624 CE): Badr 313 Sanctuary" },
+      { value: "1", label: "Era II (636 CE): Yarmūk & Jerusalem" },
+      { value: "2", label: "Era III (711 CE): Al-Andalus (Spain)" },
+      { value: "3", label: "Era IV (800 CE): Baghdad Bayt al-Ḥikmah" },
+      { value: "4", label: "Era V (1187–1260 CE): Ḥiṭṭīn & Mamlūks" },
+      { value: "5", label: "Era VI (1453–1600 CE): Şahi Bombards" },
+      { value: "6", label: "Era VII (1650–1850 CE): Omani Dhows" },
+      { value: "7", label: "Era VIII (2026+ CE): 57-Nation Priory" }
+    ]
+  };
 })();

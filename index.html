@@ -8,130 +8,33 @@
 </head>
 <body>
   <!-- ========================================================================
-       SINGLE-ROW RELEVANT TELEMETRY BAR: 3.14π CIRCULAR COMBAT, DEGREES & AGENCY
+       ABSTRACTED UNIFIED STUDIO HEADER MOUNT (DATA-DRIVEN TELEMETRY & RIBBON)
+       Rendered dynamically by renderAbstractedStudioChrome() from studio-data.js
        ======================================================================== -->
-  <div class="hud-sticky-bar">
-    <div class="hud-inner">
-      <div class="hud-metric" title="Global 3.14π Circular Phase Angle (0° → 360° / 0 → 2π rad)">
-        <div class="hud-metric-label">1. Global π Phase (θ° / rad)</div>
-        <div><span id="hudGlobalAngleVal" class="hud-metric-val">248.4° (1.38π)</span> <span id="hudGlobalAnglePct" class="hud-metric-rate">69% of 2π</span></div>
-      </div>
-      <div class="hud-metric" title="Completed 360° (2π) Full-Circle Combat Revolutions & 3.14x Completion Surge">
-        <div class="hud-metric-label">2. 360° (2π) Completions</div>
-        <div><span id="hudCompletedCirclesVal" class="hud-metric-val">12 Circles</span> <span id="hudCompletedCirclesRate" class="hud-metric-rate">(3.14x Pulse)</span></div>
-      </div>
-      <div class="hud-metric" title="Real-Time Procedural Tangential Torque Impact (τ_π) & Incidence Angle (φ°)">
-        <div class="hud-metric-label">3. Procedural Torque &amp; φ°</div>
-        <div><span id="hudTorqueImpactVal" class="hud-metric-val">54.2 N·m·π</span> <span id="hudIncidenceVal" class="hud-metric-rate">@ φ=135°</span></div>
-      </div>
-      <div class="hud-metric" title="Active Unit Command Sweep Arc Span (Δθ°) & Angular Velocity (ω °/s)">
-        <div class="hud-metric-label">4. Command Arc (Δθ° &amp; ω)</div>
-        <div><span id="hudSweepArcVal" class="hud-metric-val">DEFEND Δ180°</span> <span id="hudAngularSpeedVal" class="hud-metric-rate">ω=130.5°/s</span></div>
-      </div>
-      <div class="hud-metric" title="Selected Unit Archetype Resonance Multiplier & Concentric Orbit Ring (r·π)">
-        <div class="hud-metric-label">5. Resonance &amp; Orbit Ring</div>
-        <div><span id="hudResonanceHudVal" class="hud-metric-val">1.45x (VANGUARD)</span> <span id="hudOrbitRingHudVal" class="hud-metric-rate">r=2.00π</span></div>
-      </div>
-      <div class="hud-metric" title="Pre-Thought Repository Agency Gate (12 Embedded MDs in agency/)">
-        <div class="hud-metric-label">6. Pre-Thought Agency Gate</div>
-        <div><span id="hudAgencyGateVal" class="hud-metric-val">01. Al-Mudabbir</span> <span id="hudAgencyCycleVal" class="hud-metric-rate">(0° | Cycle #1)</span></div>
-      </div>
-      <div class="hud-metric">
-        <div class="hud-metric-label">7. Canon Era &amp; SPC Limit-Cycle</div>
-        <select id="hudEraSelector" class="studio-select" onchange="window.SovGame.setContemporaryEra(this.value)">
-          <option value="0">Era I (624 CE): Badr 313 Sanctuary</option>
-          <option value="1">Era II (636 CE): Yarmūk &amp; Jerusalem</option>
-          <option value="2">Era III (711 CE): Al-Andalus (Spain)</option>
-          <option value="3">Era IV (800 CE): Baghdad Bayt al-Ḥikmah</option>
-          <option value="4">Era V (1187–1260 CE): Ḥiṭṭīn &amp; Mamlūks</option>
-          <option value="5">Era VI (1453–1600 CE): Şahi Bombards</option>
-          <option value="6">Era VII (1650–1850 CE): Omani Dhows</option>
-          <option value="7">Era VIII (2026+ CE): 57-Nation Priory</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <!-- Studio Perspective & Multi-Viewport Layout Switcher Bar -->
-  <nav class="studio-nav-ribbon">
-    <div class="studio-nav-inner">
-      <div class="studio-tab-group">
-        <span style="font-family:Consolas,monospace;font-size:0.68rem;color:#FDE68A;font-weight:700;margin-right:2px;">STUDIO:</span>
-        <button class="studio-tab-btn active" data-tab="ALL" onclick="window.SovGame.switchStudioTab('ALL')">🧭 All Panels</button>
-        <button class="studio-tab-btn" data-tab="VIEWPORTS" onclick="window.SovGame.switchStudioTab('VIEWPORTS')">⭕ 4 Circular Viewports</button>
-        <button class="studio-tab-btn" data-tab="AGENCY" onclick="window.SovGame.switchStudioTab('AGENCY')">♊ 12-Agent Agency (agency/*.md)</button>
-        <button class="studio-tab-btn" data-tab="COMMAND_FORGE" onclick="window.SovGame.switchStudioTab('COMMAND_FORGE')">⚡ Command Forge</button>
-        <button class="studio-tab-btn" data-tab="TOURNAMENT" onclick="window.SovGame.switchStudioTab('TOURNAMENT')">🎲 Circular Clash &amp; Monte Carlo</button>
-        <button class="studio-tab-btn" data-tab="CASTLE_GOV" onclick="window.SovGame.switchStudioTab('CASTLE_GOV')">🏰 Throne &amp; Caravans</button>
-        <button class="studio-tab-btn" data-tab="LDM_LIBRARY" onclick="window.SovGame.switchStudioTab('LDM_LIBRARY')">📦 12 LDM &amp; 68 Tomes</button>
-      </div>
-      <div class="studio-layout-group">
-        <span class="badge badge-emerald" style="font-family:Consolas,monospace;font-size:0.66rem;" title="Live Polar Gemini SPC Limit-Cycle Attractor">♊ SPC: <strong id="hudSpcBadgeVal">S0 (Cp=1.62 | σ=0.42 | θ=0°)</strong></span>
-        <button id="layoutBtn_1x" class="btn btn-sm" onclick="window.SovGame.setViewportLayout('1x')">1x Arena</button>
-        <button id="layoutBtn_2x" class="btn btn-sm active" onclick="window.SovGame.setViewportLayout('2x')">2x Arena + 360°</button>
-        <button id="layoutBtn_4x" class="btn btn-sm" onclick="window.SovGame.setViewportLayout('4x')">4x Quad</button>
-        <button id="theaterToggleBtn" class="btn btn-sm btn-sapphire" onclick="window.SovGame.toggleTheaterExpanded()">↔ Full-Width</button>
-      </div>
-    </div>
-  </nav>
+  <header id="sovereignStudioHeaderMount" class="hud-sticky-bar"></header>
 
   <div class="container">
     <!-- ======================================================================
          STUDIO SECTION 1: ABOVE-THE-FOLD 3.14π CIRCULAR VIEWPORTS & DEGREES HUD
          ====================================================================== -->
     <section id="studioSec_VIEWPORTS" class="studio-section">
-      <!-- Compact Circular Combat, Degree & Agency Control Deck -->
-      <div class="panel" style="margin-bottom:0.55rem;padding:0.42rem 0.7rem;">
-        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.3rem;margin-bottom:0.32rem;">
-          <div class="btn-row">
-            <button id="modeBtn_WORLD" class="btn btn-sm active" onclick="window.SovGame.setCombatMode('WORLD')">🌍 World Rings</button>
-            <button id="modeBtn_RPG" class="btn btn-sm" onclick="window.SovGame.setCombatMode('RPG')">🧙‍♂️ RPG Orbit</button>
-            <button id="modeBtn_TD" class="btn btn-sm" onclick="window.SovGame.setCombatMode('TD')">🗼 360° Ribāṭ TD</button>
-            <button id="modeBtn_TDM" class="btn btn-sm" onclick="window.SovGame.setCombatMode('TDM')">⚔️ Ring TDM</button>
-            <button id="modeBtn_BRAWL" class="btn btn-sm" onclick="window.SovGame.setCombatMode('BRAWL')">🛡️ 314° Duel</button>
-            <button id="modeBtn_AMBUSH" class="btn btn-sm" onclick="window.SovGame.setCombatMode('AMBUSH')">🐪 Orbital Rescue</button>
-            <button id="modeBtn_SIEGE" class="btn btn-sm" onclick="window.SovGame.setCombatMode('SIEGE')">🏰 Concentric Siege</button>
-          </div>
-          <div class="btn-row">
-            <button id="clickTool_INSPECT" class="btn btn-sm active" onclick="window.SovGame.setCanvasClickTool('INSPECT')">🔍 Polar Inspect (r·π, θ°)</button>
-            <button id="clickTool_SPAWN_UNIT" class="btn btn-sm btn-emerald" onclick="window.SovGame.setCanvasClickTool('SPAWN_UNIT')">🚀 Spawn on Ring</button>
-            <button id="clickTool_BUILD_TOWER" class="btn btn-sm btn-sapphire" onclick="window.SovGame.setCanvasClickTool('BUILD_TOWER')">🗼 360° Tower</button>
-            <button id="toggleAStarBtn" class="btn btn-sm active" onclick="window.SovGame.toggleAStarGrid()">📐 24-Spoke Protractor</button>
-          </div>
+      <!-- Collapsible 4 Concept Art Plates Drawer (Toggled from Header Ribbon) -->
+      <div id="conceptPlatesDrawer" class="plates-grid-4" style="display:none;margin-bottom:0.65rem;">
+        <div class="plate-card">
+          <img src="images/castle_game_plate_1_single_castle_sanctuary.jpg" alt="Plate 1: The Single Castle Sanctuary" />
+          <div class="plate-body"><div class="plate-title">Plate I — Single Castle 0.00π Core &amp; 68-Tome Library</div></div>
         </div>
-        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.3rem;">
-          <div class="btn-row">
-            <button class="btn btn-sm btn-emerald" onclick="window.SovGame.triggerGlobal360CompletionPulse()">⭕ 360° (2π) Completion Pulse (3.14x)</button>
-            <button class="btn btn-sm btn-crimson" onclick="window.SovGame.triggerVfxBurst('SWORD_SWIPE')">⚔️ 314° Cleave</button>
-            <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.triggerVfxBurst('ARROWS')">🏹 120° Cone</button>
-            <button class="btn btn-sm" onclick="window.SovGame.triggerVfxBurst('MISSILES')">☄️ 90° Vortex</button>
-            <button class="btn btn-sm" onclick="window.SovGame.triggerVfxBurst('POISON_VINEGAR')">☁️ 360° Vinegar</button>
-            <button class="btn btn-sm btn-crimson" onclick="window.SovGame.triggerVfxBurst('MAMLUK_CHARGE')">🐎 180° Flank</button>
-          </div>
-          <div class="btn-row">
-            <button class="btn btn-sm btn-emerald" onclick="window.SovGame.runFull360AgencyAutoTune()">♊ 12-Agent Pre-Thought Auto-Tune</button>
-            <button class="btn btn-sm" onclick="const d=document.getElementById('conceptPlatesDrawer');d.style.display=d.style.display==='none'?'grid':'none';">🖼️ 4 Art Plates</button>
-          </div>
+        <div class="plate-card">
+          <img src="images/castle_game_plate_2_3d_unit_sprite_atlas.jpg" alt="Plate 2: 3D Unit Sprite Atlas" />
+          <div class="plate-body"><div class="plate-title">Plate II — 3D Sprite Atlas: Good Warlock, Mamlūks &amp; 313 Defenders</div></div>
         </div>
-
-        <!-- Collapsible 4 Concept Art Plates Drawer -->
-        <div id="conceptPlatesDrawer" class="plates-grid-4" style="display:none;margin-top:0.65rem;">
-          <div class="plate-card">
-            <img src="images/castle_game_plate_1_single_castle_sanctuary.jpg" alt="Plate 1: The Single Castle Sanctuary" />
-            <div class="plate-body"><div class="plate-title">Plate I — Single Castle 0.00π Core &amp; 68-Tome Library</div></div>
-          </div>
-          <div class="plate-card">
-            <img src="images/castle_game_plate_2_3d_unit_sprite_atlas.jpg" alt="Plate 2: 3D Unit Sprite Atlas" />
-            <div class="plate-body"><div class="plate-title">Plate II — 3D Sprite Atlas: Good Warlock, Mamlūks &amp; 313 Defenders</div></div>
-          </div>
-          <div class="plate-card">
-            <img src="images/castle_game_plate_3_combat_vfx_siege_action.jpg" alt="Plate 3: Circular Combat VFX" />
-            <div class="plate-body"><div class="plate-title">Plate III — 314° Damascus Cleaves, 120° Volleys &amp; Vinegar Rings</div></div>
-          </div>
-          <div class="plate-card">
-            <img src="images/castle_game_plate_4_diplomacy_caravan_discovery.jpg" alt="Plate 4: Orbital Caravans & Diplomacy" />
-            <div class="plate-body"><div class="plate-title">Plate IV — 32-Bearing Compasses, Port Faires &amp; Rumored Kings</div></div>
-          </div>
+        <div class="plate-card">
+          <img src="images/castle_game_plate_3_combat_vfx_siege_action.jpg" alt="Plate 3: Circular Combat VFX" />
+          <div class="plate-body"><div class="plate-title">Plate III — 314° Damascus Cleaves, 120° Volleys &amp; Vinegar Rings</div></div>
+        </div>
+        <div class="plate-card">
+          <img src="images/castle_game_plate_4_diplomacy_caravan_discovery.jpg" alt="Plate 4: Orbital Caravans & Diplomacy" />
+          <div class="plate-body"><div class="plate-title">Plate IV — 32-Bearing Compasses, Port Faires &amp; Rumored Kings</div></div>
         </div>
       </div>
 

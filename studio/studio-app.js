@@ -577,10 +577,8 @@
 
     G.setCanvasClickTool = function (toolMode) {
       state.canvasClickTool = toolMode;
-      ["INSPECT", "SPAWN_UNIT", "BUILD_TOWER"].forEach(t => {
-        const b = document.getElementById("clickTool_" + t);
-        if (b) b.classList.toggle("active", t === toolMode);
-      });
+      const sel = document.getElementById("abstractToolSelect");
+      if (sel) sel.value = toolMode;
       addLog("Polar Canvas Click Tool set to: [" + toolMode + "]", "#FDE68A");
     };
 
@@ -654,10 +652,8 @@
 
     G.setCombatMode = function (mode) {
       state.combatMode = mode;
-      ["WORLD", "RPG", "TD", "TDM", "BRAWL", "AMBUSH", "SIEGE"].forEach(m => {
-        const b = document.getElementById("modeBtn_" + m);
-        if (b) b.classList.toggle("active", m === mode);
-      });
+      const sel = document.getElementById("abstractModeSelect");
+      if (sel) sel.value = mode;
       const readout = document.getElementById("canvasTopLeftReadout");
       if (readout) {
         readout.textContent = "3.14π Circular Mode: " + mode + " • 4 Concentric Rings (1π..4.71π) • 360° Protractor";
@@ -1960,12 +1956,90 @@
       addLog("Illuminated All 68 Portals in the Single Castle Library -> +3,140π Omniscient Circular Surge!", "#6EE7B7");
     };
 
+    /* ========================================================================
+     * DATA-DRIVEN ABSTRACTED STUDIO CHROME RENDERER & ACTION DISPATCHER
+     * Replaces hardcoded top bars & button walls with a unified component
+     * ======================================================================== */
+    function renderAbstractedStudioChrome() {
+      const mount = document.getElementById("sovereignStudioHeaderMount");
+      const schema = window.SOV_STUDIO_HEADER_SCHEMA;
+      if (!mount || !schema) return;
+
+      // 1. Render 6 Declarative Telemetry Cards + 7th Era Selector Card
+      const telemetryHtml = schema.telemetryCards.map(card =>
+        '<div class="hud-metric" title="' + card.tooltip + '">' +
+          '<div class="hud-metric-label">' + card.label + '</div>' +
+          '<div class="hud-metric-row">' +
+            '<span id="' + card.valId + '" class="hud-metric-val">' + card.defaultVal + '</span>' +
+            '<span id="' + card.rateId + '" class="hud-metric-rate">' + card.defaultRate + '</span>' +
+          '</div>' +
+        '</div>'
+      ).join("") +
+      '<div class="hud-metric" title="Select Contemporary Canon Era Palette">' +
+        '<div class="hud-metric-label">7. Canon Era Palette</div>' +
+        '<select id="hudEraSelector" class="studio-select" style="width:100%;padding:0.1rem 0.3rem;font-size:0.68rem;" onchange="window.SovGame.setContemporaryEra(this.value)">' +
+          schema.eraOptions.map(e => '<option value="' + e.value + '">' + e.label + '</option>').join("") +
+        '</select>' +
+      '</div>';
+
+      // 2. Render Studio Navigation Tabs
+      const tabsHtml = schema.studioTabs.map(t =>
+        '<button class="studio-tab-btn' + (t.active ? ' active' : '') + '" data-tab="' + t.id + '" onclick="window.SovGame.switchStudioTab(\'' + t.id + '\')">' +
+          t.label +
+        '</button>'
+      ).join("");
+
+      // 3. Render Abstracted Mode, Click Tool & Circular Action Selectors + Layout Controls
+      const modeOpts = schema.combatModes.map(m => '<option value="' + m.id + '">' + m.label + '</option>').join("");
+      const toolOpts = schema.canvasTools.map(t => '<option value="' + t.id + '">' + t.label + '</option>').join("");
+      const actionOpts = schema.circularActions.map(a => '<option value="' + a.id + '">' + a.label + '</option>').join("");
+
+      mount.innerHTML =
+        '<div class="hud-inner">' + telemetryHtml + '</div>' +
+        '<nav class="studio-nav-ribbon">' +
+          '<div class="studio-nav-inner">' +
+            '<div class="studio-tab-group">' + tabsHtml + '</div>' +
+            '<div class="studio-layout-group">' +
+              '<select id="abstractModeSelect" class="studio-select" style="padding:0.14rem 0.38rem;font-size:0.68rem;color:#FDE68A;font-weight:700;" onchange="window.SovGame.setCombatMode(this.value)">' +
+                modeOpts +
+              '</select>' +
+              '<select id="abstractToolSelect" class="studio-select" style="padding:0.14rem 0.38rem;font-size:0.68rem;color:#6EE7B7;" onchange="window.SovGame.setCanvasClickTool(this.value)">' +
+                toolOpts +
+              '</select>' +
+              '<select id="abstractActionSelect" class="studio-select" style="padding:0.14rem 0.38rem;font-size:0.68rem;color:#93C5FD;">' +
+                actionOpts +
+              '</select>' +
+              '<button class="btn btn-sm btn-emerald" onclick="window.SovGame.executeAbstractAction()">⚡ Pulse</button>' +
+              '<span class="badge badge-emerald" style="font-family:Consolas,monospace;font-size:0.64rem;" title="Polar Gemini SPC Limit-Cycle">♊ <strong id="hudSpcBadgeVal">S0 Cp=1.62 σ=0.42</strong></span>' +
+              '<button id="layoutBtn_1x" class="btn btn-sm" onclick="window.SovGame.setViewportLayout(\'1x\')">1x</button>' +
+              '<button id="layoutBtn_2x" class="btn btn-sm active" onclick="window.SovGame.setViewportLayout(\'2x\')">2x</button>' +
+              '<button id="layoutBtn_4x" class="btn btn-sm" onclick="window.SovGame.setViewportLayout(\'4x\')">4x</button>' +
+              '<button id="toggleAStarBtn" class="btn btn-sm active" onclick="window.SovGame.toggleAStarGrid()" title="Toggle 24-Spoke Degree Protractor">📐</button>' +
+              '<button class="btn btn-sm" onclick="const d=document.getElementById(\'conceptPlatesDrawer\');if(d)d.style.display=d.style.display===\'none\'?\'grid\':\'none\';" title="Toggle 4 Concept Art Plates">🖼️</button>' +
+              '<button id="theaterToggleBtn" class="btn btn-sm btn-sapphire" onclick="window.SovGame.toggleTheaterExpanded()" title="Full-Width Theater">↔</button>' +
+            '</div>' +
+          '</div>' +
+        '</nav>';
+    }
+
+    G.executeAbstractAction = function (actionIdOverride) {
+      const act = actionIdOverride || document.getElementById("abstractActionSelect")?.value || "PULSE_360";
+      if (act === "PULSE_360") {
+        G.triggerGlobal360CompletionPulse();
+      } else if (act === "AGENCY_AUTOTUNE") {
+        G.runFull360AgencyAutoTune();
+      } else {
+        G.triggerVfxBurst(act);
+      }
+    };
+
     const dslArea = document.getElementById("dslScriptEditorArea");
     if (dslArea && window.SOV_DEFAULT_DSL_SCRIPT) {
       dslArea.value = window.SOV_DEFAULT_DSL_SCRIPT;
     }
 
     // Initial Pre-Thought Gate & Data-Driven Render
+    renderAbstractedStudioChrome();
     renderAgencyCouncilUI();
     renderProfilesTableAndSelects();
     refreshCommandUI();
@@ -1999,12 +2073,12 @@
       // 1. Global π Phase Angle (0°..360° / 0..2π rad)
       const gDeg = +(state.globalPhaseDeg || 0).toFixed(1);
       const gRadPi = (gDeg / 180).toFixed(2);
-      setTxt("hudGlobalAngleVal", gDeg + "° (" + gRadPi + "π rad)");
+      setTxt("hudGlobalAngleVal", gDeg + "° (" + gRadPi + "π)");
       setTxt("hudGlobalAnglePct", Math.round((gDeg / 360) * 100) + "% of 2π");
 
       // 2. Completed 360° (2π) Combat Cycles
       setTxt("hudCompletedCirclesVal", state.totalCompletedCircles + " Circles");
-      setTxt("hudCompletedCirclesRate", "(3.14x Pulse Active)");
+      setTxt("hudCompletedCirclesRate", "3.14x Pulse");
 
       // 3. Procedural Angular Impact (Torque τ_π & Incidence φ°)
       setTxt("hudTorqueImpactVal", state.meanTorquePi + " N·m·π");
@@ -2013,7 +2087,7 @@
       // 4. Active Command Sweep Arc (Δθ° & ω)
       if (u) {
         setTxt("hudSweepArcVal", u.verb + " Δ" + (u.arcDegrees || 180) + "°");
-        setTxt("hudAngularSpeedVal", "ω=" + (u.angularVelocityDeg || 120) + "°/s");
+        setTxt("hudAngularSpeedVal", "ω=" + Math.round(u.angularVelocityDeg || 120) + "°/s");
         setTxt("hudResonanceHudVal", u.activeResonance.toFixed(2) + "x (" + u.coreArchetype.replace("ARCH_", "") + ")");
         setTxt("hudOrbitRingHudVal", "r=" + (u.orbitRadiusPi || 2.0).toFixed(2) + "π");
       }
@@ -2023,7 +2097,7 @@
         const stepRes = window.SovAgencyEngine.stepCircularAutoTune(G, false);
         if (stepRes && stepRes.activeAgent) {
           setTxt("hudAgencyGateVal", stepRes.activeAgent.shortName.split("(")[0].trim());
-          setTxt("hudAgencyCycleVal", "(" + stepRes.activeAgent.angleDeg + "° | Cycle #" + stepRes.completedCycles + ")");
+          setTxt("hudAgencyCycleVal", "(" + stepRes.activeAgent.angleDeg + "° | #" + stepRes.completedCycles + ")");
         }
         renderAgencyCouncilUI();
       }
@@ -2037,7 +2111,7 @@
 
       if (window.SovCommandEngine) {
         const spc = window.SovCommandEngine.spcEngine;
-        setTxt("hudSpcBadgeVal", "S" + spc.stateIndex + " (Cp=" + spc.cp + " | σ=" + spc.sigma.toFixed(2) + " | θ=" + spc.phaseAngleDeg + "°)");
+        setTxt("hudSpcBadgeVal", "S" + spc.stateIndex + " Cp=" + spc.cp + " σ=" + spc.sigma.toFixed(2));
       }
     }, 300);
 

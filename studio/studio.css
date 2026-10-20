@@ -38,21 +38,21 @@ body {
   overflow-x: hidden;
 }
 
-/* Sticky Studio Top Telemetry & Layout Bar (Single-Row High-Density Grid) */
+/* Unified Sticky Studio Header (Row 1: 7 Telemetry Cards | Row 2: Abstracted Command Ribbon) */
 .hud-sticky-bar {
   position: sticky;
   top: 0;
   z-index: 9500;
-  background: linear-gradient(90deg, rgba(4, 7, 15, 0.98) 0%, rgba(12, 21, 42, 0.98) 50%, rgba(4, 7, 15, 0.98) 100%);
+  background: linear-gradient(180deg, rgba(5, 9, 20, 0.99) 0%, rgba(9, 16, 32, 0.98) 100%);
   border-bottom: 1px solid var(--gold);
   backdrop-filter: blur(12px);
-  padding: 0.28rem 0.75rem;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.75);
+  padding: 0.32rem 0.75rem 0.3rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
 }
 
 .hud-inner {
   max-width: 1860px;
-  margin: 0 auto;
+  margin: 0 auto 0.28rem;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   align-items: stretch;
@@ -67,73 +67,71 @@ body {
 
 .hud-metric {
   display: flex;
-  align-items: center;
-  background: rgba(17, 26, 46, 0.92);
-  border: 1px solid var(--border-gold);
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  background: rgba(15, 24, 44, 0.95);
+  border: 1px solid rgba(212, 175, 55, 0.32);
   border-radius: 6px;
-  padding: 0.18rem 0.45rem;
-  font-size: 0.7rem;
+  padding: 0.2rem 0.48rem;
   min-width: 0;
-  overflow: hidden;
-}
-
-.hud-metric > div {
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .hud-metric-label {
   color: var(--text-muted);
-  font-size: 0.58rem;
+  font-size: 0.57rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   line-height: 1.15;
+  margin-bottom: 1px;
+  white-space: nowrap;
+}
+
+.hud-metric-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem;
+  width: 100%;
+  white-space: nowrap;
 }
 
 .hud-metric-val {
   color: var(--gold-light);
   font-family: 'Consolas', monospace;
   font-weight: 700;
-  font-size: 0.76rem;
+  font-size: 0.74rem;
 }
 
 .hud-metric-rate {
   color: var(--emerald-light);
   font-family: 'Consolas', monospace;
-  font-size: 0.66rem;
+  font-size: 0.64rem;
 }
 
-/* Studio Workspace Navigation Ribbon (Single-Row Compact) */
+/* Unified Row 2 inside Sticky Header: Tabs + Abstracted Mode/Tool/Action Selectors + Layout */
 .studio-nav-ribbon {
-  background: rgba(8, 14, 28, 0.96);
-  border-bottom: 1px solid var(--border-gold);
-  padding: 0.28rem 0.75rem;
-  position: sticky;
-  top: 41px;
-  z-index: 9400;
-  backdrop-filter: blur(8px);
+  max-width: 1860px;
+  margin: 0 auto;
+  padding-top: 0.24rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .studio-nav-inner {
-  max-width: 1860px;
-  margin: 0 auto;
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.35rem;
-  overflow-x: auto;
+  gap: 0.32rem;
 }
 
 .studio-tab-group,
 .studio-layout-group {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.25rem;
-  white-space: nowrap;
+  gap: 0.22rem;
 }
 
 .studio-tab-btn {
