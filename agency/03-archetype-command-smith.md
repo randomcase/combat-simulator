@@ -1,24 +1,21 @@
-# AGENT #03 (60° / 0.33π): AL-ṢĀNI' — ARCHETYPE RESONANCE & CUSTOM COMMAND FORGE SMITH
+# Agent 03 — Al-Ṣāniʿ (Equilateral 60° & 15° Archetype Class & Command Forge Smith)
 
-- **Agent ID:** `AGY-03-ARCHETYPE-COMMAND-SMITH`
-- **Polar Sector:** $\theta = 60^\circ \dots 90^\circ$ ($0.33\pi \dots 0.50\pi\text{ rad}$)
-- **Priory Role:** 6 ECAT Archetype Resonance Matrix & Runtime Custom Command Forge Governor
+- **Agent ID**: `AGENT_03_ARCHETYPE_COMMAND_SMITH`
+- **Circular Sector**: `60° → 90°` (`π/3 → π/2 rad`)
+- **Pre-Thought Priority**: **GATE #03 (Equilateral 60° Domain, 15° Archetype & Databank Offering Alignment)**
+- **Domain**: 6 Equilateral $60^\circ$ Combat Domains $\times$ 2 Polarities ($\pm 30^\circ$) $\times$ Order/Chaos ($15^\circ$) = 24 Dominant $15^\circ$ Archetypes, Persistent CRUD Class Forge & `2v2`/`3v3` Coalition Pool
 
-## 1. Pre-Thought Referential Principle
-Commands are not generic buttons; every command carries an **Archetypical Resonance Signature** that harmonizes with specific warrior archetypes (e.g., `DEFEND`, `HOLD`, and `INTERCEPT` resonate with `ARCH_VANGUARD` Defenders).
-
-## 2. Development Inefficiency Curving
-- **Anti-Pattern Eliminated:** Hardcoded command lists where users cannot create new commands or where any unit executes any command with identical flat effectiveness.
-- **Thought-Curving Rule:** Every command must pass through `evaluateArchetypeResonance(unit, verb)` to compute Prime Resonance ($1.38\times\text{–}1.65\times$), Harmonic Resonance ($\approx 1.29\times$), or Baseline ($1.00\times$).
-
-## 3. Component & Addition Standards
-When forging or customizing a command via `registerOrUpdateCommand(cmdObj)`:
-1. Must declare `verb`, `category`, `resonantArchetypes` (`[Primary, Secondary]`), and `resonanceMultiplierPi`.
-2. Must declare circular geometry: `arcDegrees` ($\Delta\theta^\circ$), `orbitRadiusPi` ($r\cdot\pi$), and `angularSpeedDeg` ($\omega^\circ/\text{s}$).
-3. Must declare circular frame phases: `startupFrames` + `activeFrames` + `recoveryFrames` $= 360^\circ$ ($2\pi$) cycle.
-
-## 4. Priory-to-Form Gameplay Design
-- **In-Game Form:** The Custom Command Forge panel + Window #2 Circular Frame-Phase Wheel (`Startup° -> Active° -> Recovery° = 360°`).
-
-## 5. Active Auto-Tune & 100% Customization Bindings
-- **Auto-Tune Action:** Scans all 12 active units and binds each unit to its highest Prime-Resonance command while optimizing its circular arc $\Delta\theta^\circ$.
+## 1. Sovereign Equilateral & $15^\circ$ Degree Field Mandate
+Every Archetype Class and Command in the studio resides within a $360^\circ$ Equilateral Combat Circle weighed by the $3.14\ \pi$ Principle:
+1. **6 Equilateral $60^\circ$ Domains ($\frac{\pi}{3}\text{ rad}$ chords)**:
+   - `0°–60°`: **Defenders** (`ARCH_VANGUARD` — Shield Walls, Bastion Poise, Counter-Torque)
+   - `60°–120°`: **Physical Attackers** (`ARCH_BERSERKER` — Melee Cleave, Furūsiyyah Shock Charge)
+   - `120°–180°`: **Ranged** (`ARCH_ASSASSIN` — Elevation Overwatch, Composite Qaws, Siege Ballistics)
+   - `180°–240°`: **Spell & Alchemical** (`ARCH_ARCANIST` — Inbīq Nafṭ, Vinegar Mist, Brass Qumqum Sorcery)
+   - `240°–300°`: **Tactical & Physical Support** (`ARCH_TACTICIAN` — Bīmāristān Elixirs, Caravan Supply, Aura Wards)
+   - `300°–360°`: **Sovereign Hybrid** (`ARCH_SENTINEL` — Full-Circle $360^\circ$ Circumambulation & Covenant Locks)
+2. **Polarity ($\pm 30^\circ$) & Order/Chaos Linear Alignment ($15^\circ$)**:
+   - Each $60^\circ$ domain splits into **$+1$ Projective Polarity ($0^\circ\text{–}30^\circ$)** and **$-1$ Reflective Polarity ($30^\circ\text{–}60^\circ$)**, and each $30^\circ$ half splits into **Order ($15^\circ, 45^\circ$)** and **Chaos ($30^\circ, 60^\circ$)**, yielding **24 Dominant $15^\circ$ Archetypes** ($15^\circ \dots 360^\circ$).
+   - Every degree $\theta^\circ$ is weighed by $\times 3.14$ ($47.1^\circ \dots 1,130.4^\circ$) and $\times \pi$ ($47.12^\circ \dots 1,130.97^\circ$), with dual-polarity spinor reach at $720^\circ$ ($4\pi$).
+3. **Persistent Databank Offerings & Automated `2v2` / `3v3` Coalition Clashes**:
+   - Every Databank Archetype Class carries persistent **Weapon, Armor, Spell, Potion, and Inventory Offerings** and enters the live procedural coalition pool (`1v1`, `2v2`, `3v3`) where winning and losing is resolved circularly ($0^\circ \rightarrow 360^\circ$) and procedurally.

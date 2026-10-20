@@ -618,6 +618,476 @@
     return results;
   }
 
+  /* ==========================================================================
+   * PERSISTENT 24-SECTOR (15°) & FREEFORM DATABANK ARCHETYPE POOL + CRUD LAYER
+   * + AUTOMATED 1v1 / 2v2 / 3v3 COALITION PROCEDURAL ENGINE
+   * ========================================================================== */
+  const DATABANK_STORAGE_KEY = "SOV_ARCHETYPE_DATABANK_V314";
+
+  function initDatabankArchetypePool() {
+    const canon = (window.SOV_ARCHETYPE_DATABANK_24 || []).map(item => Object.assign({}, item));
+    try {
+      const raw = localStorage.getItem(DATABANK_STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (Array.isArray(saved) && saved.length >= 24) {
+          window.SOV_ARCHETYPE_DATABANK_POOL = saved;
+          return window.SOV_ARCHETYPE_DATABANK_POOL;
+        }
+      }
+    } catch (e) {
+      // Fallback to canonical 24 pool
+    }
+    window.SOV_ARCHETYPE_DATABANK_POOL = canon;
+    return window.SOV_ARCHETYPE_DATABANK_POOL;
+  }
+
+  function saveDatabankPoolToStorage() {
+    try {
+      if (window.SOV_ARCHETYPE_DATABANK_POOL) {
+        localStorage.setItem(DATABANK_STORAGE_KEY, JSON.stringify(window.SOV_ARCHETYPE_DATABANK_POOL));
+      }
+    } catch (e) {
+      // Ignore storage quota errors
+    }
+  }
+
+  function resolveDegreeGeometry(rawDegree, customOrderChaosScore) {
+    const numDeg = Math.max(1, Math.min(1130.4, parseFloat(rawDegree) || 15));
+    let baseDeg = numDeg % 360;
+    if (baseDeg <= 0.01) baseDeg = 360;
+
+    const sectorIndex = Math.max(1, Math.min(24, Math.round(baseDeg / 15) || 1));
+    const nearest15Deg = sectorIndex * 15;
+
+    const domains = window.SOV_EQUILATERAL_60_DOMAINS || [];
+    const domainIdx = Math.min(5, Math.floor((baseDeg - 0.001) / 60));
+    const domain60 = domains[domainIdx] || domains[0] || {
+      id: "DOM_01_DEFENDERS",
+      shortLabel: "DEFENDERS (0°–60°)",
+      coreArchetype: "ARCH_VANGUARD",
+      modality: "DEFENDER",
+      primaryAttribute: "DEFENSE_POISE",
+      color: "#10B981"
+    };
+
+    const local60Offset = +(baseDeg - domainIdx * 60).toFixed(1);
+    const polarity = local60Offset <= 30.0 ? "+1_PROJECTIVE" : "-1_REFLECTIVE";
+    const defaultOrderChaos = (sectorIndex % 2 === 1) ? -75 : 70;
+    const orderChaosScore = customOrderChaosScore != null && !isNaN(customOrderChaosScore)
+      ? Math.max(-100, Math.min(100, +customOrderChaosScore))
+      : defaultOrderChaos;
+    const alignment = orderChaosScore <= 0 ? "ORDER" : "CHAOS";
+
+    return {
+      inputDegree: +numDeg.toFixed(1),
+      baseDeg: +baseDeg.toFixed(1),
+      nearest15Deg: nearest15Deg,
+      sectorIndex: sectorIndex,
+      degTimes314: +(numDeg * PI_314).toFixed(2),
+      degTimesPi: +(numDeg * Math.PI).toFixed(2),
+      radianPi: +(numDeg / 180).toFixed(3),
+      spinor720Deg: +(baseDeg + 360).toFixed(1),
+      torus1130Deg: +(baseDeg * PI_314).toFixed(1),
+      domain60: domain60,
+      local60Offset: local60Offset,
+      polarity: polarity,
+      alignment: alignment,
+      orderChaosScore: orderChaosScore
+    };
+  }
+
+  function getOfferingById(category, id) {
+    const cat = (window.SOV_DATABANK_OFFERINGS && window.SOV_DATABANK_OFFERINGS[category]) || [];
+    return cat.find(x => x.id === id) || cat[0] || {};
+  }
+
+  function upsertArchetypeClassTemplate(tplInput) {
+    if (!window.SOV_ARCHETYPE_DATABANK_POOL) initDatabankArchetypePool();
+    const pool = window.SOV_ARCHETYPE_DATABANK_POOL;
+    const geo = resolveDegreeGeometry(tplInput.degree || 15, tplInput.orderChaosScore);
+    const wpn = getOfferingById("weapons", tplInput.weaponId);
+    const arm = getOfferingById("armors", tplInput.armorId);
+    const spl = getOfferingById("spells", tplInput.spellId);
+    const pot = getOfferingById("potions", tplInput.potionId);
+    const inv = getOfferingById("inventory", tplInput.inventoryId);
+
+    const existingIdx = pool.findIndex(x => x.id === tplInput.id);
+    const prev = existingIdx >= 0 ? pool[existingIdx] : null;
+
+    const record = {
+      id: tplInput.id || ("DB_CUSTOM_" + Math.round(geo.baseDeg) + "_" + Date.now().toString().slice(-4)),
+      sectorIndex: geo.sectorIndex,
+      degree: geo.inputDegree,
+      degTimes314: geo.degTimes314,
+      degTimesPi: geo.degTimesPi,
+      radianPi: geo.radianPi,
+      spinor720Deg: geo.spinor720Deg,
+      torus1130Deg: geo.torus1130Deg,
+      name: (tplInput.name || (geo.baseDeg + "° " + geo.domain60.modality + " Specialist")).trim(),
+      title: tplInput.title || ("Dominant " + geo.baseDeg + "° " + geo.domain60.modality + " (" + geo.alignment + " • " + geo.polarity + ")"),
+      domain60Id: geo.domain60.id,
+      domain60Name: geo.domain60.shortLabel,
+      coreArchetype: tplInput.coreArchetype || geo.domain60.coreArchetype,
+      modality: tplInput.modality || geo.domain60.modality,
+      attribute: tplInput.attribute || geo.domain60.primaryAttribute,
+      polarity: tplInput.polarity || geo.polarity,
+      alignment: tplInput.alignment || geo.alignment,
+      orderChaosScore: geo.orderChaosScore,
+      signatureCommand: (tplInput.signatureCommand || "DEFEND").toUpperCase(),
+      weaponId: wpn.id,
+      armorId: arm.id,
+      spellId: spl.id,
+      potionId: pot.id,
+      inventoryId: inv.id,
+      statWeightPi: +(parseFloat(tplInput.statWeightPi) || (prev && prev.statWeightPi) || 7.85).toFixed(2),
+      weaponWeightPi: wpn.weightPi || 3.14,
+      armorWeightPi: arm.weightPi || 3.77,
+      orbitRadiusPi: +(parseFloat(tplInput.orbitRadiusPi) || (prev && prev.orbitRadiusPi) || 2.51).toFixed(2),
+      arcDegrees: Math.max(15, Math.min(360, parseInt(tplInput.arcDegrees, 10) || spl.arcDeg || 180)),
+      wins: prev ? prev.wins : 1,
+      losses: prev ? prev.losses : 0,
+      eloRating: prev ? prev.eloRating : 1650,
+      avgTorquePi: prev ? prev.avgTorquePi : 62.8,
+      completed360Count: prev ? prev.completed360Count : 3,
+      isCustom: tplInput.isCustom != null ? !!tplInput.isCustom : (existingIdx < 0 || (prev && prev.isCustom)),
+      combatStyleDesc: tplInput.combatStyleDesc || (
+        geo.baseDeg + "° (" + geo.degTimes314 + "° ×3.14 | " + geo.degTimesPi + "° ×π) " +
+        geo.domain60.modality + " [" + geo.alignment + " / " + geo.polarity + "] with " + wpn.name + " & " + spl.name
+      )
+    };
+
+    if (existingIdx >= 0) {
+      pool[existingIdx] = record;
+    } else {
+      pool.unshift(record);
+    }
+    saveDatabankPoolToStorage();
+    return record;
+  }
+
+  function cloneArchetypeClassTemplate(sourceId) {
+    if (!window.SOV_ARCHETYPE_DATABANK_POOL) initDatabankArchetypePool();
+    const pool = window.SOV_ARCHETYPE_DATABANK_POOL;
+    const src = pool.find(x => x.id === sourceId) || pool[0];
+    const cloneId = "DB_CUSTOM_" + Math.round(src.degree) + "DEG_" + Math.floor(100 + Math.random() * 899);
+    const cloned = Object.assign({}, src, {
+      id: cloneId,
+      name: src.name + " [Forged Variant]",
+      wins: 0,
+      losses: 0,
+      eloRating: 1650,
+      isCustom: true
+    });
+    pool.unshift(cloned);
+    saveDatabankPoolToStorage();
+    return cloned;
+  }
+
+  function deleteOrResetArchetypeClassTemplate(id) {
+    if (!window.SOV_ARCHETYPE_DATABANK_POOL) initDatabankArchetypePool();
+    const pool = window.SOV_ARCHETYPE_DATABANK_POOL;
+    const idx = pool.findIndex(x => x.id === id);
+    if (idx < 0) return false;
+    const canonMatch = (window.SOV_ARCHETYPE_DATABANK_24 || []).find(x => x.id === id);
+    if (canonMatch) {
+      pool[idx] = Object.assign({}, canonMatch);
+    } else {
+      pool.splice(idx, 1);
+    }
+    saveDatabankPoolToStorage();
+    return true;
+  }
+
+  function resetDatabankPoolToCanon() {
+    try { localStorage.removeItem(DATABANK_STORAGE_KEY); } catch (e) {}
+    window.SOV_ARCHETYPE_DATABANK_POOL = (window.SOV_ARCHETYPE_DATABANK_24 || []).map(x => Object.assign({}, x));
+    return window.SOV_ARCHETYPE_DATABANK_POOL;
+  }
+
+  /* Compute Comprehensive Procedural Combat Profile for a Databank Archetype Class */
+  function computeClassProceduralMetrics(cls) {
+    const geo = resolveDegreeGeometry(cls.degree || 15, cls.orderChaosScore);
+    const wpn = getOfferingById("weapons", cls.weaponId);
+    const arm = getOfferingById("armors", cls.armorId);
+    const spl = getOfferingById("spells", cls.spellId);
+    const pot = getOfferingById("potions", cls.potionId);
+    const inv = getOfferingById("inventory", cls.inventoryId);
+    const cmd = getCommandByVerb(cls.signatureCommand || "DEFEND");
+
+    // 1. Degree × 3.14 & × π Harmonic Scaling
+    const piDegreeFactor = 1.0 + (geo.baseDeg / 360) * 0.314 + (geo.inputDegree > 360 ? 0.157 : 0);
+    // 2. Polarity (+1 Projective boosts offense/torque; -1 Reflective boosts mitigation/counter)
+    const isProjective = (cls.polarity || geo.polarity).indexOf("+1") === 0;
+    const polarityOffMult = isProjective ? 1.18 : 1.04;
+    const polarityDefMult = isProjective ? 1.04 : 1.22;
+
+    // 3. Order vs Chaos Alignment (-100 Order = low variance, high poise; +100 Chaos = high crit & speed)
+    const ocScore = cls.orderChaosScore != null ? cls.orderChaosScore : geo.orderChaosScore;
+    const chaosRatio = Math.max(0, ocScore) / 100;
+    const orderRatio = Math.max(0, -ocScore) / 100;
+
+    // 4. Offerings Totals (Weapon, Armor, Spell, Potion, Inventory)
+    const totalArcDeg = Math.min(360, (cls.arcDegrees || cmd.arcDegrees || 180) + (wpn.arcBonusDeg || 0));
+    const rawOffensePi = +(
+      ((cls.statWeightPi || 7.5) * 14.5 + (wpn.weightPi || 3.14) * 18.0 + (spl.powerPi || 4.5) * 15.0) *
+      (wpn.torqueMult || 1.25) *
+      (pot.buffMult || 1.2) *
+      polarityOffMult *
+      (1 + chaosRatio * 0.22 + orderRatio * 0.10) *
+      piDegreeFactor
+    ).toFixed(2);
+
+    const rawDefensePi = +(
+      ((arm.mitigationPi || 4.0) * 22.0 + (cls.statWeightPi || 7.5) * 9.5 + (pot.healPi || 3.14) * 12.0) *
+      polarityDefMult *
+      (1 + orderRatio * 0.25) *
+      (1 + (arm.reflectPct || 20) / 100)
+    ).toFixed(2);
+
+    const angularSpeedDeg = +(
+      ((cmd.angularSpeedDeg || 120) + (totalArcDeg * 0.25)) *
+      (inv.completionBoost || 1.2) *
+      (1 + chaosRatio * 0.18)
+    ).toFixed(1);
+
+    const spcStabilityDelta = +(
+      (cmd.spcDeltaSigma || -0.15) + (pot.spcDelta || -0.20) - (orderRatio * 0.25) + (chaosRatio * 0.22)
+    ).toFixed(3);
+
+    return {
+      cls: cls,
+      geo: geo,
+      wpn: wpn,
+      arm: arm,
+      spl: spl,
+      pot: pot,
+      inv: inv,
+      cmd: cmd,
+      totalArcDeg: totalArcDeg,
+      rawOffensePi: rawOffensePi,
+      rawDefensePi: rawDefensePi,
+      angularSpeedDeg: angularSpeedDeg,
+      spcStabilityDelta: spcStabilityDelta,
+      compositePowerScore: +(rawOffensePi * 0.55 + rawDefensePi * 0.45 + angularSpeedDeg * 0.314).toFixed(1)
+    };
+  }
+
+  /* Evaluate Equilateral Team Synergy for 1v1, 2v2, or 3v3 Coalition */
+  function evaluateCoalitionTeamSynergy(teamClasses) {
+    if (!teamClasses || teamClasses.length === 0) return { mult: 1.0, chordLabel: "Solo (1.00x)" };
+    if (teamClasses.length === 1) {
+      const m0 = computeClassProceduralMetrics(teamClasses[0]);
+      return {
+        mult: 1.15,
+        chordLabel: "Solo 1v1 Mubārazah Focus (1.15x • " + m0.geo.baseDeg + "°)",
+        uniqueDomains: 1
+      };
+    }
+
+    const uniqueDomains = new Set(teamClasses.map(c => c.domain60Id)).size;
+    const uniqueModalities = new Set(teamClasses.map(c => c.modality)).size;
+    const hasOrder = teamClasses.some(c => c.alignment === "ORDER");
+    const hasChaos = teamClasses.some(c => c.alignment === "CHAOS");
+    const hasPosPol = teamClasses.some(c => (c.polarity || "").indexOf("+1") === 0);
+    const hasNegPol = teamClasses.some(c => (c.polarity || "").indexOf("-1") === 0);
+
+    // Check angular chord spacing between teammates
+    let equilateralBonus = 0;
+    let chordType = "Standard Coalition";
+    for (let i = 0; i < teamClasses.length; i++) {
+      for (let j = i + 1; j < teamClasses.length; j++) {
+        let diff = Math.abs((teamClasses[i].degree % 360) - (teamClasses[j].degree % 360));
+        if (diff > 180) diff = 360 - diff;
+        if (Math.abs(diff - 120) <= 20) {
+          equilateralBonus += 0.18;
+          chordType = "120° Equilateral Triangle Chord";
+        } else if (Math.abs(diff - 60) <= 20) {
+          equilateralBonus += 0.14;
+          chordType = "60° Equilateral Hex-Chord";
+        } else if (Math.abs(diff - 180) <= 20) {
+          equilateralBonus += 0.16;
+          chordType = "180° Diametric Pincer Axis";
+        }
+      }
+    }
+
+    const domainBonus = uniqueDomains * 0.08 + uniqueModalities * 0.05;
+    const mizanBonus = (hasOrder && hasChaos ? 0.08 : 0) + (hasPosPol && hasNegPol ? 0.08 : 0);
+    const totalMult = +(1.0 + Math.min(0.628, equilateralBonus + domainBonus + mizanBonus)).toFixed(3);
+
+    return {
+      mult: totalMult,
+      chordLabel: chordType + " (" + totalMult.toFixed(2) + "x • " + uniqueDomains + " Equilateral Domains)",
+      uniqueDomains: uniqueDomains
+    };
+  }
+
+  /* Run Procedural Circular Clash between Coalition A (Player/Selected) and Coalition B (Databank Pool) */
+  function runProceduralCoalitionEncounter(modeStr, primaryClassId, customEnemyIds) {
+    if (!window.SOV_ARCHETYPE_DATABANK_POOL) initDatabankArchetypePool();
+    const pool = window.SOV_ARCHETYPE_DATABANK_POOL;
+    const teamSize = modeStr === "3v3" ? 3 : (modeStr === "2v2" ? 2 : 1);
+
+    const primaryCls = pool.find(c => c.id === primaryClassId) || pool[0];
+    const teamA = [primaryCls];
+
+    // Pick complementary Equilateral teammates for Team A from Databank Pool
+    const othersForA = pool.filter(c => c.id !== primaryCls.id);
+    while (teamA.length < teamSize && othersForA.length > 0) {
+      // Weigh toward ~120° or ~60° equilateral spacing
+      const idealDeg = (primaryCls.degree + teamA.length * (teamSize === 3 ? 120 : 180)) % 360 || 360;
+      othersForA.sort((x, y) => {
+        const dx = Math.abs(x.degree - idealDeg) + (Math.random() * 45);
+        const dy = Math.abs(y.degree - idealDeg) + (Math.random() * 45);
+        return dx - dy;
+      });
+      teamA.push(othersForA.shift());
+    }
+
+    // Pick Opposition Coalition B from Databank Pool (randomly weighed across different domains)
+    const teamB = [];
+    const candidatesB = pool.filter(c => !teamA.some(a => a.id === c.id));
+    if (Array.isArray(customEnemyIds) && customEnemyIds.length > 0) {
+      customEnemyIds.forEach(eid => {
+        const found = pool.find(c => c.id === eid);
+        if (found && teamB.length < teamSize) teamB.push(found);
+      });
+    }
+    while (teamB.length < teamSize && candidatesB.length > 0) {
+      const randIdx = Math.floor(Math.random() * candidatesB.length);
+      teamB.push(candidatesB.splice(randIdx, 1)[0]);
+    }
+    while (teamB.length < teamSize) {
+      teamB.push(pool[Math.floor(Math.random() * pool.length)]);
+    }
+
+    const synA = evaluateCoalitionTeamSynergy(teamA);
+    const synB = evaluateCoalitionTeamSynergy(teamB);
+    const metricsA = teamA.map(computeClassProceduralMetrics);
+    const metricsB = teamB.map(computeClassProceduralMetrics);
+
+    // Simulate Circular Revolution Ticks (0° → 360° / 2π Phase Dominance + HP/Poise)
+    let hpA = metricsA.reduce((s, m) => s + 1200 + m.rawDefensePi * 3.14, 0) * synA.mult;
+    let hpB = metricsB.reduce((s, m) => s + 1200 + m.rawDefensePi * 3.14, 0) * synB.mult;
+    const maxHpA = hpA;
+    const maxHpB = hpB;
+
+    let phaseDegA = 0;
+    let phaseDegB = 0;
+    let completedCirclesA = 0;
+    let completedCirclesB = 0;
+    let totalTorqueA = 0;
+    let totalTorqueB = 0;
+    const roundLog = [];
+
+    for (let tick = 1; tick <= 12; tick++) {
+      const mA = metricsA[(tick - 1) % metricsA.length];
+      const mB = metricsB[(tick - 1) % metricsB.length];
+
+      // Relative Incidence Angle φ° between active fighters
+      let phiDeg = Math.abs((mA.cls.degree + tick * 25) - (mB.cls.degree + tick * 15)) % 360;
+      if (phiDeg > 180) phiDeg = 360 - phiDeg;
+
+      // Polarity & Alignment Counter-Bonus
+      const polDiffBonusA = mA.cls.polarity !== mB.cls.polarity ? 1.15 : 1.0;
+      const alignBonusA = (mA.cls.alignment === "ORDER" && mB.cls.alignment === "CHAOS") ? 1.14 : 1.06;
+
+      // Advance Circular Phase (0° → 360°)
+      const stepDegA = (mA.angularSpeedDeg * 0.38) * synA.mult * (0.92 + Math.random() * 0.16);
+      const stepDegB = (mB.angularSpeedDeg * 0.38) * synB.mult * (0.92 + Math.random() * 0.16);
+      phaseDegA += stepDegA;
+      phaseDegB += stepDegB;
+
+      let surgeA = 1.0;
+      let surgeB = 1.0;
+      if (phaseDegA >= 360) {
+        phaseDegA -= 360;
+        completedCirclesA++;
+        surgeA = PI_314 * 0.55; // 360° (2π) Full-Circle Completion Pulse!
+      }
+      if (phaseDegB >= 360) {
+        phaseDegB -= 360;
+        completedCirclesB++;
+        surgeB = PI_314 * 0.55;
+      }
+
+      const torqueA = +(mA.rawOffensePi * synA.mult * polDiffBonusA * alignBonusA * surgeA * (0.9 + Math.random() * 0.2) * 0.24).toFixed(1);
+      const torqueB = +(mB.rawOffensePi * synB.mult * surgeB * (0.9 + Math.random() * 0.2) * 0.24).toFixed(1);
+      totalTorqueA += torqueA;
+      totalTorqueB += torqueB;
+
+      const netDmgToB = Math.max(45, +(torqueA * 2.4 - mB.rawDefensePi * 0.32).toFixed(1));
+      const netDmgToA = Math.max(45, +(torqueB * 2.4 - mA.rawDefensePi * 0.32).toFixed(1));
+
+      hpB = Math.max(0, hpB - netDmgToB);
+      hpA = Math.max(0, hpA - netDmgToA);
+
+      if (tick <= 5 || hpA <= 0 || hpB <= 0 || surgeA > 1.0) {
+        roundLog.push(
+          "T#" + tick + " [φ=" + Math.round(phiDeg) + "°]: " +
+          mA.cls.name + " (" + mA.cls.degree + "° • " + mA.wpn.name.split("(")[0].trim() + " + " + mA.spl.name.split(" ")[0] + ") → " +
+          netDmgToB + " DMG (τ=" + torqueA + "π" + (surgeA > 1 ? " ⭕360° SURGE!" : "") + ") vs " +
+          mB.cls.name + " (" + mB.cls.degree + "°)"
+        );
+      }
+      if (hpA <= 0 || hpB <= 0) break;
+    }
+
+    // Circular + Procedural Winner Determination (Phase Completions + Remaining HP + Torque)
+    const scoreA = (completedCirclesA * 650) + (hpA / maxHpA * 1000) + totalTorqueA * 0.8;
+    const scoreB = (completedCirclesB * 650) + (hpB / maxHpB * 1000) + totalTorqueB * 0.8;
+    const teamAWon = scoreA >= scoreB;
+    const winProbPct = +((scoreA / Math.max(1, scoreA + scoreB)) * 100).toFixed(1);
+
+    // Update Persistent Win/Loss/ELO/Torque/360° Completions in the Databank Pool
+    teamA.forEach(c => {
+      if (teamAWon) {
+        c.wins = (c.wins || 0) + 1;
+        c.eloRating = Math.round((c.eloRating || 1650) + 12);
+      } else {
+        c.losses = (c.losses || 0) + 1;
+        c.eloRating = Math.max(1200, Math.round((c.eloRating || 1650) - 8));
+      }
+      c.completed360Count = (c.completed360Count || 0) + Math.max(1, completedCirclesA);
+      c.avgTorquePi = +(((c.avgTorquePi || 60) * 0.8 + (totalTorqueA / 12) * 0.2)).toFixed(1);
+    });
+
+    teamB.forEach(c => {
+      if (!teamAWon) {
+        c.wins = (c.wins || 0) + 1;
+        c.eloRating = Math.round((c.eloRating || 1650) + 12);
+      } else {
+        c.losses = (c.losses || 0) + 1;
+        c.eloRating = Math.max(1200, Math.round((c.eloRating || 1650) - 8));
+      }
+      c.completed360Count = (c.completed360Count || 0) + Math.max(1, completedCirclesB);
+      c.avgTorquePi = +(((c.avgTorquePi || 60) * 0.8 + (totalTorqueB / 12) * 0.2)).toFixed(1);
+    });
+
+    saveDatabankPoolToStorage();
+
+    return {
+      mode: modeStr || "3v3",
+      teamA: teamA,
+      teamB: teamB,
+      metricsA: metricsA,
+      metricsB: metricsB,
+      synergyA: synA,
+      synergyB: synB,
+      teamAWon: teamAWon,
+      winProbPct: winProbPct,
+      completedCirclesA: completedCirclesA,
+      completedCirclesB: completedCirclesB,
+      meanTorqueA: +(totalTorqueA / 12).toFixed(1),
+      meanTorqueB: +(totalTorqueB / 12).toFixed(1),
+      roundLog: roundLog
+    };
+  }
+
+  // Initialize pool immediately
+  initDatabankArchetypePool();
+
   window.SovCommandEngine = {
     getCommandByVerb: getCommandByVerb,
     evaluateArchetypeResonance: evaluateArchetypeResonance,
@@ -626,6 +1096,16 @@
     registerOrUpdateCommand: registerOrUpdateCommand,
     parseAndExecuteDslScript: parseAndExecuteDslScript,
     runMonteCarloSimulation: runMonteCarloSimulation,
+    initDatabankArchetypePool: initDatabankArchetypePool,
+    resolveDegreeGeometry: resolveDegreeGeometry,
+    getOfferingById: getOfferingById,
+    upsertArchetypeClassTemplate: upsertArchetypeClassTemplate,
+    cloneArchetypeClassTemplate: cloneArchetypeClassTemplate,
+    deleteOrResetArchetypeClassTemplate: deleteOrResetArchetypeClassTemplate,
+    resetDatabankPoolToCanon: resetDatabankPoolToCanon,
+    computeClassProceduralMetrics: computeClassProceduralMetrics,
+    evaluateCoalitionTeamSynergy: evaluateCoalitionTeamSynergy,
+    runProceduralCoalitionEncounter: runProceduralCoalitionEncounter,
     ringBuffer: new RingBufferCommandQueue(64),
     spcEngine: new GeminiSPCEngine()
   };

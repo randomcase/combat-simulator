@@ -932,6 +932,690 @@
       addLog("Pre-Thought Verified & Registered Circular Command [" + verb + "] (Δ" + arcDeg + "° @ r=" + orbitPi.toFixed(2) + "π | " + resMult.toFixed(2) + "x)!", "#6EE7B7");
     };
 
+    /* ========================================================================
+     * INTERACTIVE 24×15° / 6×60° EQUILATERAL ARCHETYPE CLASS FORGE, PERSISTENT
+     * DATABANK OFFERINGS CRUD & AUTOMATED 1v1 / 2v2 / 3v3 COALITION ENGINE
+     * ======================================================================== */
+    state.selectedDatabankClassId = "DB_ARCH_015_AEGIS_WARDEN";
+    state.databankDomainFilter = "ALL";
+    state.autoWeighPoolActive = true;
+    state.lastCoalitionResult = null;
+
+    function populateDatabankOfferingsSelects() {
+      const off = window.SOV_DATABANK_OFFERINGS || {};
+      const fill = (id, list, fmtFn) => {
+        const el = document.getElementById(id);
+        if (!el || !Array.isArray(list)) return;
+        el.innerHTML = list.map(item => '<option value="' + item.id + '">' + fmtFn(item) + '</option>').join("");
+      };
+      fill("dbClassWeaponSelect", off.weapons, w => w.name + " [+" + w.arcBonusDeg + "° | " + w.torqueMult + "x]");
+      fill("dbClassArmorSelect", off.armors, a => a.name + " [Mit " + a.mitigationPi + "π | Refl " + a.reflectPct + "%]");
+      fill("dbClassSpellSelect", off.spells, s => s.name + " [Δ" + s.arcDeg + "° | " + s.powerPi + "π]");
+      fill("dbClassPotionSelect", off.potions, p => p.name + " [+" + p.healPi + "π | " + p.buffMult + "x]");
+      fill("dbClassInventorySelect", off.inventory, i => i.name + " [" + i.weightPi + "π | +" + Math.round((i.completionBoost - 1) * 100) + "% 360°]");
+    }
+
+    function refreshDatabankTemplateDropdown() {
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      const sel = document.getElementById("dbClassTemplateSelect");
+      if (!sel) return;
+      sel.innerHTML = pool.map(c =>
+        '<option value="' + c.id + '">' +
+        (c.isCustom ? "★ [CUSTOM] " : "") + c.degree + "° (×3.14=" + c.degTimes314 + "°) — " + c.name + " [" + c.modality + "]" +
+        '</option>'
+      ).join("");
+      if (pool.some(c => c.id === state.selectedDatabankClassId)) {
+        sel.value = state.selectedDatabankClassId;
+      }
+    }
+
+    function readCurrentForgeClassForm(overrideId, forceCustom) {
+      const deg = parseFloat(document.getElementById("dbClassDegreeInput")?.value) || 15;
+      const ocScore = parseFloat(document.getElementById("dbClassOrderChaosSlider")?.value || "-75");
+      const geo = window.SovCommandEngine.resolveDegreeGeometry(deg, ocScore);
+      const pol = document.getElementById("dbClassPolaritySelect")?.value || geo.polarity;
+
+      return {
+        id: overrideId || state.selectedDatabankClassId || ("DB_CUSTOM_" + Math.round(geo.baseDeg)),
+        degree: deg,
+        name: (document.getElementById("dbClassNameInput")?.value || (geo.baseDeg + "° " + geo.domain60.modality)).trim(),
+        signatureCommand: (document.getElementById("forgeCmdVerb")?.value || "DEFEND").trim().toUpperCase(),
+        domain60Id: geo.domain60.id,
+        domain60Name: geo.domain60.shortLabel,
+        coreArchetype: geo.domain60.coreArchetype,
+        modality: geo.domain60.modality,
+        attribute: geo.domain60.primaryAttribute,
+        polarity: pol,
+        alignment: ocScore <= 0 ? "ORDER" : "CHAOS",
+        orderChaosScore: ocScore,
+        weaponId: document.getElementById("dbClassWeaponSelect")?.value || "WPN_01_BADR_SHAMSHIR",
+        armorId: document.getElementById("dbClassArmorSelect")?.value || "ARM_01_JAWSHAN_HEAVY_PLATE",
+        spellId: document.getElementById("dbClassSpellSelect")?.value || "SPL_05_BADR_313_AEGIS_DOME",
+        potionId: document.getElementById("dbClassPotionSelect")?.value || "POT_01_BLESSED_VINEGAR_ELIXIR",
+        inventoryId: document.getElementById("dbClassInventorySelect")?.value || "INV_01_32PT_ASTROLABE",
+        arcDegrees: parseFloat(document.getElementById("forgeCmdArcDeg")?.value) || 180,
+        orbitRadiusPi: parseFloat(document.getElementById("forgeCmdOrbitPi")?.value) || 2.00,
+        statWeightPi: parseFloat(document.getElementById("dbClassStatWeightPi")?.value) || 7.54,
+        isCustom: forceCustom != null ? forceCustom : undefined
+      };
+    }
+
+    function renderArchetypeDegreeWheelCanvas(previewMetrics) {
+      const canvas = document.getElementById("archetypeDegreeWheelCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      // Background
+      const bg = ctx.createLinearGradient(0, 0, W, H);
+      bg.addColorStop(0, "#04070E");
+      bg.addColorStop(1, "#091122");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      const cx = 152;
+      const cy = 146;
+      const R_OUTER = 118;
+      const R_MID = 84;
+      const R_INNER = 46;
+
+      const domains = window.SOV_EQUILATERAL_60_DOMAINS || [];
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+
+      // 1. Draw 6 Equilateral 60° Combat Domains
+      domains.forEach(d => {
+        const startRad = (d.startDeg - 90) * DEG_TO_RAD;
+        const endRad = (d.endDeg - 90) * DEG_TO_RAD;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, R_OUTER, startRad, endRad);
+        ctx.closePath();
+        ctx.fillStyle = d.color + "1E";
+        ctx.fill();
+        ctx.strokeStyle = d.color + "88";
+        ctx.lineWidth = 1.3;
+        ctx.stroke();
+
+        // Mid-angle label
+        const midRad = ((d.startDeg + 30) - 90) * DEG_TO_RAD;
+        const lx = cx + Math.cos(midRad) * (R_OUTER + 16);
+        const ly = cy + Math.sin(midRad) * (R_OUTER + 16);
+        ctx.fillStyle = d.color;
+        ctx.font = "bold 8.5px Consolas, monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(d.modality.replace("PHYSICAL_", "").replace("_ALCHEMICAL", ""), lx, ly);
+        ctx.restore();
+      });
+
+      // 2. Draw Inscribed Equilateral Hexagon (Chord c = r·π across 60° vertices)
+      ctx.save();
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const rad = (i * 60 - 90) * DEG_TO_RAD;
+        const hx = cx + Math.cos(rad) * R_MID;
+        const hy = cy + Math.sin(rad) * R_MID;
+        if (i === 0) ctx.moveTo(hx, hy);
+        else ctx.lineTo(hx, hy);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "rgba(212, 175, 55, 0.55)";
+      ctx.setLineDash([4, 3]);
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+      ctx.restore();
+
+      // 3. Concentric Polarity Rings (+1 Projective Outer, -1 Reflective Inner)
+      [R_INNER, R_MID, R_OUTER].forEach(r => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(148, 163, 184, 0.25)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+
+      // 4. Draw 24 Dominant 15° Spokes & Archetype Nodes
+      for (let s = 1; s <= 24; s++) {
+        const deg = s * 15;
+        const rad = (deg - 90) * DEG_TO_RAD;
+        const xOut = cx + Math.cos(rad) * R_OUTER;
+        const yOut = cy + Math.sin(rad) * R_OUTER;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(rad) * 18, cy + Math.sin(rad) * 18);
+        ctx.lineTo(xOut, yOut);
+        ctx.strokeStyle = (deg % 60 === 0) ? "rgba(253, 230, 138, 0.65)" : "rgba(148, 163, 184, 0.22)";
+        ctx.lineWidth = (deg % 60 === 0) ? 1.5 : 0.8;
+        ctx.stroke();
+
+        // Node marker at R_OUTER - 12
+        const nr = (s % 2 === 1) ? (R_OUTER - 11) : (R_MID + 12);
+        const nx = cx + Math.cos(rad) * nr;
+        const ny = cy + Math.sin(rad) * nr;
+        ctx.beginPath();
+        ctx.arc(nx, ny, 3.2, 0, Math.PI * 2);
+        ctx.fillStyle = (s % 2 === 1) ? "#6EE7B7" : "#F43F5E";
+        ctx.fill();
+      }
+
+      // 5. Draw Active 2v2 / 3v3 Coalition Chords if available
+      if (state.lastCoalitionResult) {
+        const res = state.lastCoalitionResult;
+        const drawTeamChords = (team, strokeCol, fillCol) => {
+          if (!team || team.length === 0) return;
+          ctx.save();
+          ctx.beginPath();
+          team.forEach((c, idx) => {
+            const rad = ((c.degree % 360) - 90) * DEG_TO_RAD;
+            const px = cx + Math.cos(rad) * (R_MID + 4);
+            const py = cy + Math.sin(rad) * (R_MID + 4);
+            if (idx === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          });
+          if (team.length > 1) ctx.closePath();
+          ctx.strokeStyle = strokeCol;
+          ctx.lineWidth = 2.0;
+          ctx.stroke();
+          if (team.length > 2) {
+            ctx.fillStyle = fillCol;
+            ctx.fill();
+          }
+          ctx.restore();
+        };
+        drawTeamChords(res.teamB, "rgba(244, 63, 94, 0.85)", "rgba(244, 63, 94, 0.12)");
+        drawTeamChords(res.teamA, "rgba(16, 185, 129, 0.95)", "rgba(16, 185, 129, 0.16)");
+      }
+
+      // 6. Highlight Active Forged Class Degree Vector & Sweep Arc Cone
+      if (previewMetrics) {
+        const deg = previewMetrics.geo.baseDeg;
+        const arcSpan = previewMetrics.totalArcDeg || 180;
+        const centerRad = (deg - 90) * DEG_TO_RAD;
+        const halfArc = (arcSpan / 2) * DEG_TO_RAD;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, R_OUTER - 4, centerRad - halfArc, centerRad + halfArc);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(253, 230, 138, 0.16)";
+        ctx.fill();
+
+        const vx = cx + Math.cos(centerRad) * R_OUTER;
+        const vy = cy + Math.sin(centerRad) * R_OUTER;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(vx, vy);
+        ctx.strokeStyle = "#FDE68A";
+        ctx.lineWidth = 2.6;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(vx, vy, 6, 0, Math.PI * 2);
+        ctx.fillStyle = "#10B981";
+        ctx.fill();
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // 7. Right-Side Telemetry & Equilateral 60° × 3.14π Legend Panel
+      const rx = 304;
+      ctx.fillStyle = "#FDE68A";
+      ctx.font = "bold 10.5px Consolas, monospace";
+      ctx.fillText("6 EQUILATERAL 60° DOMAINS (×3.14 = 188.4°)", rx, 20);
+
+      domains.forEach((d, idx) => {
+        const y = 37 + idx * 22;
+        ctx.fillStyle = d.color;
+        ctx.fillRect(rx, y - 8, 8, 8);
+        ctx.fillStyle = "#E2E8F0";
+        ctx.font = "9.5px Consolas, monospace";
+        ctx.fillText(
+          d.startDeg + "°–" + d.endDeg + "° " + d.modality.slice(0, 16) + " | Opp:" + d.oppositePoleDeg + "°",
+          rx + 13,
+          y
+        );
+      });
+
+      if (previewMetrics) {
+        const g = previewMetrics.geo;
+        const yBase = 178;
+        ctx.fillStyle = "rgba(15, 23, 42, 0.9)";
+        ctx.strokeStyle = "rgba(16, 185, 129, 0.45)";
+        ctx.lineWidth = 1;
+        ctx.fillRect(rx, yBase, W - rx - 10, 106);
+        ctx.strokeRect(rx, yBase, W - rx - 10, 106);
+
+        ctx.fillStyle = "#6EE7B7";
+        ctx.font = "bold 10px Consolas, monospace";
+        ctx.fillText("ACTIVE CLASS: " + previewMetrics.cls.name.slice(0, 28), rx + 7, yBase + 16);
+
+        ctx.fillStyle = "#FDE68A";
+        ctx.font = "9.5px Consolas, monospace";
+        ctx.fillText(
+          "θ=" + g.inputDegree + "° | ×3.14=" + g.degTimes314 + "° | ×π=" + g.degTimesPi + "°",
+          rx + 7,
+          yBase + 32
+        );
+        ctx.fillStyle = "#93C5FD";
+        ctx.fillText(
+          "Dom: " + g.domain60.modality + " | " + g.polarity.split("_")[0] + " | " + g.alignment + " (" + g.orderChaosScore + ")",
+          rx + 7,
+          yBase + 47
+        );
+        ctx.fillStyle = "#E2E8F0";
+        ctx.fillText(
+          "Wpn: " + previewMetrics.wpn.name.slice(0, 29),
+          rx + 7,
+          yBase + 62
+        );
+        ctx.fillText(
+          "Arm: " + previewMetrics.arm.name.slice(0, 29),
+          rx + 7,
+          yBase + 76
+        );
+        ctx.fillStyle = "#C084FC";
+        ctx.fillText(
+          "Spl: " + previewMetrics.spl.name.slice(0, 25) + " | Pot: " + previewMetrics.pot.healPi + "π",
+          rx + 7,
+          yBase + 91
+        );
+        ctx.fillStyle = "#6EE7B7";
+        ctx.fillText(
+          "Power: " + previewMetrics.compositePowerScore + "π | Off: " + previewMetrics.rawOffensePi + " | Def: " + previewMetrics.rawDefensePi,
+          rx + 7,
+          yBase + 103
+        );
+      }
+    }
+
+    function renderDatabankArchetypePoolTable() {
+      const tbody = document.getElementById("databankArchetypePoolTableBody");
+      if (!tbody || !window.SovCommandEngine) return;
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      const filter = state.databankDomainFilter || "ALL";
+      const filtered = pool.filter(c => filter === "ALL" || c.domain60Id === filter);
+
+      const badgeEl = document.getElementById("dbClassPersistBadge");
+      if (badgeEl) {
+        badgeEl.textContent = "PERSISTENT DATABANK POOL (" + pool.length + " CLASSES • 24×15° + CUSTOM)";
+      }
+
+      tbody.innerHTML = filtered.map(c => {
+        const m = window.SovCommandEngine.computeClassProceduralMetrics(c);
+        const isSel = c.id === state.selectedDatabankClassId;
+        const polColor = (c.polarity || "").indexOf("+1") === 0 ? "#38BDF8" : "#C084FC";
+        const alignColor = c.alignment === "ORDER" ? "#6EE7B7" : "#FDA4AF";
+
+        return '<tr style="' + (isSel ? 'background:rgba(16,185,129,0.12);' : '') + '">' +
+          '<td style="font-family:Consolas,monospace;font-size:0.72rem;">' +
+            '<strong style="color:#FDE68A;font-size:0.82rem;">' + c.degree + '°</strong> ' +
+            '<span style="color:#94A3B8;">(#' + c.sectorIndex + '/24)</span><br/>' +
+            '<span style="color:#6EE7B7;">×3.14 = <strong>' + c.degTimes314 + '°</strong></span><br/>' +
+            '<span style="color:#38BDF8;">×π = <strong>' + c.degTimesPi + '°</strong> (' + c.radianPi + 'π)</span>' +
+          '</td>' +
+          '<td>' +
+            '<strong style="color:#FFFFFF;">' + c.name + '</strong> ' +
+            (c.isCustom ? '<span class="badge badge-gold">CUSTOM</span>' : '') + '<br/>' +
+            '<span class="badge badge-emerald" style="font-size:0.65rem;">' + c.domain60Name + '</span> ' +
+            '<code style="font-size:0.68rem;color:#FDE68A;">[' + c.signatureCommand + ']</code>' +
+          '</td>' +
+          '<td style="font-family:Consolas,monospace;font-size:0.7rem;">' +
+            '<span style="color:#FDE68A;">' + c.attribute + '</span><br/>' +
+            '<span style="color:' + polColor + ';">' + c.polarity + '</span><br/>' +
+            '<span style="color:' + alignColor + ';font-weight:700;">' + c.alignment + ' (' + c.orderChaosScore + ')</span>' +
+          '</td>' +
+          '<td style="font-size:0.69rem;line-height:1.38;">' +
+            '<div>⚔️ <strong style="color:#FDE68A;">' + m.wpn.name.split("(")[0].trim() + '</strong> (' + m.wpn.weightPi + 'π)</div>' +
+            '<div>🛡️ <span style="color:#6EE7B7;">' + m.arm.name.split("(")[0].trim() + '</span> (' + m.arm.mitigationPi + 'π)</div>' +
+            '<div>✨ <span style="color:#C084FC;">' + m.spl.name.split("(")[0].trim() + '</span> | 🧪 ' + m.pot.name.split(" ")[0] + ' | 🧭 ' + m.inv.name.split(" ")[0] + '</div>' +
+          '</td>' +
+          '<td style="font-family:Consolas,monospace;font-size:0.71rem;">' +
+            '<strong style="color:#6EE7B7;">Pwr: ' + m.compositePowerScore + 'π</strong><br/>' +
+            '<span style="color:#FDE68A;">Off:' + m.rawOffensePi + ' | Def:' + m.rawDefensePi + '</span><br/>' +
+            '<span style="color:#93C5FD;">Δ' + m.totalArcDeg + '° @ r=' + (c.orbitRadiusPi || 2.0).toFixed(2) + 'π</span>' +
+          '</td>' +
+          '<td style="font-family:Consolas,monospace;font-size:0.71rem;">' +
+            '<strong style="color:#6EE7B7;">' + (c.wins || 0) + 'W</strong> – <strong style="color:#FDA4AF;">' + (c.losses || 0) + 'L</strong><br/>' +
+            '<span style="color:#FDE68A;">ELO: ' + (c.eloRating || 1650) + '</span><br/>' +
+            '<span style="color:#38BDF8;">⭕ ' + (c.completed360Count || 0) + ' Circles</span>' +
+          '</td>' +
+          '<td>' +
+            '<div class="btn-row">' +
+              '<button class="btn btn-sm" onclick="window.SovGame.selectDatabankClassForEdit(\'' + c.id + '\')">✏️ Forge</button>' +
+              '<button class="btn btn-sm btn-sapphire" onclick="window.SovGame.triggerDatabankCoalitionBattle(\'2v2\', \'' + c.id + '\')">🛡️ 2v2</button>' +
+              '<button class="btn btn-sm btn-emerald" onclick="window.SovGame.triggerDatabankCoalitionBattle(\'3v3\', \'' + c.id + '\')">🔺 3v3</button>' +
+              '<button class="btn btn-sm" onclick="window.SovGame.spawnForgedClassInArena(\'' + c.id + '\')">🚀</button>' +
+            '</div>' +
+          '</td>' +
+        '</tr>';
+      }).join("");
+    }
+
+    G.selectDatabankClassForEdit = function (classId) {
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      const found = pool.find(c => c.id === classId) || pool[0];
+      if (!found) return;
+      state.selectedDatabankClassId = found.id;
+
+      const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+      setVal("dbClassTemplateSelect", found.id);
+      setVal("dbClassNameInput", found.name);
+      setVal("forgeCmdVerb", found.signatureCommand || "DEFEND");
+      setVal("dbClassDegreeInput", found.degree);
+      setVal("dbClassDegreeSlider", Math.min(360, Math.max(1, Math.round(found.degree))));
+      setVal("dbClassDomainSelect", found.domain60Id);
+      setVal("dbClassPolaritySelect", found.polarity);
+      setVal("dbClassOrderChaosSlider", found.orderChaosScore != null ? found.orderChaosScore : -75);
+      setVal("dbClassWeaponSelect", found.weaponId);
+      setVal("dbClassArmorSelect", found.armorId);
+      setVal("dbClassSpellSelect", found.spellId);
+      setVal("dbClassPotionSelect", found.potionId);
+      setVal("dbClassInventorySelect", found.inventoryId);
+      setVal("forgeCmdArcDeg", found.arcDegrees || 180);
+      setVal("forgeCmdOrbitPi", found.orbitRadiusPi || 2.00);
+      setVal("dbClassStatWeightPi", found.statWeightPi || 7.54);
+
+      G.previewForgedClassLive();
+    };
+
+    G.previewForgedClassLive = function () {
+      if (!window.SovCommandEngine) return;
+      const draft = readCurrentForgeClassForm();
+      const m = window.SovCommandEngine.computeClassProceduralMetrics(draft);
+      const g = m.geo;
+
+      const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      setTxt("roDegSector", g.inputDegree + "° (#" + g.sectorIndex + "/24)");
+      setTxt("roDeg314", g.degTimes314 + "°");
+      setTxt("roDegPi", g.degTimesPi + "°");
+      setTxt("roRadPi", g.radianPi + "π rad");
+      setTxt("roSpinor720", g.spinor720Deg + "° (4π)");
+
+      const domSel = document.getElementById("dbClassDomainSelect");
+      if (domSel) domSel.value = g.domain60.id;
+
+      const badge = document.getElementById("dbClassAlignmentBadge");
+      if (badge) {
+        badge.textContent = g.alignment + " (" + (g.orderChaosScore > 0 ? "+" : "") + g.orderChaosScore + ")";
+        badge.style.color = g.alignment === "ORDER" ? "#6EE7B7" : "#FDA4AF";
+      }
+
+      const bar = document.getElementById("dbClassLiveMetricsBar");
+      if (bar) {
+        bar.innerHTML =
+          '<strong style="color:#FDE68A;">[' + g.domain60.shortLabel + ']</strong> • ' +
+          'Composite: <strong style="color:#6EE7B7;">' + m.compositePowerScore + 'π</strong> • ' +
+          'Offense: <strong>' + m.rawOffensePi + 'π</strong> • ' +
+          'Defense: <strong>' + m.rawDefensePi + 'π</strong> • ' +
+          'Total Arc: <strong style="color:#38BDF8;">Δ' + m.totalArcDeg + '°</strong> • ' +
+          'Speed: <strong>ω=' + m.angularSpeedDeg + '°/s</strong> • ' +
+          'SPC Δσ: <strong>' + m.spcStabilityDelta + 'σ</strong>';
+      }
+
+      renderArchetypeDegreeWheelCanvas(m);
+    };
+
+    G.syncDegreeInputFromSlider = function (val) {
+      const num = parseFloat(val) || 15;
+      const inp = document.getElementById("dbClassDegreeInput");
+      if (inp) inp.value = num;
+      const geo = window.SovCommandEngine.resolveDegreeGeometry(num);
+      const polSel = document.getElementById("dbClassPolaritySelect");
+      if (polSel) polSel.value = geo.polarity;
+      G.previewForgedClassLive();
+    };
+
+    G.syncDegreeSliderFromInput = function (val) {
+      const num = parseFloat(val) || 15;
+      const sld = document.getElementById("dbClassDegreeSlider");
+      if (sld) sld.value = Math.min(360, Math.max(1, Math.round(num % 360 || 360)));
+      const geo = window.SovCommandEngine.resolveDegreeGeometry(num);
+      const polSel = document.getElementById("dbClassPolaritySelect");
+      if (polSel) polSel.value = geo.polarity;
+      G.previewForgedClassLive();
+    };
+
+    G.stepForgedClassDegree = function (delta) {
+      const cur = parseFloat(document.getElementById("dbClassDegreeInput")?.value) || 15;
+      let next = cur + delta;
+      if (next <= 0) next += 360;
+      if (next > 1130.4) next = 360;
+      const inp = document.getElementById("dbClassDegreeInput");
+      if (inp) inp.value = +next.toFixed(1);
+      G.syncDegreeSliderFromInput(next);
+    };
+
+    G.snapForgedClassDegreeTo15 = function () {
+      const cur = parseFloat(document.getElementById("dbClassDegreeInput")?.value) || 15;
+      const snapped = Math.max(15, Math.min(360, Math.round(cur / 15) * 15 || 15));
+      const inp = document.getElementById("dbClassDegreeInput");
+      if (inp) inp.value = snapped;
+      G.syncDegreeSliderFromInput(snapped);
+      // Load matching canonical 15° template if available
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      const match = pool.find(c => Math.abs(c.degree - snapped) < 0.5);
+      if (match) {
+        G.selectDatabankClassForEdit(match.id);
+      }
+    };
+
+    G.onDomainSelectChange = function (domainId) {
+      const domains = window.SOV_EQUILATERAL_60_DOMAINS || [];
+      const d = domains.find(x => x.id === domainId);
+      if (!d) return;
+      const targetDeg = d.startDeg + 15;
+      const inp = document.getElementById("dbClassDegreeInput");
+      if (inp) inp.value = targetDeg;
+      G.syncDegreeSliderFromInput(targetDeg);
+    };
+
+    G.saveForgedArchetypeClass = function () {
+      const formObj = readCurrentForgeClassForm(state.selectedDatabankClassId);
+      const saved = window.SovCommandEngine.upsertArchetypeClassTemplate(formObj);
+      state.selectedDatabankClassId = saved.id;
+      refreshDatabankTemplateDropdown();
+      renderDatabankArchetypePoolTable();
+      G.previewForgedClassLive();
+      G.triggerDatabankCoalitionBattle("3v3", saved.id);
+      addLog("💾 Saved Archetype Class [" + saved.name + "] (" + saved.degree + "° | ×3.14=" + saved.degTimes314 + "° | ×π=" + saved.degTimesPi + "°) to Persistent Databank Pool!", "#6EE7B7");
+    };
+
+    G.createNewCustomArchetypeClass = function () {
+      const newId = "DB_CUSTOM_" + Math.round(parseFloat(document.getElementById("dbClassDegreeInput")?.value) || 15) + "DEG_" + Math.floor(100 + Math.random() * 899);
+      const formObj = readCurrentForgeClassForm(newId, true);
+      if (formObj.name.indexOf("[Custom]") === -1 && formObj.name.indexOf("[Forged]") === -1) {
+        formObj.name += " [Forged]";
+      }
+      const saved = window.SovCommandEngine.upsertArchetypeClassTemplate(formObj);
+      state.selectedDatabankClassId = saved.id;
+      refreshDatabankTemplateDropdown();
+      renderDatabankArchetypePoolTable();
+      G.selectDatabankClassForEdit(saved.id);
+      G.triggerDatabankCoalitionBattle("3v3", saved.id);
+      addLog("➕ Created New Custom Databank Class [" + saved.name + "] @ " + saved.degree + "° and entered it into the 2v2/3v3 Coalition Pool!", "#FDE68A");
+    };
+
+    G.cloneActiveArchetypeClass = function () {
+      const cloned = window.SovCommandEngine.cloneArchetypeClassTemplate(state.selectedDatabankClassId);
+      state.selectedDatabankClassId = cloned.id;
+      refreshDatabankTemplateDropdown();
+      renderDatabankArchetypePoolTable();
+      G.selectDatabankClassForEdit(cloned.id);
+      addLog("🧬 Cloned Archetype Class [" + cloned.name + "] in Persistent Databank Pool.", "#93C5FD");
+    };
+
+    G.deleteActiveArchetypeClass = function () {
+      window.SovCommandEngine.deleteOrResetArchetypeClassTemplate(state.selectedDatabankClassId);
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      state.selectedDatabankClassId = pool[0]?.id || "DB_ARCH_015_AEGIS_WARDEN";
+      refreshDatabankTemplateDropdown();
+      renderDatabankArchetypePoolTable();
+      G.selectDatabankClassForEdit(state.selectedDatabankClassId);
+      addLog("🗑️ Reset / Deleted selected Databank Archetype Template.", "#FDA4AF");
+    };
+
+    G.resetDatabankPool = function () {
+      window.SovCommandEngine.resetDatabankPoolToCanon();
+      state.selectedDatabankClassId = "DB_ARCH_015_AEGIS_WARDEN";
+      refreshDatabankTemplateDropdown();
+      renderDatabankArchetypePoolTable();
+      G.selectDatabankClassForEdit(state.selectedDatabankClassId);
+      addLog("↺ Restored all 24 Canonical 15° Dominant Archetypes in the Databank Pool.", "#FDE68A");
+    };
+
+    G.filterDatabankPool = function (domainFilter) {
+      state.databankDomainFilter = domainFilter;
+      ["ALL", "DOM_01_DEFENDERS", "DOM_02_PHYSICAL_ATTACKERS", "DOM_03_RANGED", "DOM_04_SPELL", "DOM_05_SUPPORT", "DOM_06_SOVEREIGN"].forEach(k => {
+        const b = document.getElementById("dbFilter_" + k);
+        if (b) b.classList.toggle("active", k === domainFilter);
+      });
+      renderDatabankArchetypePoolTable();
+    };
+
+    G.spawnForgedClassInArena = function (classIdOverride) {
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      const cls = pool.find(c => c.id === (classIdOverride || state.selectedDatabankClassId)) || pool[0];
+      if (!cls) return;
+      const m = window.SovCommandEngine.computeClassProceduralMetrics(cls);
+      const rPi = cls.orbitRadiusPi || 2.00;
+      const deg = cls.degree % 360;
+      const rad = deg * DEG_TO_RAD;
+
+      state.units.push({
+        idx: state.units.length,
+        profileId: cls.id,
+        name: cls.name + " (" + cls.degree + "°)",
+        archetype: cls.modality + " • " + cls.alignment,
+        coreArchetype: cls.coreArchetype,
+        form: cls.modality === "SPELL_ALCHEMICAL" || cls.modality === "SOVEREIGN_HYBRID" ? "Floating Aura" : "Armored Stride",
+        verb: cls.signatureCommand || "DEFEND",
+        gambit: cls.signatureCommand + "(Δ" + m.totalArcDeg + "°) -> " + m.spl.name,
+        statW: cls.statWeightPi,
+        armorW: m.arm.weightPi,
+        weaponW: m.wpn.weightPi,
+        vfxType: m.spl.vfx || "SWORD_SWIPE_AND_SPARKLES",
+        tone: cls.polarity + " • " + cls.alignment,
+        tradeSkill: m.wpn.name.split("(")[0].trim() + " + " + m.pot.name.split(" ")[0],
+        experience: cls.combatStyleDesc,
+        hp: Math.round(1200 + m.rawDefensePi * 3.14),
+        maxHp: Math.round(1200 + m.rawDefensePi * 3.14),
+        atk: Math.round(m.rawOffensePi),
+        def: Math.round(m.rawDefensePi),
+        isEnemy: false,
+        isFloating: cls.modality === "SPELL_ALCHEMICAL" || cls.modality === "SOVEREIGN_HYBRID",
+        isMounted: cls.modality === "PHYSICAL_ATTACKER",
+        empowered: true,
+        orbitRadiusPi: rPi,
+        customOrbitPi: rPi,
+        angleDeg: deg,
+        arcDegrees: m.totalArcDeg,
+        angularVelocityDeg: m.angularSpeedDeg,
+        revProgressDeg: 0,
+        completedCircles: 0,
+        lastIncidenceDeg: 135,
+        lastTorquePi: m.compositePowerScore,
+        lastProceduralDmg: Math.round(m.rawOffensePi * 0.65),
+        gx: Math.cos(rad) * rPi * 1.18,
+        gy: Math.sin(rad) * rPi * 1.18,
+        conversions: cls.wins || 5,
+        activeResonance: 1.45,
+        resonanceTier: "PRIME_RESONANCE"
+      });
+      state.selectedUnitIndex = state.units.length - 1;
+      syncInspectorToSelectedUnit();
+      renderCircularTelemetryTable();
+      vp.spawnCircularShockwave(rPi, deg, 95, "#10B981", m.totalArcDeg, deg);
+      addLog("🚀 Spawned Databank Class [" + cls.name + "] (" + cls.degree + "° | " + m.wpn.name.split("(")[0].trim() + ") onto Ring r=" + rPi.toFixed(2) + "π!", "#6EE7B7");
+    };
+
+    G.triggerDatabankCoalitionBattle = function (modeStr, classIdOverride, silentLog) {
+      const targetId = classIdOverride || state.selectedDatabankClassId;
+      const res = window.SovCommandEngine.runProceduralCoalitionEncounter(modeStr || "3v3", targetId);
+      state.lastCoalitionResult = res;
+
+      const box = document.getElementById("databankCoalitionLiveBox");
+      if (box) {
+        const teamANames = res.teamA.map(c => '<strong style="color:#6EE7B7;">' + c.degree + '° ' + c.name + '</strong> <span style="color:#94A3B8;">(' + c.modality.slice(0, 8) + ')</span>').join(" + ");
+        const teamBNames = res.teamB.map(c => '<strong style="color:#FDA4AF;">' + c.degree + '° ' + c.name + '</strong> <span style="color:#94A3B8;">(' + c.modality.slice(0, 8) + ')</span>').join(" + ");
+
+        box.innerHTML =
+          '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:3px;margin-bottom:4px;">' +
+            '<span style="color:#FDE68A;font-weight:700;">⭕ ' + res.mode + ' PROCEDURAL COALITION CLASH (' + (res.teamAWon ? '🏆 ALLIED VICTORY' : '⚔️ OPPOSITION SURGE') + ' • ' + res.winProbPct + '%)</span>' +
+            '<span style="color:#38BDF8;font-family:Consolas,monospace;">360° Completions: ' + res.completedCirclesA + ' vs ' + res.completedCirclesB + ' | Mean τ=' + res.meanTorqueA + 'π</span>' +
+          '</div>' +
+          '<div style="margin-bottom:3px;">🛡️ <strong>Coalition A [' + res.synergyA.chordLabel + ']:</strong> ' + teamANames + '</div>' +
+          '<div style="margin-bottom:4px;">⚔️ <strong>Coalition B [' + res.synergyB.chordLabel + ']:</strong> ' + teamBNames + '</div>' +
+          res.roundLog.map(line => '<div style="color:#CBD5E1;font-family:Consolas,monospace;font-size:0.67rem;">• ' + line + '</div>').join("");
+      }
+
+      renderDatabankArchetypePoolTable();
+      G.previewForgedClassLive();
+
+      if (!silentLog) {
+        vp.spawnCircularShockwave(2.51, res.teamA[0].degree % 360, 100, res.teamAWon ? "#10B981" : "#F43F5E", 240, res.teamA[0].degree % 360);
+        addLog("⭕ " + res.mode + " Databank Coalition Clash: [" + res.teamA.map(x => x.degree + "°").join("/") + "] vs [" + res.teamB.map(x => x.degree + "°").join("/") + "] -> " + (res.teamAWon ? "VICTORY" : "CONTESTED") + " (" + res.winProbPct + "% | τ=" + res.meanTorqueA + "π)!", "#FDE68A");
+      }
+    };
+
+    G.toggleAutoWeighDatabankPool = function () {
+      state.autoWeighPoolActive = !state.autoWeighPoolActive;
+      const btn = document.getElementById("autoWeighPoolBtn");
+      if (btn) {
+        btn.textContent = state.autoWeighPoolActive ? "🔄 Auto-Weigh Pool: ON" : "⏸️ Auto-Weigh Pool: OFF";
+        btn.className = state.autoWeighPoolActive ? "btn btn-emerald" : "btn";
+      }
+      addLog("Automated Databank Pool Procedural Coalition Weighing: " + (state.autoWeighPoolActive ? "ENABLED" : "PAUSED"), "#6EE7B7");
+    };
+
+    function bindArchetypeWheelCanvasEvents() {
+      const canvas = document.getElementById("archetypeDegreeWheelCanvas");
+      if (!canvas) return;
+      const cx = 152;
+      const cy = 146;
+
+      const getDegFromEvent = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const mx = (e.clientX - rect.left) * scaleX;
+        const my = (e.clientY - rect.top) * scaleY;
+        if (mx > 295) return null; // Right-side legend area
+        let deg = (Math.atan2(my - cy, mx - cx) * 180 / Math.PI) + 90;
+        if (deg <= 0) deg += 360;
+        return +deg.toFixed(1);
+      };
+
+      canvas.addEventListener("mousemove", function (e) {
+        const deg = getDegFromEvent(e);
+        if (deg == null) return;
+        const snap15 = Math.max(15, Math.min(360, Math.round(deg / 15) * 15 || 15));
+        const ro = document.getElementById("wheelHoverReadout");
+        if (ro) {
+          ro.textContent = "Hover θ=" + deg + "° (Snap " + snap15 + "°) • ×3.14=" + (deg * 3.14).toFixed(1) + "° • ×π=" + (deg * Math.PI).toFixed(1) + "°";
+        }
+      });
+
+      canvas.addEventListener("click", function (e) {
+        const deg = getDegFromEvent(e);
+        if (deg == null) return;
+        const snap15 = Math.max(15, Math.min(360, Math.round(deg / 15) * 15 || 15));
+        const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+        const match = pool.find(c => Math.abs((c.degree % 360 || 360) - snap15) < 4);
+        if (match) {
+          G.selectDatabankClassForEdit(match.id);
+          G.triggerDatabankCoalitionBattle("3v3", match.id);
+        } else {
+          const inp = document.getElementById("dbClassDegreeInput");
+          if (inp) inp.value = deg;
+          G.syncDegreeSliderFromInput(deg);
+        }
+      });
+    }
+
     G.runLiveDslScript = function () {
       const area = document.getElementById("dslScriptEditorArea");
       if (!area || !window.SovCommandEngine) return;
@@ -1285,6 +1969,12 @@
     renderAgencyCouncilUI();
     renderProfilesTableAndSelects();
     refreshCommandUI();
+    populateDatabankOfferingsSelects();
+    refreshDatabankTemplateDropdown();
+    bindArchetypeWheelCanvasEvents();
+    G.selectDatabankClassForEdit("DB_ARCH_015_AEGIS_WARDEN");
+    renderDatabankArchetypePoolTable();
+    G.triggerDatabankCoalitionBattle("3v3", "DB_ARCH_015_AEGIS_WARDEN", true);
     renderCircularTelemetryTable();
     renderThroneRoomDepartments();
     renderCommoditiesTable();
@@ -1336,6 +2026,13 @@
           setTxt("hudAgencyCycleVal", "(" + stepRes.activeAgent.angleDeg + "° | Cycle #" + stepRes.completedCycles + ")");
         }
         renderAgencyCouncilUI();
+      }
+
+      // 6. Automated Databank Pool 2v2 / 3v3 Procedural Coalition Weighing every 12 intervals (~3.6s)
+      if (state.autoWeighPoolActive && loopTick % 12 === 0) {
+        const modes = ["2v2", "3v3", "1v1"];
+        const chosenMode = modes[(loopTick / 12) % modes.length | 0];
+        G.triggerDatabankCoalitionBattle(chosenMode, state.selectedDatabankClassId, true);
       }
 
       if (window.SovCommandEngine) {
