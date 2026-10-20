@@ -1305,9 +1305,351 @@
     return outcome;
   }
 
-  // Initialize pool and persistent rosters immediately
+  /* ==========================================================================
+   * THE BASTILLE OF ARCHETYPES ENGINE (6 EQUILATERAL 60° BASTIONS × 4 VAULTS = 24)
+   * Replaces abstract statistical Monte Carlo sampling with a persistent,
+   * hexagonal 6-Bastion Citadel where all 24 Dominant 15° Archetypes (plus
+   * custom Databank classes) are garrisoned, fortified, besieged, and tested.
+   * ========================================================================== */
+  const BASTILLE_STORAGE_KEY = "SOV_BASTILLE_ARCHETYPES_V314";
+
+  const BASTILLE_SIX_WINGS = [
+    {
+      id: "DOM_01_DEFENDERS",
+      bastionNo: "I",
+      name: "Bastion I — The Badr Phalanx & Ribāṭ Aegis Keep",
+      sectorRange: "0°–60° (×3.14 = 188.4°)",
+      modality: "DEFENDERS",
+      icon: "🛡️",
+      color: "#10B981",
+      apexDegree: 60,
+      lore: "Interlocking Rimāḥ lance walls and Jawshan lamellar bastions that absorb frontal kinetic shock."
+    },
+    {
+      id: "DOM_02_PHYSICAL_ATTACKERS",
+      bastionNo: "II",
+      name: "Bastion II — The Furūsiyyah & Damascus Citadel Armory",
+      sectorRange: "60°–120° (×3.14 = 376.8°)",
+      modality: "PHYSICAL ATTACKERS",
+      icon: "⚔️",
+      color: "#F43F5E",
+      apexDegree: 120,
+      lore: "Crucible Damascus Shamshīrs, Ayyūbid maces, and Mamlūk shock lancers maximizing tangential torque τ_π."
+    },
+    {
+      id: "DOM_03_RANGED",
+      bastionNo: "III",
+      name: "Bastion III — The Qaws Overwatch & Şahi Bombard Tower",
+      sectorRange: "120°–180° (×3.14 = 565.2°)",
+      modality: "RANGED OVERWATCH",
+      icon: "🏹",
+      color: "#38BDF8",
+      apexDegree: 180,
+      lore: "Elevated composite bow snipers, Kipchak horse-archer kiters, and 180° diametric bronze bombards."
+    },
+    {
+      id: "DOM_04_SPELL",
+      bastionNo: "IV",
+      name: "Bastion IV — The Al-Inbīq & Sulaymānī Qumqum Spire",
+      sectorRange: "180°–240° (×3.14 = 753.6°)",
+      modality: "SPELL & ALCHEMICAL",
+      icon: "✨",
+      color: "#A855F7",
+      apexDegree: 240,
+      lore: "Distilled acetic vinegar rings, white-flame Nafṭ siphons, and brass Qumqum containment vortices."
+    },
+    {
+      id: "DOM_05_SUPPORT",
+      bastionNo: "V",
+      name: "Bastion V — The Bīmāristān & Hisbah Mīzān Cloister",
+      sectorRange: "240°–300° (×3.14 = 942.0°)",
+      modality: "TACTICAL SUPPORT",
+      icon: "🧪",
+      color: "#F59E0B",
+      apexDegree: 300,
+      lore: "Clinical Bīmāristān triage physicians, caravan quartermasters, and SPC S0 equilibrium arbiters."
+    },
+    {
+      id: "DOM_06_SOVEREIGN",
+      bastionNo: "VI",
+      name: "Bastion VI — The Sovereign 3.14π Zenith Keep",
+      sectorRange: "300°–360° (×3.14 = 1130.4°)",
+      modality: "SOVEREIGN HYBRID",
+      icon: "👑",
+      color: "#D4AF37",
+      apexDegree: 360,
+      lore: "Unites all 6 Equilateral 60° Domains under the 360° (2π) Full-Circle Spinor Crown."
+    }
+  ];
+
+  function initBastilleState() {
+    if (!window.SOV_ARCHETYPE_DATABANK_POOL) initDatabankArchetypePool();
+    const pool = window.SOV_ARCHETYPE_DATABANK_POOL;
+    const defVaults = {};
+    pool.forEach((c, idx) => {
+      const isApex = (c.degree % 60 === 0);
+      defVaults[c.id] = {
+        classId: c.id,
+        vaultNo: idx + 1,
+        fortificationTier: isApex ? 3 : 2,
+        wallIntegrityPct: 100,
+        status: isApex ? "APEX_BASTION_LORD" : "FORTIFIED_WARDEN",
+        defensesWon: (c.wins || 16),
+        breachesSuffered: (c.losses || 4),
+        sealsUnlocked: isApex ? 2 : 1,
+        lastTrialLog: "Garrisoned at " + c.degree + "° (" + c.degTimes314 + "° ×3.14) — Ready for Crucible Trial."
+      };
+    });
+
+    const defState = {
+      activeWingFilter: "ALL",
+      selectedVaultClassId: "DB_ARCH_060_EQUILATERAL_COLOSSUS",
+      challengerClassId: "DB_ARCH_090_MAMLUK_SHOCK_LANCER",
+      totalBastilleSeals: 30,
+      gauntletRunsCompleted: 7,
+      vaults: defVaults,
+      recentTrials: [
+        "🏰 [Bastion I • 60° Vault] 90° Mamlūk Furūsiyyah Ravager breached 60° Equilateral Ansār Bodyguard in 7 revolutions (τ=74.8π)!",
+        "🛡️ [Bastion IV • 225° Vault] 225° Sulaymānī Qumqum Sealer repelled siege with 360° Vortex Seal (+3.14π Fortification)!",
+        "👑 [6-Bastion Gauntlet #7] Coalition Roster Alpha conquered all 6 Equilateral 60° Bastions (+6 Sovereign Seals)!"
+      ]
+    };
+
+    try {
+      const raw = localStorage.getItem(BASTILLE_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.vaults) {
+          // Ensure any newly created custom databank classes also have a vault entry
+          pool.forEach((c, idx) => {
+            if (!parsed.vaults[c.id]) {
+              parsed.vaults[c.id] = defVaults[c.id] || {
+                classId: c.id,
+                vaultNo: idx + 1,
+                fortificationTier: 2,
+                wallIntegrityPct: 100,
+                status: "CUSTOM_GARRISON",
+                defensesWon: c.wins || 5,
+                breachesSuffered: c.losses || 1,
+                sealsUnlocked: 1,
+                lastTrialLog: "Custom Forged Archetype Garrisoned in Bastille."
+              };
+            }
+          });
+          window.SOV_BASTILLE_STATE = Object.assign({}, defState, parsed);
+          return window.SOV_BASTILLE_STATE;
+        }
+      }
+    } catch (e) {}
+
+    window.SOV_BASTILLE_STATE = defState;
+    return window.SOV_BASTILLE_STATE;
+  }
+
+  function saveBastilleState() {
+    try {
+      if (window.SOV_BASTILLE_STATE) {
+        localStorage.setItem(BASTILLE_STORAGE_KEY, JSON.stringify(window.SOV_BASTILLE_STATE));
+      }
+    } catch (e) {}
+  }
+
+  function getBastilleState() {
+    if (!window.SOV_BASTILLE_STATE) initBastilleState();
+    return window.SOV_BASTILLE_STATE;
+  }
+
+  function getBastilleWingsSchema() {
+    return BASTILLE_SIX_WINGS;
+  }
+
+  function fortifyBastilleVault(classId) {
+    const st = getBastilleState();
+    const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+    const cls = pool.find(c => c.id === classId) || pool[0];
+    if (!cls) return null;
+    if (!st.vaults[cls.id]) initBastilleState();
+    const v = st.vaults[cls.id];
+    v.fortificationTier = Math.min(5, (v.fortificationTier || 2) + 1);
+    v.wallIntegrityPct = 100;
+    v.status = v.fortificationTier >= 4 ? "CITADEL_OVERLORD" : "FORTIFIED_WARDEN";
+    v.defensesWon = (v.defensesWon || 10) + 1;
+    v.lastTrialLog = "Fortified to Tier " + v.fortificationTier + " (+ " + (v.fortificationTier * 3.14).toFixed(2) + "π Wall Mitigation).";
+
+    cls.eloRating = (cls.eloRating || 1650) + 8;
+    st.recentTrials.unshift("🏰 Fortified Vault [" + cls.degree + "° " + cls.name + "] to Bastille Tier " + v.fortificationTier + " (Wall=100% • ELO " + cls.eloRating + ")!");
+    if (st.recentTrials.length > 15) st.recentTrials.length = 15;
+
+    saveDatabankPoolToStorage();
+    saveBastilleState();
+    return v;
+  }
+
+  function challengeBastilleVault(challengerId, vaultClassId, incAngleDeg, sweepArcDeg) {
+    if (!window.SOV_ARCHETYPE_DATABANK_POOL) initDatabankArchetypePool();
+    const pool = window.SOV_ARCHETYPE_DATABANK_POOL;
+    const st = getBastilleState();
+
+    const attCls = pool.find(c => c.id === challengerId) || pool[0];
+    const defCls = pool.find(c => c.id === vaultClassId) || pool[3] || pool[0];
+    if (!st.vaults[defCls.id]) initBastilleState();
+    const vault = st.vaults[defCls.id];
+
+    const mAtt = computeClassProceduralMetrics(attCls);
+    const mDef = computeClassProceduralMetrics(defCls);
+
+    const phi = incAngleDeg != null ? parseFloat(incAngleDeg) : (Math.abs(attCls.degree - defCls.degree) % 180 || 135);
+    const arc = sweepArcDeg != null ? parseFloat(sweepArcDeg) : mAtt.totalArcDeg;
+
+    const angleMult = phi >= 135 ? 1.52 : (phi >= 45 ? 1.26 : 0.88);
+    const fortWallMult = 1.0 + (vault.fortificationTier || 2) * 0.095;
+
+    let hpAtt = (1350 + mAtt.rawDefensePi * 3.14);
+    let hpDef = (1350 + mDef.rawDefensePi * 3.14) * fortWallMult;
+    const maxHpDef = hpDef;
+
+    let revAtt = 0;
+    let revDef = 0;
+    let circlesAtt = 0;
+    let circlesDef = 0;
+    let ticks = 0;
+    let torqueSum = 0;
+
+    while (hpAtt > 0 && hpDef > 0 && ticks < 14) {
+      ticks++;
+      const stepA = mAtt.angularSpeedDeg * 0.42;
+      const stepD = mDef.angularSpeedDeg * 0.38;
+      revAtt += stepA;
+      revDef += stepD;
+
+      let surgeA = 1.0;
+      let surgeD = 1.0;
+      if (revAtt >= 360) {
+        revAtt -= 360;
+        circlesAtt++;
+        surgeA = 1.57;
+      }
+      if (revDef >= 360) {
+        revDef -= 360;
+        circlesDef++;
+        surgeD = 1.45;
+      }
+
+      const tA = mAtt.rawOffensePi * angleMult * surgeA * (1 + (arc / 360) * 0.18) * 0.26;
+      const tD = mDef.rawOffensePi * fortWallMult * surgeD * 0.25;
+      torqueSum += tA;
+
+      const dmgToDef = Math.max(48, tA * 2.1 - mDef.rawDefensePi * 0.35);
+      const dmgToAtt = Math.max(42, tD * 2.0 - mAtt.rawDefensePi * 0.32);
+
+      hpDef -= dmgToDef;
+      if (hpDef <= 0) break;
+      hpAtt -= dmgToAtt;
+    }
+
+    const breached = hpDef <= 0 || (hpAtt / 1400 >= hpDef / maxHpDef);
+    const meanTorque = +(torqueSum / Math.max(1, ticks)).toFixed(1);
+    const breachRatioPct = +Math.min(96.5, Math.max(24.0, (hpAtt / Math.max(1, hpAtt + Math.max(0, hpDef))) * 100)).toFixed(1);
+
+    if (breached) {
+      vault.breachesSuffered = (vault.breachesSuffered || 0) + 1;
+      vault.sealsUnlocked = (vault.sealsUnlocked || 1) + 1;
+      vault.wallIntegrityPct = Math.max(35, (vault.wallIntegrityPct || 100) - 22);
+      vault.status = "VAULT_BREACHED_SEAL";
+      st.totalBastilleSeals = (st.totalBastilleSeals || 30) + 1;
+      attCls.wins = (attCls.wins || 0) + 1;
+      attCls.eloRating = (attCls.eloRating || 1650) + 14;
+      attCls.completed360Count = (attCls.completed360Count || 0) + Math.max(1, circlesAtt);
+    } else {
+      vault.defensesWon = (vault.defensesWon || 0) + 1;
+      vault.status = "IRONCLAD_WARDEN";
+      defCls.wins = (defCls.wins || 0) + 1;
+      defCls.eloRating = (defCls.eloRating || 1650) + 11;
+      defCls.completed360Count = (defCls.completed360Count || 0) + Math.max(1, circlesDef);
+    }
+
+    const summaryLine =
+      (breached ? "⚔️ VAULT BREACHED" : "🛡️ BASTION HELD") +
+      " [" + defCls.degree + "° " + defCls.name + " • Tier " + vault.fortificationTier + "]: " +
+      attCls.name + " (" + attCls.degree + "° • φ=" + Math.round(phi) + "°) → " +
+      breachRatioPct + "% Breach Power in " + ticks + " revolutions (⭕" + Math.max(1, circlesAtt) + " Circles | τ=" + meanTorque + "π)";
+
+    vault.lastTrialLog = summaryLine;
+    st.selectedVaultClassId = defCls.id;
+    st.challengerClassId = attCls.id;
+    st.recentTrials.unshift(summaryLine);
+    if (st.recentTrials.length > 15) st.recentTrials.length = 15;
+
+    saveDatabankPoolToStorage();
+    saveBastilleState();
+
+    return {
+      breached: breached,
+      challenger: attCls,
+      warden: defCls,
+      mAtt: mAtt,
+      mDef: mDef,
+      vault: vault,
+      phiDeg: Math.round(phi),
+      arcDeg: Math.round(arc),
+      revolutions: ticks,
+      circlesAtt: Math.max(1, circlesAtt),
+      circlesDef: Math.max(1, circlesDef),
+      meanTorquePi: meanTorque,
+      breachRatioPct: breachRatioPct,
+      summaryLine: summaryLine
+    };
+  }
+
+  function runBastilleSixWingGauntlet() {
+    if (!window.SOV_ARCHETYPE_DATABANK_POOL) initDatabankArchetypePool();
+    const pool = window.SOV_ARCHETYPE_DATABANK_POOL;
+    const st = getBastilleState();
+    const rosterResolved = resolveActiveRosterTeams();
+    const leadAtt = rosterResolved.teamA[0] || pool[0];
+
+    const stageResults = [];
+    let wingsConquered = 0;
+
+    BASTILLE_SIX_WINGS.forEach((wing, idx) => {
+      const wingWarden = pool.find(c => c.domain60Id === wing.id && c.degree % 60 === 0) ||
+                         pool.find(c => c.domain60Id === wing.id) ||
+                         pool[(idx * 4) % pool.length];
+      const chall = rosterResolved.teamA[idx % rosterResolved.teamA.length] || leadAtt;
+      const res = challengeBastilleVault(chall.id, wingWarden.id, 120 + idx * 10, chall.arcDegrees || 210);
+      if (res.breached) wingsConquered++;
+      stageResults.push({
+        wing: wing,
+        trial: res
+      });
+    });
+
+    st.gauntletRunsCompleted = (st.gauntletRunsCompleted || 7) + 1;
+    st.totalBastilleSeals = (st.totalBastilleSeals || 30) + wingsConquered;
+    st.recentTrials.unshift(
+      "🔥 [6-BASTION GAUNTLET #" + st.gauntletRunsCompleted + "] Roster Alpha (" +
+      rosterResolved.teamA.map(c => c.degree + "°").join("+") +
+      ") stormed all 6 Equilateral 60° Bastions → Conquered " + wingsConquered + "/6 Bastions (+" + wingsConquered + " Sovereign Seals)!"
+    );
+    saveBastilleState();
+
+    return {
+      gauntletNo: st.gauntletRunsCompleted,
+      wingsConquered: wingsConquered,
+      totalSeals: st.totalBastilleSeals,
+      stageResults: stageResults
+    };
+  }
+
+  function resetBastilleState() {
+    try { localStorage.removeItem(BASTILLE_STORAGE_KEY); } catch (e) {}
+    return initBastilleState();
+  }
+
+  // Initialize pool, persistent rosters, and Bastille of Archetypes immediately
   initDatabankArchetypePool();
   initCoalitionRosterState();
+  initBastilleState();
 
   window.SovCommandEngine = {
     getCommandByVerb: getCommandByVerb,
@@ -1335,6 +1677,12 @@
     swapCoalitionRosters: swapCoalitionRosters,
     resolveActiveRosterTeams: resolveActiveRosterTeams,
     persistCoalitionBattleOutcome: persistCoalitionBattleOutcome,
+    getBastilleState: getBastilleState,
+    getBastilleWingsSchema: getBastilleWingsSchema,
+    fortifyBastilleVault: fortifyBastilleVault,
+    challengeBastilleVault: challengeBastilleVault,
+    runBastilleSixWingGauntlet: runBastilleSixWingGauntlet,
+    resetBastilleState: resetBastilleState,
     ringBuffer: new RingBufferCommandQueue(64),
     spcEngine: new GeminiSPCEngine()
   };

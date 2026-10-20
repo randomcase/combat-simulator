@@ -290,23 +290,43 @@
     }
   }
 
-  function renderProfilesTableAndSelects() {
-    const profiles = window.SOV_PROFILES_DATA || [];
+  function populateBastilleCrucibleSelects() {
+    const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
     const attSel = document.getElementById("clashAttackerSelect");
     const defSel = document.getElementById("clashDefenderSelect");
+    const bState = window.SovCommandEngine && window.SovCommandEngine.getBastilleState
+      ? window.SovCommandEngine.getBastilleState()
+      : { vaults: {} };
 
-    const optionsHtml = profiles.map((p, idx) =>
-      '<option value="' + idx + '">' + p.profileId + " — " + p.characterName + " [" + p.coreArchetype + "]</option>"
-    ).join("");
+    const optionsHtml = pool.map((c) => {
+      const v = (bState.vaults && bState.vaults[c.id]) || { fortificationTier: 1, wallIntegrityPct: 100 };
+      return '<option value="' + c.id + '">[' + c.degree + '° | T' + v.fortificationTier + '] ' + c.name.replace(/^\d+°\s*/, "") + ' (' + c.combatRole + ')</option>';
+    }).join("");
 
     if (attSel) {
+      const prevAtt = attSel.value;
       attSel.innerHTML = optionsHtml;
-      attSel.value = "1";
+      if (prevAtt && pool.some(c => c.id === prevAtt)) {
+        attSel.value = prevAtt;
+      } else {
+        attSel.value = "DB_ARCH_090_MAMLUK_SHOCK_LANCER";
+      }
     }
     if (defSel) {
+      const prevDef = defSel.value || state.selectedBastilleVaultId;
       defSel.innerHTML = optionsHtml;
-      defSel.value = "10";
+      if (prevDef && pool.some(c => c.id === prevDef)) {
+        defSel.value = prevDef;
+      } else {
+        defSel.value = "DB_ARCH_060_EQUILATERAL_COLOSSUS";
+      }
+      state.selectedBastilleVaultId = defSel.value;
     }
+  }
+
+  function renderProfilesTableAndSelects() {
+    const profiles = window.SOV_PROFILES_DATA || [];
+    populateBastilleCrucibleSelects();
 
     const tbody = document.getElementById("profiles11VectorTableBody");
     if (tbody) {
@@ -2425,18 +2445,201 @@
       addLog("Deployed [" + p.characterName.split("(")[0].trim() + "] on Ring r=" + rPi.toFixed(2) + "π @ θ=" + Math.round(deg) + "° (" + defaultVerb + " " + res.multiplier.toFixed(2) + "x)!", "#6EE7B7");
     };
 
-    /* 11-Vector + 3.14π Circular Degree Clash Calculator */
-    G.recalc11VectorClash = function () {
-      const profiles = window.SOV_PROFILES_DATA || [];
-      const aIdx = parseInt(document.getElementById("clashAttackerSelect")?.value || "1", 10) || 0;
-      const dIdx = parseInt(document.getElementById("clashDefenderSelect")?.value || "10", 10) || 10;
-      const att = profiles[aIdx] || profiles[0];
-      const def = profiles[dIdx] || profiles[profiles.length - 1];
-      const selectedVerb = document.getElementById("clashVerbSelect")?.value || "DEFEND";
+    /* ============================================================================
+     * 🏰 THE BASTILLE OF ARCHETYPES — 6 EQUILATERAL 60° CITADEL BASTIONS,
+     *    24 GARRISONED 15° VAULTS & LIVE 60 FPS HEXAGONAL CRUCIBLE CANVAS
+     * ============================================================================ */
+    state.selectedBastilleWingFilter = "ALL";
+    state.selectedBastilleVaultId = "DB_ARCH_060_EQUILATERAL_COLOSSUS";
+    state.bastilleAnim = {
+      phaseDeg: 0,
+      challengerOrbitDeg: 210,
+      wardenOrbitDeg: 30,
+      lastHitCooldown: 0,
+      shockwaves: [],
+      floatingTexts: [],
+      lastTrialResult: null
+    };
 
-      const statW = parseFloat(document.getElementById("clashStatSlider")?.value) || att.statWeightPi;
-      const weapW = parseFloat(document.getElementById("clashWeaponSlider")?.value) || att.weaponWeightPi;
-      const armW = parseFloat(document.getElementById("clashArmorSlider")?.value) || def.armorWeightPi;
+    function renderBastilleOfArchetypesUI() {
+      if (!window.SovCommandEngine || !window.SovCommandEngine.getBastilleState) return;
+      const bState = window.SovCommandEngine.getBastilleState();
+      const wings = window.SovCommandEngine.getBastilleWingsSchema();
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+
+      // 1. Render 6-Bastion Equilateral Wing Strip
+      const wingStrip = document.getElementById("bastilleSixWingsStrip");
+      if (wingStrip) {
+        wingStrip.innerHTML = wings.map(w => {
+          const wingVaults = pool.filter(c => c.degree >= w.degMin && c.degree <= w.degMax);
+          const avgTier = wingVaults.length
+            ? (wingVaults.reduce((s, c) => s + ((bState.vaults[c.id]?.fortificationTier) || 1), 0) / wingVaults.length).toFixed(1)
+            : "2.0";
+          const avgWall = wingVaults.length
+            ? Math.round(wingVaults.reduce((s, c) => s + ((bState.vaults[c.id]?.wallIntegrityPct) || 100), 0) / wingVaults.length)
+            : 100;
+          const activeSel = state.selectedBastilleWingFilter === w.id;
+          return (
+            '<div onclick="window.SovGame.filterBastilleByWing(\'' + w.id + '\')" style="cursor:pointer;padding:0.42rem 0.55rem;border-radius:7px;background:' +
+            (activeSel ? 'rgba(212,175,55,0.2)' : 'rgba(2,6,23,0.78)') +
+            ';border:1px solid ' + (activeSel ? '#FDE68A' : w.color) +
+            ';box-shadow:' + (activeSel ? '0 0 12px rgba(212,175,55,0.35)' : 'none') + ';transition:all 0.15s ease;">' +
+              '<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;font-weight:700;color:' + w.color + ';">' +
+                '<span>' + w.icon + ' ' + w.shortTitle + '</span>' +
+                '<span class="badge badge-gold" style="font-size:0.6rem;">' + w.sectorLabel + '</span>' +
+              '</div>' +
+              '<div style="font-size:0.65rem;color:#E2E8F0;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + w.arabicTitle + '</div>' +
+              '<div style="display:flex;justify-content:space-between;font-family:Consolas,monospace;font-size:0.63rem;color:#94A3B8;margin-top:3px;">' +
+                '<span>' + wingVaults.length + ' Vaults • Avg T' + avgTier + '</span>' +
+                '<span style="color:#6EE7B7;">Wall ' + avgWall + '%</span>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join("");
+      }
+
+      // 2. Update Filter Buttons active state
+      const allFilterIds = ["ALL"].concat(wings.map(w => w.id));
+      allFilterIds.forEach(fid => {
+        const btn = document.getElementById("bastilleFilter_" + fid);
+        if (btn) btn.classList.toggle("active", state.selectedBastilleWingFilter === fid);
+      });
+
+      // 3. Update Selected Vault Badge
+      const defSel = document.getElementById("clashDefenderSelect");
+      const activeVaultId = (defSel && defSel.value) || state.selectedBastilleVaultId || "DB_ARCH_060_EQUILATERAL_COLOSSUS";
+      state.selectedBastilleVaultId = activeVaultId;
+      const activeVaultCls = pool.find(c => c.id === activeVaultId) || pool[0];
+      const activeVaultRec = (bState.vaults && bState.vaults[activeVaultId]) || { fortificationTier: 2, wallIntegrityPct: 95, wardenTitle: "Sovereign Bastion Warden" };
+      const selBadge = document.getElementById("bastilleSelectedVaultBadge");
+      if (selBadge && activeVaultCls) {
+        selBadge.textContent = "Vault: " + activeVaultCls.degree + "° " + activeVaultCls.name.replace(/^\d+°\s*/, "") + " (Tier " + activeVaultRec.fortificationTier + " • Wall " + activeVaultRec.wallIntegrityPct + "%)";
+      }
+
+      // 4. Render 24-Vault Bastille Garrison Table (#monteCarloResultsBody)
+      const tbody = document.getElementById("monteCarloResultsBody");
+      if (tbody) {
+        const filteredPool = state.selectedBastilleWingFilter === "ALL"
+          ? pool
+          : pool.filter(c => {
+              const v = bState.vaults[c.id];
+              return v && v.wingId === state.selectedBastilleWingFilter;
+            });
+
+        tbody.innerHTML = filteredPool.map(c => {
+          const v = bState.vaults[c.id] || {
+            wingId: "WING_DEFENDERS",
+            wingTitle: "Bastion I: Defenders",
+            wardenTitle: "Garrison Warden",
+            fortificationTier: 2,
+            wallIntegrityPct: 92,
+            defensesWon: 14,
+            breachesSuffered: 4,
+            sealsEarned: 3,
+            avgCirclesCompleted: 2.1,
+            avgTorquePi: 74.5,
+            status: "FORTIFIED"
+          };
+          const wingObj = wings.find(w => w.id === v.wingId) || wings[0];
+          const m = window.SovCommandEngine.computeClassProceduralMetrics(c);
+          const totalTrials = Math.max(1, v.defensesWon + v.breachesSuffered);
+          const holdRatePct = +((v.defensesWon / totalTrials) * 100).toFixed(1);
+          const breachRatePct = +(100 - holdRatePct).toFixed(1);
+          const isSelected = c.id === state.selectedBastilleVaultId;
+          const tierRoman = ["I", "II", "III", "IV", "V"][Math.max(0, Math.min(4, (v.fortificationTier || 1) - 1))];
+
+          return (
+            '<tr style="' + (isSelected ? 'background:rgba(212,175,55,0.14);outline:1px solid rgba(212,175,55,0.45);' : '') + '">' +
+              '<td>' +
+                '<span class="badge" style="background:rgba(2,6,23,0.85);border:1px solid ' + wingObj.color + ';color:' + wingObj.color + ';font-size:0.65rem;">' + wingObj.icon + ' ' + wingObj.shortTitle + '</span><br/>' +
+                '<strong style="color:#FDE68A;font-family:Consolas,monospace;font-size:0.75rem;">Vault ' + c.degree + '° (×3.14=' + c.degTimes314 + '°)</strong>' +
+              '</td>' +
+              '<td>' +
+                '<strong style="color:#F8FAFC;cursor:pointer;" onclick="window.SovGame.selectBastilleVault(\'' + c.id + '\')">' + c.name + '</strong><br/>' +
+                '<span style="color:#6EE7B7;font-size:0.7rem;">' + c.arabicTitle + ' • <em>' + v.wardenTitle + '</em></span>' +
+              '</td>' +
+              '<td>' +
+                '<span class="badge badge-gold">🏰 Tier ' + tierRoman + ' (' + v.fortificationTier + '/5)</span> ' +
+                '<span class="badge ' + (v.status === 'BREACHED' ? 'badge-crimson' : 'badge-emerald') + '">' + v.status + '</span><br/>' +
+                '<div style="font-family:Consolas,monospace;font-size:0.68rem;color:#CBD5E1;margin-top:3px;">Wall Integrity: <strong style="color:#6EE7B7;">' + v.wallIntegrityPct + '%</strong> • Seals: <strong style="color:#FDE68A;">🏅 ' + v.sealsEarned + '</strong></div>' +
+              '</td>' +
+              '<td style="font-size:0.68rem;line-height:1.35;">' +
+                '<div>🗡️ <span style="color:#FDE68A;">' + m.wpn.name + '</span></div>' +
+                '<div>🛡️ <span style="color:#93C5FD;">' + m.arm.name + '</span></div>' +
+                '<div>✨ <span style="color:#C4B5FD;">' + m.spl.name + '</span></div>' +
+              '</td>' +
+              '<td style="min-width:165px;">' +
+                '<div style="display:flex;justify-content:space-between;font-family:Consolas,monospace;font-size:0.71rem;">' +
+                  '<span style="color:#6EE7B7;font-weight:700;">🛡️ ' + holdRatePct + '% Held (' + v.defensesWon + ')</span>' +
+                  '<span style="color:#FDA4AF;">⚔️ ' + breachRatePct + '% (' + v.breachesSuffered + ')</span>' +
+                '</div>' +
+                '<div class="winrate-bar-outer" style="margin-top:3px;"><div class="winrate-bar-inner" style="width:' + holdRatePct + '%;"></div></div>' +
+                '<div style="font-family:Consolas,monospace;font-size:0.65rem;color:#94A3B8;margin-top:2px;">ELO: <strong style="color:#FDE68A;">' + (c.eloRating || 1650) + '</strong> • Pwr: ' + m.compositePowerScore + 'π</div>' +
+              '</td>' +
+              '<td style="font-family:Consolas,monospace;color:#FDE68A;">' +
+                '⭕ ' + v.avgCirclesCompleted + ' (2π)<br/>' +
+                '<span style="font-size:0.68rem;color:#6EE7B7;">τ = ' + v.avgTorquePi + ' N·π</span>' +
+              '</td>' +
+              '<td>' +
+                '<div class="btn-row" style="gap:0.22rem;">' +
+                  '<button class="btn btn-sm btn-gold" onclick="window.SovGame.executeBastilleVaultBreach(\'' + c.id + '\')" title="Challenge this Bastille Vault in the Crucible">⚔️ Breach</button>' +
+                  '<button class="btn btn-sm btn-emerald" onclick="window.SovGame.fortifySelectedBastilleVault(\'' + c.id + '\')" title="Upgrade Vault Fortification Tier (+3.14π Wall)">🏰 Fortify</button>' +
+                  '<button class="btn btn-sm btn-sapphire" onclick="window.SovGame.draftSelectedVaultToRoster(\'A\',\'' + c.id + '\')" title="Draft Warden to Roster A">+A</button>' +
+                  '<button class="btn btn-sm btn-crimson" onclick="window.SovGame.draftSelectedVaultToRoster(\'B\',\'' + c.id + '\')" title="Draft Warden to Roster B">+B</button>' +
+                '</div>' +
+              '</td>' +
+            '</tr>'
+          );
+        }).join("");
+      }
+    }
+
+    G.filterBastilleByWing = function (wingId) {
+      state.selectedBastilleWingFilter = wingId || "ALL";
+      renderBastilleOfArchetypesUI();
+    };
+
+    G.selectBastilleVault = function (classId) {
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      const cls = pool.find(c => c.id === classId) || pool[0];
+      if (!cls) return;
+      state.selectedBastilleVaultId = cls.id;
+      const defSel = document.getElementById("clashDefenderSelect");
+      if (defSel) defSel.value = cls.id;
+      G.recalc11VectorClash();
+      renderBastilleOfArchetypesUI();
+      addLog("🏰 Selected Bastille Vault [" + cls.degree + "° " + cls.name + "] for Crucible Inspection.", "#FDE68A");
+    };
+
+    /* Bastille Vault Crucible & 3.14π Circular Breach Calculator */
+    G.recalc11VectorClash = function () {
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      const bState = window.SovCommandEngine && window.SovCommandEngine.getBastilleState
+        ? window.SovCommandEngine.getBastilleState()
+        : { vaults: {} };
+
+      const attId = document.getElementById("clashAttackerSelect")?.value || "DB_ARCH_090_MAMLUK_SHOCK_LANCER";
+      const defId = document.getElementById("clashDefenderSelect")?.value || state.selectedBastilleVaultId || "DB_ARCH_060_EQUILATERAL_COLOSSUS";
+      state.selectedBastilleVaultId = defId;
+
+      const attCls = pool.find(c => c.id === attId) || pool[0];
+      const defCls = pool.find(c => c.id === defId) || pool[3] || pool[0];
+      if (!attCls || !defCls) return;
+
+      const vaultRec = (bState.vaults && bState.vaults[defCls.id]) || {
+        wingTitle: "Bastion I: Defenders",
+        wardenTitle: "Citadel Warden",
+        fortificationTier: 2,
+        wallIntegrityPct: 95,
+        defensesWon: 14,
+        breachesSuffered: 4,
+        sealsEarned: 3
+      };
+
+      const selectedVerb = document.getElementById("clashVerbSelect")?.value || "STRIKE";
+      const statW = parseFloat(document.getElementById("clashStatSlider")?.value) || attCls.statWeightPi || 3.14;
+      const weapW = parseFloat(document.getElementById("clashWeaponSlider")?.value) || 3.45;
+      const armW = parseFloat(document.getElementById("clashArmorSlider")?.value) || 3.60;
       const incAngleDeg = parseFloat(document.getElementById("clashAngleSlider")?.value || "145");
       const sweepArcDeg = parseFloat(document.getElementById("clashArcSlider")?.value || "180");
 
@@ -2447,65 +2650,466 @@
       setTxt("clashAngleVal", Math.round(incAngleDeg) + "° (" + ((incAngleDeg * Math.PI) / 180).toFixed(2) + "r)");
       setTxt("clashArcVal", "Δ" + Math.round(sweepArcDeg) + "° (" + ((sweepArcDeg / 360) * 2).toFixed(2) + "π)");
 
-      const customAtt = Object.assign({}, att, { statWeightPi: statW, weaponWeightPi: weapW });
-      const customDef = Object.assign({}, def, { armorWeightPi: armW });
-      const circ = window.SovCommandEngine.evaluateCircularImpact(customAtt, customDef, selectedVerb, incAngleDeg, sweepArcDeg, 360);
+      const mAtt = window.SovCommandEngine.computeClassProceduralMetrics(attCls);
+      const mDef = window.SovCommandEngine.computeClassProceduralMetrics(defCls);
+      const fortBonusDef = vaultRec.fortificationTier * 16 + Math.round(vaultRec.wallIntegrityPct * 0.25);
 
-      const turnsToWin = Math.ceil(def.baseHp / circ.netProceduralDamage);
-      const winProb = Math.min(99.8, Math.max(52.0, 68.0 + (circ.rawProceduralOffense + circ.selfShieldMitigation - circ.defenderShieldMit) * 0.065));
+      const attProfile = {
+        profileId: attCls.id,
+        characterName: attCls.name,
+        coreArchetype: attCls.combatRole,
+        statWeightPi: statW,
+        weaponWeightPi: weapW,
+        armorWeightPi: mAtt.arm.weightPi,
+        baseHp: mAtt.effectiveHp,
+        baseAttack: mAtt.effectiveAtk,
+        baseDefense: mAtt.effectiveDef
+      };
+      const defProfile = {
+        profileId: defCls.id,
+        characterName: defCls.name,
+        coreArchetype: defCls.combatRole,
+        statWeightPi: defCls.statWeightPi,
+        weaponWeightPi: mDef.wpn.weightPi,
+        armorWeightPi: armW + vaultRec.fortificationTier * 0.22,
+        baseHp: mDef.effectiveHp + vaultRec.fortificationTier * 95,
+        baseAttack: mDef.effectiveAtk,
+        baseDefense: mDef.effectiveDef + fortBonusDef
+      };
+
+      const circ = window.SovCommandEngine.evaluateCircularImpact(attProfile, defProfile, selectedVerb, incAngleDeg, sweepArcDeg, 360);
+      const revToBreach = Math.max(1, Math.ceil(defProfile.baseHp / Math.max(1, circ.netProceduralDamage)));
+      const breachProb = Math.min(96.5, Math.max(18.0, 52.0 + (circ.rawProceduralOffense - defProfile.baseDefense * 1.15) * 0.085));
 
       const out = document.getElementById("clashFormulaOutput");
       if (out) {
         out.innerHTML =
-          '<div style="color:#FDE68A;font-weight:700;margin-bottom:4px;">⭕ 3.14π CIRCULAR DEGREE &amp; 11-VECTOR CLASH (' + att.profileId + ' vs. ' + def.profileId + ')</div>' +
-          '<div style="color:#6EE7B7;margin-bottom:4px;"><strong>Resonance &amp; Circular Geometry:</strong> ' + circ.resonanceAttacker.summaryText + '</div>' +
-          '<div>1. <strong>Incidence Angle (φ°) &amp; Sector:</strong> φ = <strong>' + circ.incidenceAngleDeg + '° (' + circ.incidenceRad + ' rad)</strong> → <span style="color:#93C5FD;">' + circ.sectorZoneLabel + ' (' + circ.degreeImpactMult + 'x)</span></div>' +
-          '<div>2. <strong>Sweep Arc (Δθ°) &amp; Ring Orbit:</strong> Δθ = <strong>' + circ.sweepArcDeg + '° (' + circ.sweepArcRad + ' rad)</strong> covering <strong>' + (circ.circleCoverageRatio * 100).toFixed(1) + '%</strong> of 360° Circle @ r = <strong>' + circ.orbitRadiusPi + 'π</strong></div>' +
-          '<div>3. <strong>Angular Velocity (ω) &amp; Centripetal Force:</strong> ω = <strong>' + circ.angularVelocityDegPerSec + '°/s (' + circ.angularVelocityRadPerSec + ' rad/s)</strong> | F_c = <strong>' + circ.centripetalForcePi + ' N·π</strong></div>' +
-          '<div>4. <strong>Tangential Torque Impact (τ_π):</strong> τ = r·π × F_c·sin(φ) = <strong style="color:#FDE68A;">' + circ.tangentialTorquePi + ' N·m·π</strong></div>' +
-          '<div>5. <strong>360° (2π) Completion Surge &amp; Net Hit:</strong> <span style="color:#6EE7B7;font-weight:700;">' + circ.netProceduralDamage + ' HP/strike</span> (Shield Mit: +' + circ.selfShieldMitigation + ' DEF | 2π Surge: ' + circ.completionMult + 'x)</div>' +
-          '<div>6. <strong>Circular Frame Wheel (360°):</strong> Startup ' + circ.command.startupFrames + 'f / Active ' + circ.command.activeFrames + 'f / Recovery ' + circ.command.recoveryFrames + 'f | SPC Δσ = ' + circ.resonanceAttacker.spcDeltaSigma + 'σ</div>' +
-          '<div>7. <strong>Circular Convergence Win Forecast:</strong> <span style="color:#FDE68A;font-weight:700;">' + winProb.toFixed(1) + '% Victory in ~' + turnsToWin + ' angular revolutions</span></div>';
+          '<div style="color:#FDE68A;font-weight:700;margin-bottom:4px;">🏰 BASTILLE VAULT CRUCIBLE: [' + attCls.degree + '° ' + attCls.name.replace(/^\d+°\s*/, "") + '] vs. VAULT [' + defCls.degree + '° ' + defCls.name.replace(/^\d+°\s*/, "") + ']</div>' +
+          '<div style="color:#6EE7B7;margin-bottom:4px;"><strong>Garrison Bastion:</strong> ' + vaultRec.wingTitle + ' • <strong>Tier ' + vaultRec.fortificationTier + '/5</strong> (Wall ' + vaultRec.wallIntegrityPct + '% | +' + fortBonusDef + ' Fortification DEF)</div>' +
+          '<div>1. <strong>Breach Incidence (φ°) &amp; Sector:</strong> φ = <strong>' + circ.incidenceAngleDeg + '° (' + circ.incidenceRad + ' rad)</strong> → <span style="color:#93C5FD;">' + circ.sectorZoneLabel + ' (' + circ.degreeImpactMult + 'x)</span></div>' +
+          '<div>2. <strong>Sweep Arc (Δθ°) &amp; Ring Orbit:</strong> Δθ = <strong>' + circ.sweepArcDeg + '° (' + circ.sweepArcRad + ' rad)</strong> covering <strong>' + (circ.circleCoverageRatio * 100).toFixed(1) + '%</strong> of 360° Vault @ r = <strong>' + circ.orbitRadiusPi + 'π</strong></div>' +
+          '<div>3. <strong>Tangential Siege Torque (τ_π):</strong> ω = <strong>' + circ.angularVelocityDegPerSec + '°/s</strong> | τ = <strong style="color:#FDE68A;">' + circ.tangentialTorquePi + ' N·m·π</strong></div>' +
+          '<div>4. <strong>Net Breach Damage per Revolution:</strong> <span style="color:#6EE7B7;font-weight:700;">' + circ.netProceduralDamage + ' HP/strike</span> vs. Warden HP <strong>' + defProfile.baseHp + '</strong></div>' +
+          '<div>5. <strong>Vault Breach Forecast:</strong> <span style="color:#FDE68A;font-weight:700;">' + breachProb.toFixed(1) + '% Breach Chance in ~' + revToBreach + ' Circular Revolutions (2π)</span> • Record: ' + vaultRec.defensesWon + ' Held / ' + vaultRec.breachesSuffered + ' Breached</div>';
       }
       const winReadout = document.getElementById("canvasWinCalcReadout");
       if (winReadout) {
-        winReadout.textContent = "Win: " + winProb.toFixed(1) + "% • [" + selectedVerb + " Δ" + circ.sweepArcDeg + "° @ φ=" + circ.incidenceAngleDeg + "°] • τ=" + circ.tangentialTorquePi + " N·π • Hit: " + circ.netProceduralDamage + " HP";
+        winReadout.textContent = "Bastille Breach: " + breachProb.toFixed(1) + "% • [" + selectedVerb + " Δ" + circ.sweepArcDeg + "° @ φ=" + circ.incidenceAngleDeg + "°] • τ=" + circ.tangentialTorquePi + " N·π • Hit: " + circ.netProceduralDamage + " HP";
       }
+      renderBastilleOfArchetypesUI();
+    };
+
+    G.executeBastilleVaultBreach = function (vaultIdOverride) {
+      if (vaultIdOverride) {
+        state.selectedBastilleVaultId = vaultIdOverride;
+        const defSel = document.getElementById("clashDefenderSelect");
+        if (defSel) defSel.value = vaultIdOverride;
+      }
+      const attId = document.getElementById("clashAttackerSelect")?.value || "DB_ARCH_090_MAMLUK_SHOCK_LANCER";
+      const defId = state.selectedBastilleVaultId || document.getElementById("clashDefenderSelect")?.value || "DB_ARCH_060_EQUILATERAL_COLOSSUS";
+      const incAngleDeg = parseFloat(document.getElementById("clashAngleSlider")?.value || "145");
+      const sweepArcDeg = parseFloat(document.getElementById("clashArcSlider")?.value || "180");
+
+      const trial = window.SovCommandEngine.challengeBastilleVault(attId, defId, incAngleDeg, sweepArcDeg);
+      if (!trial) return;
+
+      state.bastilleAnim.lastTrialResult = trial;
+      state.bastilleAnim.shockwaves.push({
+        r: 18,
+        maxR: 135,
+        alpha: 1.0,
+        color: trial.breached ? "#F59E0B" : "#10B981"
+      });
+      state.bastilleAnim.floatingTexts.push({
+        x: 340,
+        y: 195,
+        vy: -24,
+        alpha: 1.0,
+        color: trial.breached ? "#FDE68A" : "#6EE7B7",
+        text: (trial.breached ? "⚔️ VAULT BREACHED! (" : "🛡️ VAULT HELD! (") + trial.revolutions + " rev • τ=" + trial.avgTorquePi + "π)"
+      });
+
+      const liveBox = document.getElementById("bastilleGauntletLiveBox");
+      if (liveBox) {
+        liveBox.innerHTML =
+          '<strong style="color:' + (trial.breached ? '#FDE68A' : '#6EE7B7') + ';">' +
+          (trial.breached ? '⚔️ VAULT BREACHED IN CRUCIBLE!' : '🛡️ BASTILLE WARDEN HELD THE VAULT!') +
+          '</strong> — Challenger <strong>' + trial.challengerName + ' (' + trial.challengerDeg + '°)</strong> vs. Warden <strong>' +
+          trial.wardenName + ' (' + trial.wardenDeg + '° • Tier ' + trial.fortificationTier + ')</strong> | ' +
+          'Revolutions: <strong>' + trial.revolutions + ' (⭕ ' + trial.circlesCompleted + ')</strong> | ' +
+          'Mean Torque: <strong>' + trial.avgTorquePi + ' N·π</strong> | Wall Integrity: <strong>' + trial.wallIntegrityAfter + '%</strong> | ' +
+          'Final HP: Challenger <strong>' + trial.challengerHpRemaining + '</strong> vs. Warden <strong>' + trial.wardenHpRemaining + '</strong>';
+      }
+
+      G.recalc11VectorClash();
+      renderDatabankArchetypePoolTable();
+      G.triggerVfxBurst(trial.breached ? "SWORD_SWIPE" : "SPARKLES");
+      addLog(
+        (trial.breached ? "⚔️ BASTILLE BREACH: [" : "🛡️ BASTILLE DEFENSE: [") +
+        trial.challengerName + "] vs. Vault [" + trial.wardenDeg + "° " + trial.wardenName + "] — " +
+        (trial.breached ? "Breached in " : "Held across ") + trial.revolutions + " revolutions (Wall " + trial.wallIntegrityAfter + "%).",
+        trial.breached ? "#FDE68A" : "#6EE7B7"
+      );
+    };
+
+    G.fortifySelectedBastilleVault = function (vaultIdOverride) {
+      const targetId = vaultIdOverride || state.selectedBastilleVaultId || document.getElementById("clashDefenderSelect")?.value || "DB_ARCH_060_EQUILATERAL_COLOSSUS";
+      state.selectedBastilleVaultId = targetId;
+      const v = window.SovCommandEngine.fortifyBastilleVault(targetId);
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      const cls = pool.find(c => c.id === targetId);
+      if (v && cls) {
+        state.bastilleAnim.shockwaves.push({ r: 24, maxR: 150, alpha: 1.0, color: "#10B981" });
+        state.bastilleAnim.floatingTexts.push({
+          x: 340,
+          y: 185,
+          vy: -22,
+          alpha: 1.0,
+          color: "#6EE7B7",
+          text: "🏰 FORTIFIED VAULT " + cls.degree + "° -> TIER " + v.fortificationTier + " (Wall " + v.wallIntegrityPct + "%)"
+        });
+        G.recalc11VectorClash();
+        renderDatabankArchetypePoolTable();
+        addLog("🏰 Fortified Bastille Vault [" + cls.degree + "° " + cls.name + "] to Tier " + v.fortificationTier + "/5 (Wall Integrity " + v.wallIntegrityPct + "%).", "#6EE7B7");
+      }
+    };
+
+    G.draftSelectedVaultToRoster = function (side, vaultIdOverride) {
+      const targetId = vaultIdOverride || state.selectedBastilleVaultId || document.getElementById("clashDefenderSelect")?.value;
+      if (!targetId) return;
+      G.assignClassToSavedRoster(side || "A", targetId);
+      renderBastilleOfArchetypesUI();
+    };
+
+    G.resetBastilleCitadel = function () {
+      if (!window.SovCommandEngine || !window.SovCommandEngine.resetBastilleState) return;
+      window.SovCommandEngine.resetBastilleState();
+      G.recalc11VectorClash();
+      renderBastilleOfArchetypesUI();
+      addLog("🏰 Reset all 24 Bastille of Archetypes Vaults to Baseline Fortification Tiers & 100% Wall Integrity.", "#FDE68A");
     };
 
     G.executeLiveClashOnCanvas = function () {
-      G.recalc11VectorClash();
-      G.triggerVfxBurst("SWORD_SWIPE");
-      G.triggerVfxBurst("SPARKLES");
-      addLog("Executed 3.14π Circular Degree & 11-Vector Clash on Window #1 & Window #2 Protractor!", "#FDE68A");
+      G.executeBastilleVaultBreach();
     };
 
-    /* Live Monte Carlo & Circular Degree Tournament Runner */
-    G.runMonteCarloTournament = function (itersOverride) {
-      const iters = itersOverride || parseInt(document.getElementById("mcIterationsInput")?.value || "150", 10) || 150;
-      const results = window.SovCommandEngine.runMonteCarloSimulation(iters);
-      const tbody = document.getElementById("monteCarloResultsBody");
-      if (tbody) {
-        tbody.innerHTML = results.map(r => {
-          return '<tr>' +
-            '<td><strong style="color:#6EE7B7;">' + r.attackerName + '</strong><br/><span class="badge badge-gold">' + r.attackerArch + '</span></td>' +
-            '<td><span class="resonance-chip resonance-high">' + r.attackerCmd + ' (' + r.attackerResonance.toFixed(2) + 'x)</span><br/>' +
-            '<span style="font-family:Consolas,monospace;font-size:0.7rem;color:#93C5FD;">Δ' + r.attackerArcDeg + '° @ r=' + r.attackerOrbitPi.toFixed(2) + 'π</span></td>' +
-            '<td><strong style="color:#FDA4AF;">' + r.defenderName + '</strong><br/><span class="badge badge-crimson">' + r.defenderArch + ' [' + r.defenderCmd + ']</span></td>' +
-            '<td style="font-family:Consolas,monospace;">' + r.iterations + '</td>' +
-            '<td style="min-width:165px;">' +
-            '<div style="display:flex;justify-content:space-between;font-family:Consolas,monospace;font-size:0.74rem;">' +
-            '<span style="color:#6EE7B7;font-weight:700;">' + r.winRatePct + '% Win</span>' +
-            '<span style="color:#FDA4AF;">' + (100 - r.winRatePct).toFixed(1) + '%</span></div>' +
-            '<div class="winrate-bar-outer"><div class="winrate-bar-inner" style="width:' + r.winRatePct + '%;"></div></div>' +
-            '</td>' +
-            '<td style="font-family:Consolas,monospace;color:#FDE68A;">⭕ ' + r.avgCirclesCompleted + ' (2π)<br/><span style="font-size:0.7rem;color:#CBD5E1;">' + r.avgTicks + ' ticks</span></td>' +
-            '<td style="font-family:Consolas,monospace;color:#6EE7B7;">τ = ' + r.avgTorquePi + ' N·π<br/><span style="font-size:0.7rem;color:#93C5FD;">' + r.avgSpcTransitions + ' S0↔S1</span></td>' +
-            '</tr>';
-        }).join("");
+    /* 6-Bastion Equilateral Siege Gauntlet Runner */
+    G.runMonteCarloTournament = function () {
+      if (!window.SovCommandEngine || !window.SovCommandEngine.runBastilleSixWingGauntlet) return;
+      const gauntlet = window.SovCommandEngine.runBastilleSixWingGauntlet();
+      state.bastilleAnim.shockwaves.push({ r: 15, maxR: 180, alpha: 1.0, color: "#D4AF37" });
+      state.bastilleAnim.floatingTexts.push({
+        x: 340,
+        y: 175,
+        vy: -25,
+        alpha: 1.0,
+        color: "#FDE68A",
+        text: "🔥 6-BASTION GAUNTLET: " + gauntlet.breachedCount + "/6 BASTIONS BREACHED (" + gauntlet.totalSeals + " Seals)"
+      });
+
+      const liveBox = document.getElementById("bastilleGauntletLiveBox");
+      if (liveBox && gauntlet.wingResults) {
+        const summaryBadges = gauntlet.wingResults.map(r =>
+          '<span class="badge ' + (r.breached ? 'badge-gold' : 'badge-emerald') + '" style="margin-right:4px;">' +
+          r.wingTitle.split(":")[0] + ' (' + r.wardenDeg + '°): ' + (r.breached ? '⚔️ Breached' : '🛡️ Held') + '</span>'
+        ).join(" ");
+        liveBox.innerHTML =
+          '<div style="margin-bottom:3px;"><strong style="color:#FDE68A;">🔥 6-BASTION EQUILATERAL SIEGE GAUNTLET COMPLETE: ' +
+          gauntlet.breachedCount + ' / 6 Bastions Breached</strong> • Total Citadel Seals: <strong style="color:#6EE7B7;">🏅 ' + gauntlet.totalSeals + '</strong></div>' +
+          '<div>' + summaryBadges + '</div>';
       }
-      addLog("Completed Circular Monte Carlo Tournament (" + iters + " iterations × 8 Matchups with 360° Completions & Torque τ_π).", "#6EE7B7");
+
+      G.recalc11VectorClash();
+      renderDatabankArchetypePoolTable();
+      addLog("🔥 Stormed all 6 Equilateral 60° Bastions in the Bastille of Archetypes: " + gauntlet.breachedCount + "/6 Bastions Breached!", "#FDE68A");
     };
+
+    /* Live 60 FPS Hexagonal Bastille of Archetypes Canvas Renderer */
+    function renderBastilleArchetypesCanvas() {
+      const canvas = document.getElementById("bastilleArchetypesCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width;
+      const H = canvas.height;
+      const cx = W * 0.5;
+      const cy = H * 0.51;
+      const outerHexR = Math.min(W, H) * 0.43;
+      const vaultRingR = outerHexR * 0.82;
+      const courtyardR = outerHexR * 0.46;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // Background Radial Gradient
+      const bgGrad = ctx.createRadialGradient(cx, cy, 12, cx, cy, outerHexR * 1.18);
+      bgGrad.addColorStop(0, "#0F172A");
+      bgGrad.addColorStop(0.65, "#060D1A");
+      bgGrad.addColorStop(1, "#020617");
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      const wings = (window.SovCommandEngine && window.SovCommandEngine.getBastilleWingsSchema)
+        ? window.SovCommandEngine.getBastilleWingsSchema()
+        : [];
+      const bState = (window.SovCommandEngine && window.SovCommandEngine.getBastilleState)
+        ? window.SovCommandEngine.getBastilleState()
+        : { vaults: {} };
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+
+      // 1. Draw 6 Equilateral 60° Hexagonal Citadel Bastion Sectors
+      wings.forEach((w, idx) => {
+        const startRad = ((w.degMin - 90) * Math.PI) / 180;
+        const endRad = ((w.degMax - 90) * Math.PI) / 180;
+        const midRad = ((w.degMin + 30 - 90) * Math.PI) / 180;
+        const isWingFiltered = state.selectedBastilleWingFilter === w.id;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, outerHexR, startRad, endRad);
+        ctx.closePath();
+        ctx.fillStyle = isWingFiltered ? (w.color + "33") : (w.color + "16");
+        ctx.fill();
+        ctx.strokeStyle = isWingFiltered ? "#FDE68A" : (w.color + "88");
+        ctx.lineWidth = isWingFiltered ? 2.2 : 1.2;
+        ctx.stroke();
+
+        // Outer Hexagonal Bastion Wall Segment
+        const x1 = cx + Math.cos(startRad) * outerHexR;
+        const y1 = cy + Math.sin(startRad) * outerHexR;
+        const x2 = cx + Math.cos(endRad) * outerHexR;
+        const y2 = cy + Math.sin(endRad) * outerHexR;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = w.color;
+        ctx.lineWidth = 3.2;
+        ctx.stroke();
+
+        // Corner Citadel Turret
+        ctx.beginPath();
+        ctx.arc(x1, y1, 6, 0, Math.PI * 2);
+        ctx.fillStyle = "#0F172A";
+        ctx.fill();
+        ctx.strokeStyle = "#D4AF37";
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        // Bastion Wing Title outside/near outer rim
+        const labelR = outerHexR + 17;
+        const lx = cx + Math.cos(midRad) * labelR;
+        const ly = cy + Math.sin(midRad) * labelR;
+        ctx.fillStyle = w.color;
+        ctx.font = "bold 10px Consolas, monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(w.shortTitle.toUpperCase() + " [" + w.sectorLabel + "]", lx, ly);
+        ctx.restore();
+      });
+
+      // 2. Draw 24 Garrisoned 15° Vault Cells around the Citadel Ring
+      const first24 = pool.slice(0, 24);
+      first24.forEach(cls => {
+        const deg = cls.degree || 15;
+        const rad = ((deg - 90) * Math.PI) / 180;
+        const vx = cx + Math.cos(rad) * vaultRingR;
+        const vy = cy + Math.sin(rad) * vaultRingR;
+        const vRec = (bState.vaults && bState.vaults[cls.id]) || { fortificationTier: 2, wallIntegrityPct: 95, status: "FORTIFIED" };
+        const isSelected = cls.id === state.selectedBastilleVaultId;
+
+        // Spoke line from courtyard to vault
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(rad) * courtyardR, cy + Math.sin(rad) * courtyardR);
+        ctx.lineTo(vx, vy);
+        ctx.strokeStyle = isSelected ? "rgba(253,230,138,0.75)" : "rgba(148,163,184,0.18)";
+        ctx.lineWidth = isSelected ? 2.0 : 1.0;
+        ctx.stroke();
+
+        // Vault Cell Node
+        const cellR = isSelected ? 13.5 : 10.5;
+        ctx.beginPath();
+        ctx.arc(vx, vy, cellR, 0, Math.PI * 2);
+        ctx.fillStyle = isSelected ? "#1E293B" : "#091020";
+        ctx.fill();
+        ctx.strokeStyle = isSelected ? "#FDE68A" : (vRec.status === "BREACHED" ? "#F43F5E" : cls.color || "#10B981");
+        ctx.lineWidth = isSelected ? 2.6 : 1.6;
+        ctx.stroke();
+
+        // Wall Integrity Arc around Vault Cell
+        const wallArc = ((vRec.wallIntegrityPct || 100) / 100) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.arc(vx, vy, cellR + 2.5, -Math.PI / 2, -Math.PI / 2 + wallArc);
+        ctx.strokeStyle = vRec.wallIntegrityPct >= 75 ? "#10B981" : "#F59E0B";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Degree & Tier label inside Vault Cell
+        ctx.fillStyle = isSelected ? "#FDE68A" : "#E2E8F0";
+        ctx.font = (isSelected ? "bold 8.5px" : "8px") + " Consolas, monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(deg + "°", vx, vy - 2.5);
+        ctx.fillStyle = "#6EE7B7";
+        ctx.font = "7px Consolas, monospace";
+        ctx.fillText("T" + (vRec.fortificationTier || 2), vx, vy + 5.2);
+      });
+
+      // 3. Draw Central Bastille Crucible Courtyard & Live Animated Duelists
+      ctx.beginPath();
+      ctx.arc(cx, cy, courtyardR, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(2, 6, 23, 0.86)";
+      ctx.fill();
+      ctx.strokeStyle = "#D4AF37";
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+
+      // Inner 3.14π Protractor Ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, courtyardR * 0.62, 0, Math.PI * 2);
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = "rgba(147, 197, 253, 0.35)";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Advance live Bastille Courtyard duelists
+      const anim = state.bastilleAnim;
+      anim.phaseDeg = (anim.phaseDeg + 1.8) % 360;
+      anim.challengerOrbitDeg = (anim.challengerOrbitDeg + 2.4) % 360;
+      anim.wardenOrbitDeg = (anim.wardenOrbitDeg - 1.6 + 360) % 360;
+
+      const attId = document.getElementById("clashAttackerSelect")?.value || "DB_ARCH_090_MAMLUK_SHOCK_LANCER";
+      const defId = state.selectedBastilleVaultId || "DB_ARCH_060_EQUILATERAL_COLOSSUS";
+      const attCls = pool.find(c => c.id === attId) || pool[0];
+      const defCls = pool.find(c => c.id === defId) || pool[3] || pool[0];
+
+      const cRad = ((anim.challengerOrbitDeg - 90) * Math.PI) / 180;
+      const wRad = ((anim.wardenOrbitDeg - 90) * Math.PI) / 180;
+      const duelR = courtyardR * 0.62;
+      const ax = cx + Math.cos(cRad) * duelR;
+      const ay = cy + Math.sin(cRad) * duelR;
+      const dx = cx + Math.cos(wRad) * (duelR * 0.42);
+      const dy = cy + Math.sin(wRad) * (duelR * 0.42);
+
+      // Clash vector line
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(dx, dy);
+      ctx.strokeStyle = "rgba(251, 191, 36, 0.55)";
+      ctx.lineWidth = 1.8;
+      ctx.stroke();
+
+      // Draw Challenger Node
+      ctx.beginPath();
+      ctx.arc(ax, ay, 9, 0, Math.PI * 2);
+      ctx.fillStyle = "#3B82F6";
+      ctx.fill();
+      ctx.strokeStyle = "#FDE68A";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = "#93C5FD";
+      ctx.font = "bold 8.5px Consolas, monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("⚔️ " + (attCls ? attCls.degree + "°" : "90°"), ax, ay - 13);
+
+      // Draw Vault Warden Node
+      ctx.beginPath();
+      ctx.arc(dx, dy, 10.5, 0, Math.PI * 2);
+      ctx.fillStyle = "#10B981";
+      ctx.fill();
+      ctx.strokeStyle = "#FDE68A";
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+      ctx.fillStyle = "#6EE7B7";
+      ctx.font = "bold 8.5px Consolas, monospace";
+      ctx.fillText("🏰 " + (defCls ? defCls.degree + "°" : "60°"), dx, dy + 19);
+
+      // Center Courtyard Title
+      ctx.fillStyle = "#FDE68A";
+      ctx.font = "bold 9.5px Cinzel, serif";
+      ctx.textAlign = "center";
+      ctx.fillText("BASTILLE CRUCIBLE", cx, cy - 4);
+      ctx.fillStyle = "#94A3B8";
+      ctx.font = "8px Consolas, monospace";
+      ctx.fillText("3.14π • 24 VAULTS", cx, cy + 8);
+
+      // Render Shockwaves
+      for (let i = anim.shockwaves.length - 1; i >= 0; i--) {
+        const sw = anim.shockwaves[i];
+        sw.r += 2.8;
+        sw.alpha -= 0.022;
+        if (sw.alpha <= 0 || sw.r >= sw.maxR) {
+          anim.shockwaves.splice(i, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, sw.r, 0, Math.PI * 2);
+        ctx.strokeStyle = sw.color;
+        ctx.globalAlpha = Math.max(0, sw.alpha);
+        ctx.lineWidth = 2.4;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Render Floating Combat Texts
+      for (let i = anim.floatingTexts.length - 1; i >= 0; i--) {
+        const ft = anim.floatingTexts[i];
+        ft.y += ft.vy * 0.016;
+        ft.alpha -= 0.012;
+        if (ft.alpha <= 0) {
+          anim.floatingTexts.splice(i, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, ft.alpha);
+        ctx.fillStyle = ft.color;
+        ctx.font = "bold 10px Consolas, monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.restore();
+      }
+    }
+
+    function bindBastilleCanvasEvents() {
+      const canvas = document.getElementById("bastilleArchetypesCanvas");
+      if (!canvas) return;
+      canvas.addEventListener("click", function (ev) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const mx = (ev.clientX - rect.left) * scaleX;
+        const my = (ev.clientY - rect.top) * scaleY;
+
+        const cx = canvas.width * 0.5;
+        const cy = canvas.height * 0.51;
+        const outerHexR = Math.min(canvas.width, canvas.height) * 0.43;
+        const vaultRingR = outerHexR * 0.82;
+        const courtyardR = outerHexR * 0.46;
+
+        const distCenter = Math.hypot(mx - cx, my - cy);
+        if (distCenter <= courtyardR * 0.85) {
+          G.executeBastilleVaultBreach();
+          return;
+        }
+
+        const pool = (window.SOV_ARCHETYPE_DATABANK_POOL || []).slice(0, 24);
+        let bestCls = null;
+        let bestDist = 24;
+        pool.forEach(cls => {
+          const rad = (((cls.degree || 15) - 90) * Math.PI) / 180;
+          const vx = cx + Math.cos(rad) * vaultRingR;
+          const vy = cy + Math.sin(rad) * vaultRingR;
+          const d = Math.hypot(mx - vx, my - vy);
+          if (d < bestDist) {
+            bestDist = d;
+            bestCls = cls;
+          }
+        });
+        if (bestCls) {
+          G.selectBastilleVault(bestCls.id);
+        }
+      });
+    }
 
     /* 12-Format Polyglot Studio Serializer */
     G.selectStorageFormat = function (fmtIdx) {
@@ -2749,6 +3353,622 @@
       dslArea.value = window.SOV_DEFAULT_DSL_SCRIPT;
     }
 
+    /* ============================================================================
+     * 🤖 AUTOMATED 2v2 & 3v3 ARCHETYPE COMBAT HOST COMPONENTS (60 FPS PODS)
+     * ============================================================================ */
+    state.autoHostConfig = {
+      running: true,
+      speedMult: 1.0,
+      matchmakingMode: "BASTION_VS_BASTION"
+    };
+    state.autoHosts = {
+      "2v2": null,
+      "3v3": null
+    };
+
+    function createAutoHostFighter(cls, side, slotIdx, teamSize) {
+      const m = window.SovCommandEngine.computeClassProceduralMetrics(cls);
+      const stepDeg = 360 / teamSize;
+      const baseAngle = (slotIdx * stepDeg + (side === "A" ? 15 : 15 + stepDeg * 0.5)) % 360;
+      const ringOptions = [1.57, 2.35, 3.14];
+      const orbitRadiusPi = ringOptions[slotIdx % ringOptions.length];
+      return {
+        id: cls.id,
+        name: cls.name.replace(/^\d+°\s*/, ""),
+        fullName: cls.name,
+        degree: cls.degree || 15,
+        side: side,
+        slotIdx: slotIdx,
+        color: side === "A" ? "#10B981" : "#F43F5E",
+        accentColor: cls.color || (side === "A" ? "#6EE7B7" : "#FDA4AF"),
+        maxHp: m.effectiveHp,
+        hp: m.effectiveHp,
+        atk: m.effectiveAtk,
+        def: m.effectiveDef,
+        powerPi: m.compositePowerScore,
+        wpnName: m.wpn.name,
+        splName: m.spl.name,
+        orbitAngleDeg: baseAngle,
+        orbitRadiusPi: orbitRadiusPi,
+        angularVelDegPerSec: (side === "A" ? 1 : -1) * (28 + (cls.degree % 45) * 0.45 + slotIdx * 4),
+        attackCooldown: 0.45 + slotIdx * 0.22,
+        lastDmg: 0,
+        lastPhi: 135,
+        kills: 0,
+        eloRating: cls.eloRating || 1650
+      };
+    }
+
+    function draftAutoHostTeams(mode, waveNum) {
+      const count = mode === "2v2" ? 2 : 3;
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      const wings = (window.SovCommandEngine && window.SovCommandEngine.getBastilleWingsSchema)
+        ? window.SovCommandEngine.getBastilleWingsSchema()
+        : [];
+      const mm = state.autoHostConfig.matchmakingMode || "BASTION_VS_BASTION";
+
+      let teamAClasses = [];
+      let teamBClasses = [];
+      let title = "";
+
+      if (mm === "SAVED_ROSTER_GAUNTLET" && window.SovCommandEngine && window.SovCommandEngine.getSavedRosters) {
+        const saved = window.SovCommandEngine.getSavedRosters();
+        const rAIds = (saved[mode] && saved[mode].rosterA) || [];
+        teamAClasses = rAIds.map(id => pool.find(c => c.id === id)).filter(Boolean);
+        const wingB = wings[(waveNum + (mode === "3v3" ? 2 : 0)) % Math.max(1, wings.length)];
+        const wingBPool = wingB ? pool.filter(c => c.degree >= wingB.degMin && c.degree <= wingB.degMax) : pool;
+        for (let i = 0; i < count; i++) {
+          if (!teamAClasses[i]) teamAClasses[i] = pool[(waveNum + i) % pool.length];
+          teamBClasses.push(wingBPool[(waveNum + i) % wingBPool.length] || pool[(waveNum + i + 4) % pool.length]);
+        }
+        title = "Wave #" + waveNum + ": Saved Roster A vs. " + (wingB ? wingB.shortTitle : "Bastille Squad");
+      } else if (mm === "TOP_ELO_CHAMPIONS") {
+        const sorted = pool.slice().sort((a, b) => (b.eloRating || 1650) - (a.eloRating || 1650));
+        const offset = ((waveNum - 1) * 2) % Math.max(1, sorted.length - count * 2);
+        for (let i = 0; i < count; i++) {
+          teamAClasses.push(sorted[(offset + i * 2) % sorted.length]);
+          teamBClasses.push(sorted[(offset + i * 2 + 1) % sorted.length]);
+        }
+        title = "Wave #" + waveNum + ": Top ELO Sovereign Bracket (" + teamAClasses[0].degree + "° vs. " + teamBClasses[0].degree + "°)";
+      } else if (mm === "FULL_24_VAULT_CYCLE") {
+        const baseIdx = ((waveNum - 1) * count + (mode === "3v3" ? 6 : 0)) % pool.length;
+        for (let i = 0; i < count; i++) {
+          teamAClasses.push(pool[(baseIdx + i) % pool.length]);
+          teamBClasses.push(pool[(baseIdx + i + 12) % pool.length]);
+        }
+        title = "Wave #" + waveNum + ": Vaults " + teamAClasses.map(c => c.degree + "°").join("/") + " vs. " + teamBClasses.map(c => c.degree + "°").join("/");
+      } else {
+        // Default: BASTION_VS_BASTION (Equilateral 60° Wing vs. Wing)
+        const wAIdx = (waveNum - 1 + (mode === "3v3" ? 2 : 0)) % Math.max(1, wings.length);
+        const wBIdx = (wAIdx + (mode === "3v3" ? 3 : 1)) % Math.max(1, wings.length);
+        const wA = wings[wAIdx];
+        const wB = wings[wBIdx];
+        const poolA = wA ? pool.filter(c => c.degree >= wA.degMin && c.degree <= wA.degMax) : pool;
+        const poolB = wB ? pool.filter(c => c.degree >= wB.degMin && c.degree <= wB.degMax) : pool;
+        for (let i = 0; i < count; i++) {
+          teamAClasses.push(poolA[(waveNum + i) % poolA.length] || pool[i]);
+          teamBClasses.push(poolB[(waveNum + i) % poolB.length] || pool[(i + 6) % pool.length]);
+        }
+        title = "Wave #" + waveNum + ": " + (wA ? wA.shortTitle : "Bastion A") + " vs. " + (wB ? wB.shortTitle : "Bastion B");
+      }
+
+      return {
+        teamAClasses: teamAClasses,
+        teamBClasses: teamBClasses,
+        title: title
+      };
+    }
+
+    function initOrSpawnAutoHostPod(mode) {
+      const prev = state.autoHosts[mode];
+      const waveNum = prev ? prev.waveNumber + 1 : 1;
+      const drafted = draftAutoHostTeams(mode, waveNum);
+      const count = mode === "2v2" ? 2 : 3;
+
+      const fightersA = drafted.teamAClasses.map((c, idx) => createAutoHostFighter(c, "A", idx, count));
+      const fightersB = drafted.teamBClasses.map((c, idx) => createAutoHostFighter(c, "B", idx, count));
+
+      state.autoHosts[mode] = {
+        mode: mode,
+        waveNumber: waveNum,
+        title: drafted.title,
+        fightersA: fightersA,
+        fightersB: fightersB,
+        globalPhaseDeg: 0,
+        completedCircles: 0,
+        meanTorquePi: 72.4,
+        clashBeams: [],
+        shockwaves: [{ r: 14, maxR: 92, alpha: 1.0, color: mode === "2v2" ? "#3B82F6" : "#D4AF37" }],
+        floatingTexts: [],
+        winnerSide: null,
+        intermissionSec: 0,
+        historyLogs: prev ? prev.historyLogs.slice(0, 10) : []
+      };
+
+      renderAutomatedHostPodHTML(mode);
+    }
+
+    function resolveAutoHostPodVictory(pod, winningSide) {
+      if (pod.winnerSide) return;
+      pod.winnerSide = winningSide;
+      pod.intermissionSec = 2.4;
+
+      const winners = winningSide === "A" ? pod.fightersA : pod.fightersB;
+      const losers = winningSide === "A" ? pod.fightersB : pod.fightersA;
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+
+      winners.forEach(f => {
+        const cls = pool.find(c => c.id === f.id);
+        if (cls) {
+          cls.wins = (cls.wins || 14) + 1;
+          cls.eloRating = Math.min(2850, (cls.eloRating || 1650) + 12);
+          f.eloRating = cls.eloRating;
+        }
+      });
+      losers.forEach(f => {
+        const cls = pool.find(c => c.id === f.id);
+        if (cls) {
+          cls.losses = (cls.losses || 4) + 1;
+          cls.eloRating = Math.max(1100, (cls.eloRating || 1650) - 9);
+          f.eloRating = cls.eloRating;
+        }
+      });
+
+      if (window.SovCommandEngine && window.SovCommandEngine.savePersistedDatabankState) {
+        window.SovCommandEngine.savePersistedDatabankState();
+      }
+
+      const winNames = winners.map(f => f.degree + "° " + f.name.split(" ")[0]).join(" + ");
+      const loseNames = losers.map(f => f.degree + "° " + f.name.split(" ")[0]).join(" + ");
+      const logLine =
+        "🏆 [Wave #" + pod.waveNumber + " " + pod.mode + "] Team " + winningSide + " (" + winNames + ") def. (" + loseNames + ") • ⭕ " +
+        pod.completedCircles.toFixed(1) + " (2π) • τ=" + Math.round(pod.meanTorquePi) + "π";
+
+      pod.historyLogs.unshift({
+        wave: pod.waveNumber,
+        winnerSide: winningSide,
+        text: logLine
+      });
+      if (pod.historyLogs.length > 10) pod.historyLogs.pop();
+
+      pod.shockwaves.push({
+        r: 12,
+        maxR: 110,
+        alpha: 1.0,
+        color: winningSide === "A" ? "#10B981" : "#F43F5E"
+      });
+      pod.floatingTexts.push({
+        x: 280,
+        y: 105,
+        vy: -18,
+        alpha: 1.0,
+        color: "#FDE68A",
+        text: "🏆 TEAM " + winningSide + " WINS " + pod.mode + " WAVE #" + pod.waveNumber + "! (+12 ELO)"
+      });
+
+      renderAutomatedHostPodHTML(pod.mode);
+      renderDatabankArchetypePoolTable();
+    }
+
+    function stepSingleAutoHostPod(pod, dt) {
+      if (!pod) return;
+      if (pod.winnerSide) {
+        pod.intermissionSec -= dt;
+        if (pod.intermissionSec <= 0) {
+          initOrSpawnAutoHostPod(pod.mode);
+        }
+        return;
+      }
+
+      const effDt = dt * (state.autoHostConfig.speedMult || 1.0);
+      pod.globalPhaseDeg += effDt * 68;
+      if (pod.globalPhaseDeg >= 360) {
+        pod.globalPhaseDeg -= 360;
+        pod.completedCircles += 1;
+        // 360° (2π) 3.14x Finisher Surge across all living fighters!
+        pod.shockwaves.push({ r: 10, maxR: 105, alpha: 1.0, color: "#D4AF37" });
+        pod.floatingTexts.push({
+          x: 280,
+          y: 42,
+          vy: -16,
+          alpha: 1.0,
+          color: "#FDE68A",
+          text: "⭕ 360° (2π) 3.14x FINISHER SURGE! (Circle #" + pod.completedCircles + ")"
+        });
+      }
+
+      const aliveA = pod.fightersA.filter(f => f.hp > 0);
+      const aliveB = pod.fightersB.filter(f => f.hp > 0);
+
+      if (aliveA.length === 0 || aliveB.length === 0) {
+        resolveAutoHostPodVictory(pod, aliveA.length >= aliveB.length ? "A" : "B");
+        return;
+      }
+
+      const allFighters = pod.fightersA.concat(pod.fightersB);
+      allFighters.forEach(f => {
+        if (f.hp <= 0) return;
+        f.orbitAngleDeg = (f.orbitAngleDeg + f.angularVelDegPerSec * effDt + 360) % 360;
+        f.attackCooldown -= effDt;
+        if (f.attackCooldown <= 0) {
+          const enemies = f.side === "A" ? aliveB : aliveA;
+          if (enemies.length > 0) {
+            const target = enemies[Math.floor(Math.random() * enemies.length)];
+            const rawDiff = Math.abs(f.orbitAngleDeg - target.orbitAngleDeg) % 360;
+            const phi = rawDiff > 180 ? 360 - rawDiff : rawDiff;
+            const zoneMult = phi >= 135 ? 1.57 : (phi >= 45 ? 1.31 : 0.92);
+            const surgeMult = pod.globalPhaseDeg >= 310 ? 1.45 : 1.0;
+            const rawDmg = (f.atk * 1.18 * zoneMult * surgeMult) - target.def * 0.42;
+            const dmg = Math.max(48, Math.round(rawDmg));
+            target.hp = Math.max(0, target.hp - dmg);
+            f.lastDmg = dmg;
+            f.lastPhi = Math.round(phi);
+            f.attackCooldown = 0.72 + (f.slotIdx * 0.14);
+
+            const torque = +(f.orbitRadiusPi * Math.PI * (f.atk * 0.24) * Math.max(0.35, Math.sin((phi * Math.PI) / 180))).toFixed(1);
+            pod.meanTorquePi = +(pod.meanTorquePi * 0.8 + torque * 0.2).toFixed(1);
+
+            pod.clashBeams.push({
+              fromDeg: f.orbitAngleDeg,
+              fromR: f.orbitRadiusPi,
+              toDeg: target.orbitAngleDeg,
+              toR: target.orbitRadiusPi,
+              color: f.side === "A" ? "#10B981" : "#F43F5E",
+              alpha: 0.95,
+              phi: Math.round(phi),
+              dmg: dmg
+            });
+
+            if (target.hp <= 0) {
+              f.kills += 1;
+              pod.shockwaves.push({
+                r: 8,
+                maxR: 65,
+                alpha: 1.0,
+                color: f.side === "A" ? "#10B981" : "#F43F5E"
+              });
+            }
+          }
+        }
+      });
+
+      const remA = pod.fightersA.filter(f => f.hp > 0);
+      const remB = pod.fightersB.filter(f => f.hp > 0);
+      if (remA.length === 0 || remB.length === 0) {
+        resolveAutoHostPodVictory(pod, remA.length >= remB.length ? "A" : "B");
+      } else if (pod.completedCircles >= 4) {
+        const hpSumA = remA.reduce((s, f) => s + f.hp, 0);
+        const hpSumB = remB.reduce((s, f) => s + f.hp, 0);
+        resolveAutoHostPodVictory(pod, hpSumA >= hpSumB ? "A" : "B");
+      }
+    }
+
+    function renderSingleAutoHostPodCanvas(mode) {
+      const canvasId = mode === "2v2" ? "autoHost2v2Canvas" : "autoHost3v3Canvas";
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const pod = state.autoHosts[mode];
+      if (!pod) return;
+
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width;
+      const H = canvas.height;
+      const cx = W * 0.5;
+      const cy = H * 0.52;
+      const maxR = Math.min(W, H) * 0.41;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // Radial Background
+      const bg = ctx.createRadialGradient(cx, cy, 8, cx, cy, maxR * 1.35);
+      bg.addColorStop(0, mode === "2v2" ? "#0B192C" : "#1A140B");
+      bg.addColorStop(0.7, "#050B16");
+      bg.addColorStop(1, "#020617");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // Draw 6 Equilateral 60° Sector Spokes & 24 15° Protractor Ticks
+      for (let deg = 0; deg < 360; deg += 15) {
+        const rad = ((deg - 90) * Math.PI) / 180;
+        const isMajor = deg % 60 === 0;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(rad) * (isMajor ? 14 : maxR * 0.85), cy + Math.sin(rad) * (isMajor ? 14 : maxR * 0.85));
+        ctx.lineTo(cx + Math.cos(rad) * maxR, cy + Math.sin(rad) * maxR);
+        ctx.strokeStyle = isMajor ? "rgba(212, 175, 55, 0.28)" : "rgba(148, 163, 184, 0.15)";
+        ctx.lineWidth = isMajor ? 1.2 : 0.8;
+        ctx.stroke();
+      }
+
+      // Draw Concentric π Rings (1.57π, 2.35π, 3.14π)
+      [0.5, 0.75, 1.0].forEach((ratio, idx) => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, maxR * ratio, 0, Math.PI * 2);
+        ctx.strokeStyle = idx === 2 ? "rgba(212, 175, 55, 0.45)" : "rgba(147, 197, 253, 0.18)";
+        ctx.lineWidth = idx === 2 ? 1.6 : 1.0;
+        ctx.stroke();
+      });
+
+      // Global 360° (2π) Finisher Progress Ring
+      const progRad = ((pod.globalPhaseDeg / 360) * Math.PI * 2) - Math.PI / 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, maxR + 5, -Math.PI / 2, progRad);
+      ctx.strokeStyle = "#FDE68A";
+      ctx.lineWidth = 2.4;
+      ctx.stroke();
+
+      const getFighterPos = (f) => {
+        const rad = ((f.orbitAngleDeg - 90) * Math.PI) / 180;
+        const rPx = (f.orbitRadiusPi / 3.14) * maxR;
+        return {
+          x: cx + Math.cos(rad) * rPx,
+          y: cy + Math.sin(rad) * rPx
+        };
+      };
+
+      // Draw Formation Geometry (180° Polar Axis for 2v2, 120° Equilateral Triangle for 3v3)
+      ["A", "B"].forEach(side => {
+        const team = (side === "A" ? pod.fightersA : pod.fightersB).filter(f => f.hp > 0);
+        if (team.length >= 2) {
+          ctx.save();
+          ctx.beginPath();
+          team.forEach((f, idx) => {
+            const p = getFighterPos(f);
+            if (idx === 0) ctx.moveTo(p.x, p.y);
+            else ctx.lineTo(p.x, p.y);
+          });
+          if (team.length === 3) ctx.closePath();
+          ctx.strokeStyle = side === "A" ? "rgba(16, 185, 129, 0.35)" : "rgba(244, 63, 94, 0.35)";
+          ctx.fillStyle = side === "A" ? "rgba(16, 185, 129, 0.07)" : "rgba(244, 63, 94, 0.07)";
+          if (team.length === 3) ctx.fill();
+          ctx.setLineDash([4, 3]);
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.restore();
+        }
+      });
+
+      // Draw Active Clash Beams
+      for (let i = pod.clashBeams.length - 1; i >= 0; i--) {
+        const b = pod.clashBeams[i];
+        b.alpha -= 0.045;
+        if (b.alpha <= 0) {
+          pod.clashBeams.splice(i, 1);
+          continue;
+        }
+        const r1 = ((b.fromDeg - 90) * Math.PI) / 180;
+        const r2 = ((b.toDeg - 90) * Math.PI) / 180;
+        const x1 = cx + Math.cos(r1) * ((b.fromR / 3.14) * maxR);
+        const y1 = cy + Math.sin(r1) * ((b.fromR / 3.14) * maxR);
+        const x2 = cx + Math.cos(r2) * ((b.toR / 3.14) * maxR);
+        const y2 = cy + Math.sin(r2) * ((b.toR / 3.14) * maxR);
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, b.alpha);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = b.color;
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+
+        const mx = (x1 + x2) * 0.5;
+        const my = (y1 + y2) * 0.5;
+        ctx.fillStyle = "#FDE68A";
+        ctx.font = "bold 8.5px Consolas, monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("-" + b.dmg + " (φ=" + b.phi + "°)", mx, my - 4);
+        ctx.restore();
+      }
+
+      // Draw All Fighters (2v2 = 4 fighters, 3v3 = 6 fighters)
+      pod.fightersA.concat(pod.fightersB).forEach(f => {
+        const pos = getFighterPos(f);
+        const dead = f.hp <= 0;
+
+        ctx.save();
+        ctx.globalAlpha = dead ? 0.28 : 1.0;
+
+        // Fighter Token Circle
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, dead ? 7 : 10, 0, Math.PI * 2);
+        ctx.fillStyle = f.side === "A" ? "#065F46" : "#881337";
+        ctx.fill();
+        ctx.strokeStyle = f.side === "A" ? "#34D399" : "#FB7185";
+        ctx.lineWidth = 2.0;
+        ctx.stroke();
+
+        // Degree label inside token
+        ctx.fillStyle = "#F8FAFC";
+        ctx.font = "bold 7.5px Consolas, monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(f.degree + "°", pos.x, pos.y);
+
+        // Mini HP Bar above Fighter
+        if (!dead) {
+          const bw = 28;
+          const bh = 3.5;
+          const hpPct = Math.max(0, Math.min(1, f.hp / Math.max(1, f.maxHp)));
+          ctx.fillStyle = "rgba(2,6,23,0.85)";
+          ctx.fillRect(pos.x - bw / 2, pos.y - 16, bw, bh);
+          ctx.fillStyle = f.side === "A" ? "#10B981" : "#F43F5E";
+          ctx.fillRect(pos.x - bw / 2, pos.y - 16, bw * hpPct, bh);
+        }
+
+        // Fighter short name below token
+        ctx.fillStyle = f.side === "A" ? "#6EE7B7" : "#FDA4AF";
+        ctx.font = "8px Consolas, monospace";
+        ctx.fillText(f.name.split(" ")[0], pos.x, pos.y + 16);
+        ctx.restore();
+      });
+
+      // Shockwaves
+      for (let i = pod.shockwaves.length - 1; i >= 0; i--) {
+        const sw = pod.shockwaves[i];
+        sw.r += 2.2;
+        sw.alpha -= 0.025;
+        if (sw.alpha <= 0 || sw.r >= sw.maxR) {
+          pod.shockwaves.splice(i, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, sw.alpha);
+        ctx.beginPath();
+        ctx.arc(cx, cy, sw.r, 0, Math.PI * 2);
+        ctx.strokeStyle = sw.color;
+        ctx.lineWidth = 2.0;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Floating Texts
+      for (let i = pod.floatingTexts.length - 1; i >= 0; i--) {
+        const ft = pod.floatingTexts[i];
+        ft.y += ft.vy * 0.016;
+        ft.alpha -= 0.014;
+        if (ft.alpha <= 0) {
+          pod.floatingTexts.splice(i, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, ft.alpha);
+        ctx.fillStyle = ft.color;
+        ctx.font = "bold 9.5px Consolas, monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.restore();
+      }
+
+      // Victory / Intermission Banner if Resolved
+      if (pod.winnerSide) {
+        ctx.save();
+        ctx.fillStyle = "rgba(2, 6, 23, 0.82)";
+        ctx.fillRect(cx - 145, cy - 22, 290, 44);
+        ctx.strokeStyle = "#D4AF37";
+        ctx.lineWidth = 1.6;
+        ctx.strokeRect(cx - 145, cy - 22, 290, 44);
+        ctx.fillStyle = "#FDE68A";
+        ctx.font = "bold 10.5px Cinzel, serif";
+        ctx.textAlign = "center";
+        ctx.fillText("🏆 TEAM " + pod.winnerSide + " VICTORIOUS! (+12 ELO)", cx, cy - 5);
+        ctx.fillStyle = "#6EE7B7";
+        ctx.font = "9px Consolas, monospace";
+        ctx.fillText("Auto-Queuing Wave #" + (pod.waveNumber + 1) + " in " + Math.max(0.1, pod.intermissionSec).toFixed(1) + "s...", cx, cy + 11);
+        ctx.restore();
+      }
+    }
+
+    function renderAutomatedHostPodHTML(mode) {
+      const pod = state.autoHosts[mode];
+      if (!pod) return;
+      const prefix = mode === "2v2" ? "autoHost2v2" : "autoHost3v3";
+      const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+
+      setTxt(prefix + "Title", pod.title);
+      setTxt(
+        prefix + "WaveBadge",
+        "Wave #" + pod.waveNumber + " • ⭕ " + (pod.completedCircles + pod.globalPhaseDeg / 360).toFixed(1) + " (2π)"
+      );
+
+      const aliveA = pod.fightersA.filter(f => f.hp > 0).length;
+      const aliveB = pod.fightersB.filter(f => f.hp > 0).length;
+      setTxt(prefix + "TeamABadge", "🟢 TEAM A (" + aliveA + "/" + pod.fightersA.length + " Alive)");
+      setTxt(prefix + "TeamBBadge", "🔴 TEAM B (" + aliveB + "/" + pod.fightersB.length + " Alive)");
+      setTxt(
+        prefix + "StatusOverlay",
+        pod.winnerSide
+          ? ("🏆 TEAM " + pod.winnerSide + " WON! Next in " + Math.max(0.1, pod.intermissionSec).toFixed(1) + "s")
+          : ("⚡ τ=" + pod.meanTorquePi + " N·π • " + Math.round(pod.globalPhaseDeg) + "°/360°")
+      );
+
+      const vitalsEl = document.getElementById(prefix + "VitalsStrip");
+      if (vitalsEl) {
+        const renderTeamCol = (fighters, sideLabel, borderCol) => {
+          return (
+            '<div style="background:rgba(2,6,23,0.78);border:1px solid ' + borderCol + ';border-radius:6px;padding:0.32rem 0.45rem;">' +
+              '<div style="font-size:0.64rem;font-weight:700;color:#FDE68A;margin-bottom:3px;">' + sideLabel + '</div>' +
+              fighters.map(f => {
+                const pct = Math.round((f.hp / Math.max(1, f.maxHp)) * 100);
+                return (
+                  '<div style="margin-bottom:3px;">' +
+                    '<div style="display:flex;justify-content:space-between;font-family:Consolas,monospace;font-size:0.63rem;">' +
+                      '<span style="color:' + (f.hp > 0 ? '#F8FAFC' : '#64748B') + ';font-weight:700;">' + f.degree + '° ' + f.name.slice(0, 14) + '</span>' +
+                      '<span style="color:' + (f.side === 'A' ? '#6EE7B7' : '#FDA4AF') + ';">' + f.hp + '/' + f.maxHp + ' HP (' + f.eloRating + ')</span>' +
+                    '</div>' +
+                    '<div class="winrate-bar-outer" style="height:4px;margin-top:1px;">' +
+                      '<div style="height:100%;width:' + pct + '%;background:' + (f.side === 'A' ? '#10B981' : '#F43F5E') + ';"></div>' +
+                    '</div>' +
+                  '</div>'
+                );
+              }).join("") +
+            '</div>'
+          );
+        };
+        vitalsEl.innerHTML =
+          renderTeamCol(pod.fightersA, "🟢 Coalition Team A (" + mode + ")", "rgba(16,185,129,0.35)") +
+          renderTeamCol(pod.fightersB, "🔴 Challenger Team B (" + mode + ")", "rgba(244,63,94,0.35)");
+      }
+
+      const logEl = document.getElementById(prefix + "LogBox");
+      if (logEl) {
+        if (pod.historyLogs.length === 0) {
+          logEl.innerHTML = '<div style="color:#94A3B8;">⏳ Automated ' + mode + ' Wave #' + pod.waveNumber + ' in progress — ELO &amp; Win/Loss records auto-persist on completion...</div>';
+        } else {
+          logEl.innerHTML = pod.historyLogs.map(item =>
+            '<div style="color:' + (item.winnerSide === 'A' ? '#6EE7B7' : '#FDA4AF') + ';margin-bottom:2px;">' + item.text + '</div>'
+          ).join("");
+        }
+      }
+    }
+
+    G.toggleAutomatedCombatHosts = function () {
+      state.autoHostConfig.running = !state.autoHostConfig.running;
+      const badge = document.getElementById("autoHostEngineStatusBadge");
+      const btn = document.getElementById("autoHostToggleBtn");
+      if (badge) {
+        badge.textContent = state.autoHostConfig.running ? "🟢 AUTO-HOSTING LIVE (60 FPS)" : "⏸️ AUTO-HOST PAUSED";
+        badge.className = "badge " + (state.autoHostConfig.running ? "badge-emerald" : "badge-gold");
+      }
+      if (btn) {
+        btn.textContent = state.autoHostConfig.running ? "⏸️ Pause Auto-Hosts" : "▶️ Resume Auto-Hosts";
+      }
+      addLog(state.autoHostConfig.running ? "🤖 Resumed 2v2 & 3v3 Automated Archetype Combat Host Components." : "⏸️ Paused 2v2 & 3v3 Automated Combat Host Components.", "#6EE7B7");
+    };
+
+    G.setAutomatedHostMatchmakingMode = function (mmMode) {
+      state.autoHostConfig.matchmakingMode = mmMode || "BASTION_VS_BASTION";
+      initOrSpawnAutoHostPod("2v2");
+      initOrSpawnAutoHostPod("3v3");
+      addLog("🤖 Switched Automated 2v2 & 3v3 Combat Host League to [" + state.autoHostConfig.matchmakingMode + "].", "#FDE68A");
+    };
+
+    G.setAutomatedHostSpeed = function (spd) {
+      state.autoHostConfig.speedMult = spd || 1;
+      [1, 2, 4].forEach(s => {
+        const b = document.getElementById("autoHostSpd" + s);
+        if (b) b.classList.toggle("active", s === spd);
+      });
+    };
+
+    G.spawnNextAutomatedWave = function (which) {
+      if (which === "2v2" || which === "BOTH") initOrSpawnAutoHostPod("2v2");
+      if (which === "3v3" || which === "BOTH") initOrSpawnAutoHostPod("3v3");
+      addLog("⏭️ Spawned Next Automated " + (which || "BOTH") + " Archetype Combat Wave!", "#6EE7B7");
+    };
+
+    G.promoteAutomatedMatchToMainWheel = function (mode) {
+      const pod = state.autoHosts[mode || "3v3"];
+      if (!pod || !window.SovCommandEngine || !window.SovCommandEngine.setSavedRosterSide) return;
+      const idsA = pod.fightersA.map(f => f.id);
+      const idsB = pod.fightersB.map(f => f.id);
+      window.SovCommandEngine.setSavedRosterSide(pod.mode, "A", idsA);
+      window.SovCommandEngine.setSavedRosterSide(pod.mode, "B", idsB);
+      G.triggerDatabankCoalitionBattle(pod.mode, idsA[0], false);
+      const sec1 = document.getElementById("studioSec_COMMAND_FORGE");
+      if (sec1) sec1.scrollIntoView({ behavior: "smooth", block: "start" });
+      addLog("📥 Promoted Automated " + pod.mode + " Wave #" + pod.waveNumber + " into Main Section 1 360° Roster Arena!", "#FDE68A");
+    };
+
     // Initial Pre-Thought Gate & Data-Driven Render
     renderAbstractedStudioChrome();
     renderAgencyCouncilUI();
@@ -2757,6 +3977,7 @@
     populateDatabankOfferingsSelects();
     refreshDatabankTemplateDropdown();
     bindArchetypeWheelCanvasEvents();
+    bindBastilleCanvasEvents();
     G.selectDatabankClassForEdit("DB_ARCH_015_AEGIS_WARDEN");
     renderDatabankArchetypePoolTable();
     G.triggerDatabankCoalitionBattle("3v3", "DB_ARCH_015_AEGIS_WARDEN", true);
@@ -2769,7 +3990,9 @@
     G.setViewportLayout("2x");
     G.recalc11VectorClash();
     G.selectStorageFormat(0);
-    G.runMonteCarloTournament(150);
+    renderBastilleOfArchetypesUI();
+    initOrSpawnAutoHostPod("2v2");
+    initOrSpawnAutoHostPod("3v3");
 
     // Live Program-Assigned Telemetry & Pre-Thought Auto-Tune Loop (Every 300ms)
     let loopTick = 0;
@@ -2846,6 +4069,10 @@
       if (state.rosterAnim) {
         renderRosterVitalsAndLedgerUI();
       }
+      if (state.autoHosts && state.autoHosts["2v2"] && state.autoHosts["3v3"]) {
+        renderAutomatedHostPodHTML("2v2");
+        renderAutomatedHostPodHTML("3v3");
+      }
 
       if (window.SovCommandEngine) {
         const spc = window.SovCommandEngine.spcEngine;
@@ -2853,13 +4080,20 @@
       }
     }, 300);
 
-    // 60 FPS Animated 2v2 / 3v3 Roster vs. Roster Battle Wheel Loop
+    // 60 FPS Animated 2v2 / 3v3 Roster vs. Roster, Bastille Citadel & Automated Host Pods Loop
     let lastRosterFrameTs = performance.now();
     function animateRosterBattleLoop(nowTs) {
       const dt = Math.min(0.05, Math.max(0.005, (nowTs - lastRosterFrameTs) / 1000));
       lastRosterFrameTs = nowTs;
       stepRosterBattleAnimation(dt * (state.simSpeedMult || 1.0));
       renderArchetypeDegreeWheelCanvas();
+      renderBastilleArchetypesCanvas();
+      if (state.autoHostConfig && state.autoHostConfig.running) {
+        stepSingleAutoHostPod(state.autoHosts["2v2"], dt);
+        stepSingleAutoHostPod(state.autoHosts["3v3"], dt);
+      }
+      renderSingleAutoHostPodCanvas("2v2");
+      renderSingleAutoHostPodCanvas("3v3");
       requestAnimationFrame(animateRosterBattleLoop);
     }
 

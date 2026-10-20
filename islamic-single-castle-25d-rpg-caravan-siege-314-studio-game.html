@@ -761,48 +761,55 @@
     </section>
 
     <!-- ======================================================================
-         STUDIO SECTION 3: CIRCULAR DEGREE CLASH & MONTE CARLO TOURNAMENT LAB
+         STUDIO SECTION 3: THE BASTILLE OF ARCHETYPES (6 EQUILATERAL 60° BASTIONS,
+         24 GARRISONED 15° ARCHETYPE VAULTS & LIVE CIRCULAR CRUCIBLE GAUNTLET)
          ====================================================================== -->
     <section id="studioSec_TOURNAMENT" class="studio-section">
       <div class="panel">
         <div class="panel-header">
           <div>
-            <h2 class="panel-title">3. Live 3.14π Circular Degree Clash Protractor &amp; Stochastic Monte Carlo Tournament Lab</h2>
-            <div style="font-size:0.76rem;color:var(--text-muted);">
-              Computes procedural impact from <strong>Incidence Angle (φ° ∈ [0°, 180°])</strong>, <strong>Command Sweep Arc (Δθ° ∈ [30°, 360°])</strong>, <strong>Centripetal Force (F_c)</strong>, <strong>Tangential Torque (τ_π)</strong>, and <strong>360° (2π) Completion Surges</strong>.
+            <h2 class="panel-title">🏰 3. The Bastille of Archetypes — 6 Equilateral 60° Citadel Bastions, 24 Garrisoned 15° Vaults &amp; Crucible Siege Gauntlet</h2>
+            <div style="font-size:0.75rem;color:var(--text-muted);">
+              <strong>From Abstract Probability to a Living Citadel of Archetypes:</strong> Instead of invisible random-dice sampling ("Monte Carlo"), all <strong>24 Dominant 15° Archetypes</strong> (15° → 360°, weighed by <strong>×3.14</strong> and <strong>×π</strong>) are garrisoned across <strong>6 Equilateral 60° Bastion Wings</strong>. Inspect, fortify (+3.14π Wall Tier), breach in live 60 FPS Crucible Trials, or storm all 6 Bastions with your persistent 2v2/3v3 Roster.
             </div>
           </div>
           <div class="btn-row">
-            <label style="font-size:0.75rem;color:#FDE68A;display:flex;align-items:center;gap:4px;">
-              Iterations / Matchup:
-              <input type="number" id="mcIterationsInput" class="studio-input" style="width:78px;font-family:Consolas,monospace;" min="20" max="2000" value="150" />
-            </label>
-            <button class="btn btn-emerald" onclick="window.SovGame.runMonteCarloTournament()">🎲 Run Circular Monte Carlo Matrix</button>
+            <span id="bastilleSealsHeaderBadge" class="badge badge-gold" style="font-family:Consolas,monospace;font-size:0.72rem;">🔱 30 Bastille Seals • 7 Gauntlets</span>
+            <button class="btn btn-crimson" onclick="window.SovGame.executeBastilleVaultBreach()">⚔️ Breach Selected Vault</button>
+            <button class="btn btn-sapphire" onclick="window.SovGame.fortifySelectedBastilleVault()">🏰 Fortify Vault (+3.14π)</button>
+            <button class="btn btn-emerald" onclick="window.SovGame.runMonteCarloTournament()">🔥 Storm All 6 Bastions Gauntlet</button>
+            <button class="btn btn-sm" onclick="window.SovGame.resetBastilleCitadel()">↺ Reset</button>
           </div>
         </div>
 
-        <div class="sub-grid-2" style="margin-bottom:1rem;">
-          <!-- Left: 11-Vector + Circular Degree Clash Controls -->
-          <div class="sub-card">
-            <h4>🧭 Live Circular Degree (φ°, Δθ°) &amp; 11-Vector Clash Calculator</h4>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.45rem;">
+        <!-- 6 EQUILATERAL 60° BASTION WINGS INTERACTIVE SELECTOR STRIP -->
+        <div id="bastilleSixWingsStrip" style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.42rem;margin-bottom:0.85rem;"></div>
+
+        <div class="sub-grid-2" style="margin-bottom:0.95rem;">
+          <!-- Left: Bastille Vault Crucible & 11-Vector / Degree (φ°, Δθ°) Breach Protractor -->
+          <div class="sub-card" style="border-color:var(--emerald);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
+              <h4 style="margin:0;">⚔️ Bastille Vault Crucible &amp; Circular Breach Protractor (φ°, Δθ°)</h4>
+              <span id="bastilleSelectedVaultBadge" class="badge badge-gold" style="font-family:Consolas,monospace;font-size:0.65rem;">Vault #04 • 60° Tier III</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.45rem;margin-bottom:0.4rem;">
               <div>
-                <label style="font-size:0.72rem;color:#6EE7B7;font-weight:700;">Attacker Profile:</label>
-                <select id="clashAttackerSelect" class="studio-select" style="width:100%;color:#FDE68A;" onchange="window.SovGame.recalc11VectorClash()"></select>
+                <label style="font-size:0.69rem;color:#6EE7B7;font-weight:700;">⚔️ Challenger Archetype (Siege Attacker):</label>
+                <select id="clashAttackerSelect" class="studio-select" style="width:100%;color:#6EE7B7;font-weight:700;" onchange="window.SovGame.recalc11VectorClash()"></select>
               </div>
               <div>
-                <label style="font-size:0.72rem;color:#FDA4AF;font-weight:700;">Defender Profile:</label>
-                <select id="clashDefenderSelect" class="studio-select" style="width:100%;color:#FDA4AF;" onchange="window.SovGame.recalc11VectorClash()"></select>
+                <label style="font-size:0.69rem;color:#FDA4AF;font-weight:700;">🏰 Garrisoned Bastille Vault Warden (15°–360°):</label>
+                <select id="clashDefenderSelect" class="studio-select" style="width:100%;color:#FDE68A;font-weight:700;" onchange="window.SovGame.recalc11VectorClash()"></select>
               </div>
             </div>
 
-            <div style="margin-bottom:0.45rem;">
-              <label style="font-size:0.72rem;color:#FDE68A;font-weight:700;">Executed Circular Command:</label>
-              <select id="clashVerbSelect" class="studio-select" style="width:100%;color:#6EE7B7;font-weight:700;" onchange="window.SovGame.recalc11VectorClash()"></select>
+            <div style="margin-bottom:0.4rem;">
+              <label style="font-size:0.69rem;color:#FDE68A;font-weight:700;">Executed Siege / Defense Command Verb:</label>
+              <select id="clashVerbSelect" class="studio-select" style="width:100%;color:#93C5FD;font-weight:700;" onchange="window.SovGame.recalc11VectorClash()"></select>
             </div>
 
             <div class="slider-row">
-              <span>Incidence Angle φ° (0° Frontal..180° Flank):</span>
+              <span>Siege Incidence Angle φ° (0° Frontal Wall..180° Flank Breach):</span>
               <input type="range" id="clashAngleSlider" min="0" max="180" step="5" value="145" oninput="window.SovGame.recalc11VectorClash()" />
               <span class="pi-val" id="clashAngleVal">145° (2.53r)</span>
             </div>
@@ -812,43 +819,171 @@
               <span class="pi-val" id="clashArcVal">Δ180° (1.00π)</span>
             </div>
             <div class="slider-row">
-              <span>Attacker Stat Weight (π):</span>
-              <input type="range" id="clashStatSlider" min="0.314" max="15.70" step="0.314" value="6.28" oninput="window.SovGame.recalc11VectorClash()" />
-              <span class="pi-val" id="clashStatVal">6.28π</span>
+              <span>Challenger Stat Weight (π):</span>
+              <input type="range" id="clashStatSlider" min="0.314" max="15.70" step="0.314" value="7.85" oninput="window.SovGame.recalc11VectorClash()" />
+              <span class="pi-val" id="clashStatVal">7.85π</span>
             </div>
             <div class="slider-row">
-              <span>Attacker Weapon Weight (π):</span>
-              <input type="range" id="clashWeaponSlider" min="0.314" max="12.56" step="0.314" value="2.51" oninput="window.SovGame.recalc11VectorClash()" />
-              <span class="pi-val" id="clashWeaponVal">2.51π</span>
+              <span>Challenger Weapon Weight (π):</span>
+              <input type="range" id="clashWeaponSlider" min="0.314" max="12.56" step="0.314" value="3.45" oninput="window.SovGame.recalc11VectorClash()" />
+              <span class="pi-val" id="clashWeaponVal">3.45π</span>
             </div>
             <div class="slider-row">
-              <span>Defender Armor Weight (π):</span>
-              <input type="range" id="clashArmorSlider" min="0.314" max="12.56" step="0.314" value="1.57" oninput="window.SovGame.recalc11VectorClash()" />
-              <span class="pi-val" id="clashArmorVal">1.57π</span>
+              <span>Bastille Vault Armor &amp; Wall Weight (π):</span>
+              <input type="range" id="clashArmorSlider" min="0.314" max="12.56" step="0.314" value="4.55" oninput="window.SovGame.recalc11VectorClash()" />
+              <span class="pi-val" id="clashArmorVal">4.55π</span>
             </div>
-            <button class="btn btn-emerald" style="width:100%;margin-top:0.4rem;" onclick="window.SovGame.executeLiveClashOnCanvas()">⚡ Execute Circular Clash on Window #1 &amp; Window #2 Protractor</button>
+
+            <div id="clashFormulaOutput" style="font-family:Consolas,monospace;font-size:0.7rem;color:#E2E8F0;line-height:1.48;background:#04070E;padding:0.55rem 0.65rem;border-radius:8px;border:1px solid rgba(212,175,55,0.3);margin:0.42rem 0;"></div>
+
+            <div class="btn-row" style="justify-content:space-between;">
+              <button class="btn btn-sm btn-crimson" onclick="window.SovGame.executeBastilleVaultBreach()">⚔️ Breach Vault &amp; Animate</button>
+              <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.fortifySelectedBastilleVault()">🏰 Fortify Vault (+3.14π)</button>
+              <button class="btn btn-sm btn-emerald" onclick="window.SovGame.draftSelectedVaultToRoster('A')">+Draft to Roster A</button>
+              <button class="btn btn-sm" onclick="window.SovGame.draftSelectedVaultToRoster('B')">+Draft to Roster B</button>
+            </div>
           </div>
 
-          <!-- Right: Granular Circular Degree & 11-Vector Output -->
-          <div class="sub-card">
-            <h4>📐 Procedural Circular Impact, Torque (τ_π) &amp; Degree Formula Output</h4>
-            <div id="clashFormulaOutput" style="font-family:Consolas,monospace;font-size:0.74rem;color:#E2E8F0;line-height:1.58;background:#04070E;padding:0.75rem;border-radius:8px;border:1px solid rgba(212,175,55,0.3);"></div>
+          <!-- Right: Live 60 FPS Animated Hexagonal Bastille of 24 Archetypes Citadel Map -->
+          <div class="sub-card" style="border-color:var(--gold);">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:0.4rem;margin-bottom:0.35rem;">
+              <h4 style="margin:0;">🏰 Live 60 FPS Hexagonal Bastille Map (6 Bastions × 4 Vaults = 24 Archetype Cells)</h4>
+              <div class="btn-row">
+                <button class="btn btn-sm active" id="bastilleWingBtn_ALL" onclick="window.SovGame.filterBastilleByWing('ALL')">All 24 Vaults</button>
+                <button class="btn btn-sm btn-emerald" onclick="window.SovGame.runMonteCarloTournament()">🔥 Storm 6-Bastion Gauntlet</button>
+              </div>
+            </div>
+
+            <div style="position:relative;background:#04070E;border:1px solid rgba(212,175,55,0.38);border-radius:8px;overflow:hidden;margin-bottom:0.42rem;text-align:center;">
+              <canvas id="bastilleArchetypesCanvas" width="640" height="305" style="width:100%;height:265px;display:block;cursor:pointer;"></canvas>
+              <div style="position:absolute;bottom:4px;left:8px;right:8px;display:flex;justify-content:space-between;pointer-events:none;font-family:Consolas,monospace;font-size:0.64rem;">
+                <span style="background:rgba(4,7,14,0.88);padding:2px 6px;border-radius:4px;color:#FDE68A;border:1px solid rgba(212,175,55,0.3);">Click any of the 24 Bastille Vault Cells (15°–360°) to Inspect, Breach, or Fortify</span>
+                <span id="bastilleCanvasHoverReadout" style="background:rgba(4,7,14,0.88);padding:2px 6px;border-radius:4px;color:#6EE7B7;border:1px solid rgba(16,185,129,0.3);">Bastille Integrity: 100% • 6×60° Wings</span>
+              </div>
+            </div>
+
+            <div id="bastilleGauntletLiveBox" class="combat-log-box" style="height:155px;font-size:0.69rem;line-height:1.42;"></div>
           </div>
         </div>
 
-        <!-- Monte Carlo Tournament Matrix Table -->
-        <h3 class="panel-title" style="font-size:0.98rem;margin-bottom:0.4rem;">🎲 Stochastic Circular Monte Carlo Tournament Telemetry (With 360° Completions, Mean Torque τ_π &amp; SPC Transitions)</h3>
-        <div class="data-table-wrap">
+        <!-- ==================================================================
+             AUTOMATED 2v2 & 3v3 ARCHETYPE COMBAT HOST COMPONENTS (60 FPS LIVE)
+             ================================================================== -->
+        <div class="sub-card" style="border-color:rgba(16,185,129,0.55);background:linear-gradient(180deg,rgba(6,78,59,0.16),rgba(2,6,23,0.92));margin-bottom:0.95rem;">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0.5rem;margin-bottom:0.55rem;padding-bottom:0.45rem;border-bottom:1px solid rgba(212,175,55,0.25);">
+            <div>
+              <div style="display:flex;align-items:center;gap:0.45rem;">
+                <h3 style="margin:0;font-family:'Cinzel',serif;font-size:0.95rem;color:#FDE68A;">🤖 Automated 2v2 &amp; 3v3 Archetype Combat Host Components (Continuous 60 FPS 3.14π Arena Pods)</h3>
+                <span id="autoHostEngineStatusBadge" class="badge badge-emerald" style="font-family:Consolas,monospace;font-size:0.68rem;">🟢 AUTO-HOSTING LIVE (60 FPS)</span>
+              </div>
+              <div style="font-size:0.71rem;color:#CBD5E1;margin-top:2px;">
+                Dedicated self-running <strong>2v2 Dual-Vanguard</strong> &amp; <strong>3v3 Equilateral Triad (120° Phase-Locked)</strong> combat host components. Matches run autonomously at 60 FPS, resolve winners, update persistent Databank ELO &amp; Win/Loss records (<code>localStorage</code>), and auto-queue the next wave.
+              </div>
+            </div>
+            <div class="btn-row" style="align-items:center;">
+              <label style="font-size:0.68rem;color:#FDE68A;font-weight:700;">Matchmaking League:</label>
+              <select id="autoHostMatchmakingModeSelect" class="studio-select" style="font-size:0.7rem;color:#6EE7B7;font-weight:700;" onchange="window.SovGame.setAutomatedHostMatchmakingMode(this.value)">
+                <option value="BASTION_VS_BASTION">🏰 6-Bastion Wing vs. Wing League (60° Equilateral)</option>
+                <option value="SAVED_ROSTER_GAUNTLET">🛡️ Saved Roster A vs. Bastille Challengers</option>
+                <option value="TOP_ELO_CHAMPIONS">👑 Top ELO Sovereign Champions Bracket</option>
+                <option value="FULL_24_VAULT_CYCLE">⭕ Full 24-Vault (15°→360°) Sequential Cycle</option>
+              </select>
+              <button id="autoHostToggleBtn" class="btn btn-sm btn-emerald" onclick="window.SovGame.toggleAutomatedCombatHosts()">⏸️ Pause Auto-Hosts</button>
+              <button class="btn btn-sm btn-gold" onclick="window.SovGame.spawnNextAutomatedWave('BOTH')">⏭️ Next 2v2 &amp; 3v3 Wave</button>
+              <button id="autoHostSpd1" class="btn btn-sm active" onclick="window.SovGame.setAutomatedHostSpeed(1)">1x</button>
+              <button id="autoHostSpd2" class="btn btn-sm" onclick="window.SovGame.setAutomatedHostSpeed(2)">2x</button>
+              <button id="autoHostSpd4" class="btn btn-sm" onclick="window.SovGame.setAutomatedHostSpeed(4)">4x</button>
+            </div>
+          </div>
+
+          <div class="sub-grid-2">
+            <!-- COMPONENT HOST #1: AUTOMATED 2v2 DUAL-VANGUARD ARCHETYPE COMBAT HOST -->
+            <div id="autoHost2v2Card" class="sub-card" style="border-color:rgba(59,130,246,0.5);background:rgba(4,7,14,0.88);padding:0.55rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:0.35rem;margin-bottom:0.35rem;">
+                <div>
+                  <span class="badge badge-sapphire" style="font-size:0.65rem;">HOST COMPONENT #1 • 2v2 DUAL-VANGUARD (180° POLAR PAIR)</span>
+                  <div id="autoHost2v2Title" style="font-size:0.76rem;font-weight:700;color:#FDE68A;margin-top:2px;">Wave #1: Bastion I Defenders vs. Bastion II Attackers</div>
+                </div>
+                <div class="btn-row">
+                  <span id="autoHost2v2WaveBadge" class="badge badge-gold" style="font-family:Consolas,monospace;font-size:0.63rem;">Wave #1 • ⭕ 0.0 (2π)</span>
+                  <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.spawnNextAutomatedWave('2v2')" title="Queue Next Automated 2v2 Match">⏭️ Next 2v2</button>
+                  <button class="btn btn-sm btn-emerald" onclick="window.SovGame.promoteAutomatedMatchToMainWheel('2v2')" title="Push this 2v2 Matchup into Section 1 Main Wheel">📥 To Main Wheel</button>
+                </div>
+              </div>
+
+              <div style="position:relative;background:#020617;border:1px solid rgba(59,130,246,0.4);border-radius:8px;overflow:hidden;margin-bottom:0.4rem;">
+                <canvas id="autoHost2v2Canvas" width="560" height="225" style="width:100%;height:210px;display:block;"></canvas>
+                <div style="position:absolute;top:5px;left:7px;right:7px;display:flex;justify-content:space-between;pointer-events:none;font-family:Consolas,monospace;font-size:0.63rem;">
+                  <span id="autoHost2v2TeamABadge" style="background:rgba(2,6,23,0.88);padding:2px 6px;border-radius:4px;color:#6EE7B7;border:1px solid rgba(16,185,129,0.4);">🟢 COALITION A (2 Units)</span>
+                  <span id="autoHost2v2StatusOverlay" style="background:rgba(2,6,23,0.88);padding:2px 6px;border-radius:4px;color:#FDE68A;border:1px solid rgba(212,175,55,0.4);">⚡ LIVE 2v2 ORBIT CLASH</span>
+                  <span id="autoHost2v2TeamBBadge" style="background:rgba(2,6,23,0.88);padding:2px 6px;border-radius:4px;color:#FDA4AF;border:1px solid rgba(244,63,94,0.4);">🔴 CHALLENGER B (2 Units)</span>
+                </div>
+              </div>
+
+              <!-- Live 2v2 4-Fighter Vitals Strip -->
+              <div id="autoHost2v2VitalsStrip" style="display:grid;grid-template-columns:1fr 1fr;gap:0.35rem;margin-bottom:0.35rem;"></div>
+
+              <!-- Rolling 2v2 Automated Match History Feed -->
+              <div id="autoHost2v2LogBox" style="font-family:Consolas,monospace;font-size:0.65rem;color:#CBD5E1;background:#020617;border:1px solid rgba(148,163,184,0.2);border-radius:6px;padding:0.35rem 0.5rem;max-height:74px;overflow-y:auto;"></div>
+            </div>
+
+            <!-- COMPONENT HOST #2: AUTOMATED 3v3 EQUILATERAL TRIAD ARCHETYPE COMBAT HOST -->
+            <div id="autoHost3v3Card" class="sub-card" style="border-color:rgba(212,175,55,0.55);background:rgba(4,7,14,0.88);padding:0.55rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:0.35rem;margin-bottom:0.35rem;">
+                <div>
+                  <span class="badge badge-gold" style="font-size:0.65rem;">HOST COMPONENT #2 • 3v3 EQUILATERAL TRIAD (120° PHASE)</span>
+                  <div id="autoHost3v3Title" style="font-size:0.76rem;font-weight:700;color:#FDE68A;margin-top:2px;">Wave #1: Bastion III Ranged vs. Bastion IV Spell Triad</div>
+                </div>
+                <div class="btn-row">
+                  <span id="autoHost3v3WaveBadge" class="badge badge-gold" style="font-family:Consolas,monospace;font-size:0.63rem;">Wave #1 • ⭕ 0.0 (2π)</span>
+                  <button class="btn btn-sm btn-gold" onclick="window.SovGame.spawnNextAutomatedWave('3v3')" title="Queue Next Automated 3v3 Match">⏭️ Next 3v3</button>
+                  <button class="btn btn-sm btn-emerald" onclick="window.SovGame.promoteAutomatedMatchToMainWheel('3v3')" title="Push this 3v3 Matchup into Section 1 Main Wheel">📥 To Main Wheel</button>
+                </div>
+              </div>
+
+              <div style="position:relative;background:#020617;border:1px solid rgba(212,175,55,0.42);border-radius:8px;overflow:hidden;margin-bottom:0.4rem;">
+                <canvas id="autoHost3v3Canvas" width="560" height="225" style="width:100%;height:210px;display:block;"></canvas>
+                <div style="position:absolute;top:5px;left:7px;right:7px;display:flex;justify-content:space-between;pointer-events:none;font-family:Consolas,monospace;font-size:0.63rem;">
+                  <span id="autoHost3v3TeamABadge" style="background:rgba(2,6,23,0.88);padding:2px 6px;border-radius:4px;color:#6EE7B7;border:1px solid rgba(16,185,129,0.4);">🟢 TRIAD A (3 Units • 120°)</span>
+                  <span id="autoHost3v3StatusOverlay" style="background:rgba(2,6,23,0.88);padding:2px 6px;border-radius:4px;color:#FDE68A;border:1px solid rgba(212,175,55,0.4);">🔥 LIVE 3v3 TRIAD CLASH</span>
+                  <span id="autoHost3v3TeamBBadge" style="background:rgba(2,6,23,0.88);padding:2px 6px;border-radius:4px;color:#FDA4AF;border:1px solid rgba(244,63,94,0.4);">🔴 TRIAD B (3 Units • 120°)</span>
+                </div>
+              </div>
+
+              <!-- Live 3v3 6-Fighter Vitals Strip -->
+              <div id="autoHost3v3VitalsStrip" style="display:grid;grid-template-columns:1fr 1fr;gap:0.35rem;margin-bottom:0.35rem;"></div>
+
+              <!-- Rolling 3v3 Automated Match History Feed -->
+              <div id="autoHost3v3LogBox" style="font-family:Consolas,monospace;font-size:0.65rem;color:#CBD5E1;background:#020617;border:1px solid rgba(148,163,184,0.2);border-radius:6px;padding:0.35rem 0.5rem;max-height:74px;overflow-y:auto;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Complete 24-Vault Bastille of Archetypes Garrison Matrix Table -->
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0.4rem;margin-bottom:0.4rem;">
+          <h3 class="panel-title" style="font-size:0.96rem;margin:0;">🏛️ Persistent 24-Vault Bastille Garrison &amp; Archetype Crucible Ledger (6 Equilateral 60° Bastions)</h3>
+          <div class="btn-row">
+            <button class="btn btn-sm active" id="bastilleFilter_ALL" onclick="window.SovGame.filterBastilleByWing('ALL')">All 6 Bastions (24+)</button>
+            <button class="btn btn-sm" id="bastilleFilter_WING_DEFENDERS" onclick="window.SovGame.filterBastilleByWing('WING_DEFENDERS')">🛡️ Bastion I (0°–60°)</button>
+            <button class="btn btn-sm" id="bastilleFilter_WING_ATTACKERS" onclick="window.SovGame.filterBastilleByWing('WING_ATTACKERS')">⚔️ Bastion II (60°–120°)</button>
+            <button class="btn btn-sm" id="bastilleFilter_WING_RANGED" onclick="window.SovGame.filterBastilleByWing('WING_RANGED')">🏹 Bastion III (120°–180°)</button>
+            <button class="btn btn-sm" id="bastilleFilter_WING_SPELL" onclick="window.SovGame.filterBastilleByWing('WING_SPELL')">✨ Bastion IV (180°–240°)</button>
+            <button class="btn btn-sm" id="bastilleFilter_WING_SUPPORT" onclick="window.SovGame.filterBastilleByWing('WING_SUPPORT')">🧪 Bastion V (240°–300°)</button>
+            <button class="btn btn-sm" id="bastilleFilter_WING_SOVEREIGN" onclick="window.SovGame.filterBastilleByWing('WING_SOVEREIGN')">👑 Bastion VI (300°–360°)</button>
+          </div>
+        </div>
+
+        <div class="data-table-wrap" style="max-height:420px;overflow-y:auto;">
           <table class="sov-table">
             <thead>
               <tr>
-                <th>Attacker Profile &amp; Archetype</th>
-                <th>Resonant Command, Arc Δθ° &amp; Ring r·π</th>
-                <th>Oppositional Defender &amp; Stance</th>
-                <th>Simulations</th>
-                <th>Monte Carlo Win Rate Distribution</th>
-                <th>Avg 360° (2π) Completions &amp; Ticks</th>
-                <th>Mean Torque τ_π &amp; SPC</th>
+                <th>Vault # &amp; Degree (θ° | ×3.14 | ×π)</th>
+                <th>Garrisoned Archetype Warden &amp; 60° Bastion Wing</th>
+                <th>Vault Fortification Tier, Status &amp; Wall Integrity</th>
+                <th>Vault Arsenal &amp; Relics (Weapon, Armor, Spell, Potion)</th>
+                <th>Crucible Defense vs. Breach Distribution</th>
+                <th>360° (2π) Completions &amp; Mean Torque τ_π</th>
+                <th>Bastille Vault Actions</th>
               </tr>
             </thead>
             <tbody id="monteCarloResultsBody"></tbody>

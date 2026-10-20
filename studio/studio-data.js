@@ -2168,7 +2168,7 @@
       { id: "ALL", label: "🧭 All", active: true },
       { id: "VIEWPORTS", label: "⭕ Viewports" },
       { id: "COMMAND_FORGE", label: "⚡ Class & Command Forge" },
-      { id: "TOURNAMENT", label: "🎲 Clash & MC" },
+      { id: "TOURNAMENT", label: "🏰 Bastille of Archetypes" },
       { id: "AGENCY", label: "♊ 12 Agents" },
       { id: "CASTLE_GOV", label: "🏰 Throne" },
       { id: "LDM_LIBRARY", label: "📦 12 LDM & Tomes" }
