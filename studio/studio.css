@@ -38,66 +38,80 @@ body {
   overflow-x: hidden;
 }
 
-/* Sticky Studio Top Telemetry & Layout Bar */
+/* Sticky Studio Top Telemetry & Layout Bar (Single-Row High-Density Grid) */
 .hud-sticky-bar {
   position: sticky;
   top: 0;
   z-index: 9500;
   background: linear-gradient(90deg, rgba(4, 7, 15, 0.98) 0%, rgba(12, 21, 42, 0.98) 50%, rgba(4, 7, 15, 0.98) 100%);
-  border-bottom: 2px solid var(--gold);
+  border-bottom: 1px solid var(--gold);
   backdrop-filter: blur(12px);
-  padding: 0.45rem 1rem;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.8);
+  padding: 0.28rem 0.75rem;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.75);
 }
 
 .hud-inner {
   max-width: 1860px;
   margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.45rem;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
+@media (max-width: 1280px) {
+  .hud-inner {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .hud-metric {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
   background: rgba(17, 26, 46, 0.92);
   border: 1px solid var(--border-gold);
-  border-radius: 8px;
-  padding: 0.25rem 0.6rem;
-  font-size: 0.75rem;
+  border-radius: 6px;
+  padding: 0.18rem 0.45rem;
+  font-size: 0.7rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hud-metric > div {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .hud-metric-label {
   color: var(--text-muted);
-  font-size: 0.64rem;
+  font-size: 0.58rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
 }
 
 .hud-metric-val {
   color: var(--gold-light);
   font-family: 'Consolas', monospace;
   font-weight: 700;
-  font-size: 0.84rem;
+  font-size: 0.76rem;
 }
 
 .hud-metric-rate {
   color: var(--emerald-light);
   font-family: 'Consolas', monospace;
-  font-size: 0.7rem;
+  font-size: 0.66rem;
 }
 
-/* Studio Workspace Navigation Ribbon */
+/* Studio Workspace Navigation Ribbon (Single-Row Compact) */
 .studio-nav-ribbon {
   background: rgba(8, 14, 28, 0.96);
   border-bottom: 1px solid var(--border-gold);
-  padding: 0.5rem 1rem;
+  padding: 0.28rem 0.75rem;
   position: sticky;
-  top: 54px;
+  top: 41px;
   z-index: 9400;
   backdrop-filter: blur(8px);
 }
@@ -106,33 +120,36 @@ body {
   max-width: 1860px;
   margin: 0 auto;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.35rem;
+  overflow-x: auto;
 }
 
 .studio-tab-group,
 .studio-layout-group {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 0.38rem;
+  gap: 0.25rem;
+  white-space: nowrap;
 }
 
 .studio-tab-btn {
   background: rgba(17, 26, 46, 0.9);
   color: #cbd5e1;
   border: 1px solid rgba(212, 175, 55, 0.28);
-  border-radius: 8px;
-  padding: 0.42rem 0.82rem;
-  font-size: 0.78rem;
+  border-radius: 6px;
+  padding: 0.24rem 0.52rem;
+  font-size: 0.71rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.25rem;
+  white-space: nowrap;
 }
 
 .studio-tab-btn:hover,
@@ -140,13 +157,13 @@ body {
   background: linear-gradient(135deg, rgba(212, 175, 55, 0.32), rgba(16, 185, 129, 0.28));
   border-color: var(--gold);
   color: #ffffff;
-  box-shadow: 0 0 14px rgba(212, 175, 55, 0.35);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
 }
 
 .container {
   max-width: 1860px;
   margin: 0 auto;
-  padding: 1rem 1.25rem 2.5rem 1.25rem;
+  padding: 0.55rem 0.9rem 2rem 0.9rem;
 }
 
 /* Compact Collapsible Studio Header Banner */

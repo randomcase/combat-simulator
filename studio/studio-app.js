@@ -394,7 +394,6 @@
 
   function renderCastleLibraryTomes() {
     const grid = document.getElementById("castleLibraryTomeGrid");
-    const drawerGrid = document.getElementById("sovDrawerGrid");
     const tomes = window.SOV_TOMES_DATA || [];
 
     if (grid) {
@@ -409,20 +408,9 @@
         '<div style="font-size:0.71rem;color:#93C5FD;margin-bottom:0.28rem;">' + t.wing + ' • ' + t.tag + '</div>' +
         '</div>' +
         '<div class="btn-row" style="margin-top:0.32rem;">' +
-        '<button class="btn btn-sm btn-emerald" onclick="window.SovGame.injectTomeScenario(' + t.seq + ')">⚡ Inject Tome into Circular Arena</button>' +
-        '<a class="btn btn-sm btn-sapphire" style="text-decoration:none;" href="' + t.file + '">📖 Open Full Portal</a>' +
+        '<button class="btn btn-sm btn-emerald" onclick="window.SovGame.injectTomeScenario(' + t.seq + ')">⚡ Inject Tome into Circular Arena (+98.6π)</button>' +
         '</div></div>'
       ).join("");
-    }
-
-    if (drawerGrid) {
-      drawerGrid.innerHTML = tomes.map(t => {
-        const searchBlob = (t.label + " " + t.title + " " + t.wing + " " + t.tag + " " + t.file).toLowerCase().replace(/"/g, "");
-        return '<a class="sov-drawer-item" style="border-left-color:#D4AF37;" href="' + t.file + '" data-search="' + searchBlob + '">' +
-          '<div style="display:flex;justify-content:space-between;font-size:0.7rem;color:#94A3B8;"><span>#' + String(t.seq).padStart(2, "0") + ' / 68 • ' + t.wing + '</span><code style="color:#38BDF8;">' + t.file + '</code></div>' +
-          '<div style="font-weight:700;font-size:0.82rem;color:#F8FAFC;margin:0.15rem 0;">' + t.label + '</div>' +
-          '<div style="font-size:0.71rem;color:#CBD5E1;">' + t.tag + '</div></a>';
-      }).join("");
     }
   }
 
@@ -1344,7 +1332,7 @@
       if (window.SovAgencyEngine && window.SovAgencyEngine.isAutoTuneActive() && loopTick % 6 === 0) {
         const stepRes = window.SovAgencyEngine.stepCircularAutoTune(G, false);
         if (stepRes && stepRes.activeAgent) {
-          setTxt("hudAgencyGateVal", stepRes.activeAgent.shortName.slice(0, 22));
+          setTxt("hudAgencyGateVal", stepRes.activeAgent.shortName.split("(")[0].trim());
           setTxt("hudAgencyCycleVal", "(" + stepRes.activeAgent.angleDeg + "° | Cycle #" + stepRes.completedCycles + ")");
         }
         renderAgencyCouncilUI();
