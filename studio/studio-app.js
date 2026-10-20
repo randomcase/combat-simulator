@@ -1006,7 +1006,9 @@
     state.selectedDatabankClassId = "DB_ARCH_015_AEGIS_WARDEN";
     state.databankDomainFilter = "ALL";
     state.autoWeighPoolActive = true;
+    state.rosterAnimPaused = false;
     state.lastCoalitionResult = null;
+    state.rosterAnim = null;
 
     function populateDatabankOfferingsSelects() {
       const off = window.SOV_DATABANK_OFFERINGS || {};
@@ -1025,14 +1027,70 @@
     function refreshDatabankTemplateDropdown() {
       const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
       const sel = document.getElementById("dbClassTemplateSelect");
-      if (!sel) return;
-      sel.innerHTML = pool.map(c =>
+      if (sel) {
+        sel.innerHTML = pool.map(c =>
+          '<option value="' + c.id + '">' +
+          (c.isCustom ? "★ [CUSTOM] " : "") + c.degree + "° (×3.14=" + c.degTimes314 + "°) — " + c.name + " [" + c.modality + "]" +
+          '</option>'
+        ).join("");
+        if (pool.some(c => c.id === state.selectedDatabankClassId)) {
+          sel.value = state.selectedDatabankClassId;
+        }
+      }
+      refreshPersistentRosterSelects();
+    }
+
+    function refreshPersistentRosterSelects() {
+      if (!window.SovCommandEngine || !window.SovCommandEngine.getCoalitionRosterState) return;
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      const st = window.SovCommandEngine.getCoalitionRosterState();
+      const mode = st.mode || "3v3";
+      const optsHtml = pool.map(c =>
         '<option value="' + c.id + '">' +
-        (c.isCustom ? "★ [CUSTOM] " : "") + c.degree + "° (×3.14=" + c.degTimes314 + "°) — " + c.name + " [" + c.modality + "]" +
+        (c.isCustom ? "★ " : "") + c.degree + "° " + c.name.replace(/^\d+°\s*/, "").slice(0, 20) +
+        " [" + c.modality.replace("PHYSICAL_", "").slice(0, 7) + " • " + (c.eloRating || 1650) + "]" +
         '</option>'
       ).join("");
-      if (pool.some(c => c.id === state.selectedDatabankClassId)) {
-        sel.value = state.selectedDatabankClassId;
+
+      for (let i = 0; i < 3; i++) {
+        const selA = document.getElementById("rosterSelect_A" + i);
+        const selB = document.getElementById("rosterSelect_B" + i);
+        if (selA) {
+          selA.innerHTML = optsHtml;
+          if (pool.some(c => c.id === st.rosterA[i])) selA.value = st.rosterA[i];
+        }
+        if (selB) {
+          selB.innerHTML = optsHtml;
+          if (pool.some(c => c.id === st.rosterB[i])) selB.value = st.rosterB[i];
+        }
+      }
+
+      const showSlot2 = mode === "2v2" || mode === "3v3";
+      const showSlot3 = mode === "3v3";
+      const setDisp = (id, show) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = show ? "flex" : "none";
+      };
+      setDisp("rosterSlotRow_A1", showSlot2);
+      setDisp("rosterSlotRow_B1", showSlot2);
+      setDisp("rosterSlotRow_A2", showSlot3);
+      setDisp("rosterSlotRow_B2", showSlot3);
+
+      ["1v1", "2v2", "3v3"].forEach(m => {
+        const b = document.getElementById("btnRosterMode_" + m);
+        if (b) b.classList.toggle("active", m === mode);
+      });
+
+      const resolved = window.SovCommandEngine.resolveActiveRosterTeams(mode);
+      const badgeA = document.getElementById("rosterARecordBadge");
+      const badgeB = document.getElementById("rosterBRecordBadge");
+      const winsA = mode === "2v2" ? (st.rosterAWins2v2 || 8) : (st.rosterAWins3v3 || 14);
+      const winsB = mode === "2v2" ? (st.rosterBWins2v2 || 3) : (st.rosterBWins3v3 || 4);
+      if (badgeA) {
+        badgeA.textContent = mode + ": " + winsA + "W–" + winsB + "L • " + resolved.synergyA.mult.toFixed(2) + "x";
+      }
+      if (badgeB) {
+        badgeB.textContent = mode + ": " + winsB + "W–" + winsA + "L • " + resolved.synergyB.mult.toFixed(2) + "x";
       }
     }
 
@@ -1067,13 +1125,16 @@
       };
     }
 
-    function renderArchetypeDegreeWheelCanvas(previewMetrics) {
+    function renderArchetypeDegreeWheelCanvas(previewMetricsOverride) {
       const canvas = document.getElementById("archetypeDegreeWheelCanvas");
       if (!canvas) return;
       const ctx = canvas.getContext("2d");
       const W = canvas.width;
       const H = canvas.height;
       ctx.clearRect(0, 0, W, H);
+
+      const previewMetrics = previewMetricsOverride || state.lastPreviewMetrics;
+      if (previewMetricsOverride) state.lastPreviewMetrics = previewMetricsOverride;
 
       // Background
       const bg = ctx.createLinearGradient(0, 0, W, H);
@@ -1083,13 +1144,13 @@
       ctx.fillRect(0, 0, W, H);
 
       const cx = 152;
-      const cy = 146;
-      const R_OUTER = 118;
-      const R_MID = 84;
-      const R_INNER = 46;
+      const cy = 152;
+      const R_OUTER = 122;
+      const R_MID = 86;
+      const R_INNER = 48;
 
       const domains = window.SOV_EQUILATERAL_60_DOMAINS || [];
-      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      const anim = state.rosterAnim;
 
       // 1. Draw 6 Equilateral 60° Combat Domains
       domains.forEach(d => {
@@ -1100,201 +1161,313 @@
         ctx.moveTo(cx, cy);
         ctx.arc(cx, cy, R_OUTER, startRad, endRad);
         ctx.closePath();
-        ctx.fillStyle = d.color + "1E";
+        ctx.fillStyle = d.color + "1C";
         ctx.fill();
-        ctx.strokeStyle = d.color + "88";
-        ctx.lineWidth = 1.3;
+        ctx.strokeStyle = d.color + "77";
+        ctx.lineWidth = 1.2;
         ctx.stroke();
 
-        // Mid-angle label
         const midRad = ((d.startDeg + 30) - 90) * DEG_TO_RAD;
-        const lx = cx + Math.cos(midRad) * (R_OUTER + 16);
-        const ly = cy + Math.sin(midRad) * (R_OUTER + 16);
+        const lx = cx + Math.cos(midRad) * (R_OUTER + 15);
+        const ly = cy + Math.sin(midRad) * (R_OUTER + 15);
         ctx.fillStyle = d.color;
-        ctx.font = "bold 8.5px Consolas, monospace";
+        ctx.font = "bold 8px Consolas, monospace";
         ctx.textAlign = "center";
         ctx.fillText(d.modality.replace("PHYSICAL_", "").replace("_ALCHEMICAL", ""), lx, ly);
         ctx.restore();
       });
 
-      // 2. Draw Inscribed Equilateral Hexagon (Chord c = r·π across 60° vertices)
-      ctx.save();
-      ctx.beginPath();
-      for (let i = 0; i < 6; i++) {
-        const rad = (i * 60 - 90) * DEG_TO_RAD;
-        const hx = cx + Math.cos(rad) * R_MID;
-        const hy = cy + Math.sin(rad) * R_MID;
-        if (i === 0) ctx.moveTo(hx, hy);
-        else ctx.lineTo(hx, hy);
-      }
-      ctx.closePath();
-      ctx.strokeStyle = "rgba(212, 175, 55, 0.55)";
-      ctx.setLineDash([4, 3]);
-      ctx.lineWidth = 1.4;
-      ctx.stroke();
-      ctx.restore();
-
-      // 3. Concentric Polarity Rings (+1 Projective Outer, -1 Reflective Inner)
+      // 2. Concentric Polarity Rings
       [R_INNER, R_MID, R_OUTER].forEach(r => {
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.strokeStyle = "rgba(148, 163, 184, 0.25)";
+        ctx.strokeStyle = "rgba(148, 163, 184, 0.22)";
         ctx.lineWidth = 1;
         ctx.stroke();
       });
 
-      // 4. Draw 24 Dominant 15° Spokes & Archetype Nodes
+      // 3. Draw 24 Dominant 15° Spokes & Static Sector Markers
       for (let s = 1; s <= 24; s++) {
         const deg = s * 15;
         const rad = (deg - 90) * DEG_TO_RAD;
         const xOut = cx + Math.cos(rad) * R_OUTER;
         const yOut = cy + Math.sin(rad) * R_OUTER;
         ctx.beginPath();
-        ctx.moveTo(cx + Math.cos(rad) * 18, cy + Math.sin(rad) * 18);
+        ctx.moveTo(cx + Math.cos(rad) * 16, cy + Math.sin(rad) * 16);
         ctx.lineTo(xOut, yOut);
-        ctx.strokeStyle = (deg % 60 === 0) ? "rgba(253, 230, 138, 0.65)" : "rgba(148, 163, 184, 0.22)";
-        ctx.lineWidth = (deg % 60 === 0) ? 1.5 : 0.8;
+        ctx.strokeStyle = (deg % 60 === 0) ? "rgba(253, 230, 138, 0.55)" : "rgba(148, 163, 184, 0.16)";
+        ctx.lineWidth = (deg % 60 === 0) ? 1.4 : 0.7;
         ctx.stroke();
 
-        // Node marker at R_OUTER - 12
-        const nr = (s % 2 === 1) ? (R_OUTER - 11) : (R_MID + 12);
+        const nr = R_OUTER - 7;
         const nx = cx + Math.cos(rad) * nr;
         const ny = cy + Math.sin(rad) * nr;
         ctx.beginPath();
-        ctx.arc(nx, ny, 3.2, 0, Math.PI * 2);
-        ctx.fillStyle = (s % 2 === 1) ? "#6EE7B7" : "#F43F5E";
+        ctx.arc(nx, ny, 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = (s % 2 === 1) ? "rgba(110, 231, 183, 0.55)" : "rgba(244, 63, 94, 0.55)";
         ctx.fill();
       }
 
-      // 5. Draw Active 2v2 / 3v3 Coalition Chords if available
-      if (state.lastCoalitionResult) {
-        const res = state.lastCoalitionResult;
-        const drawTeamChords = (team, strokeCol, fillCol) => {
-          if (!team || team.length === 0) return;
-          ctx.save();
-          ctx.beginPath();
-          team.forEach((c, idx) => {
-            const rad = ((c.degree % 360) - 90) * DEG_TO_RAD;
-            const px = cx + Math.cos(rad) * (R_MID + 4);
-            const py = cy + Math.sin(rad) * (R_MID + 4);
-            if (idx === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
-          });
-          if (team.length > 1) ctx.closePath();
-          ctx.strokeStyle = strokeCol;
-          ctx.lineWidth = 2.0;
-          ctx.stroke();
-          if (team.length > 2) {
-            ctx.fillStyle = fillCol;
-            ctx.fill();
-          }
-          ctx.restore();
-        };
-        drawTeamChords(res.teamB, "rgba(244, 63, 94, 0.85)", "rgba(244, 63, 94, 0.12)");
-        drawTeamChords(res.teamA, "rgba(16, 185, 129, 0.95)", "rgba(16, 185, 129, 0.16)");
-      }
-
-      // 6. Highlight Active Forged Class Degree Vector & Sweep Arc Cone
+      // 4. Highlight Active Forged Class Degree Vector (Subtle Gold Reference Ray)
       if (previewMetrics) {
         const deg = previewMetrics.geo.baseDeg;
-        const arcSpan = previewMetrics.totalArcDeg || 180;
         const centerRad = (deg - 90) * DEG_TO_RAD;
-        const halfArc = (arcSpan / 2) * DEG_TO_RAD;
-
+        const vx = cx + Math.cos(centerRad) * R_OUTER;
+        const vy = cy + Math.sin(centerRad) * R_OUTER;
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, R_OUTER - 4, centerRad - halfArc, centerRad + halfArc);
-        ctx.closePath();
-        ctx.fillStyle = "rgba(253, 230, 138, 0.16)";
-        ctx.fill();
-
-        const vx = cx + Math.cos(centerRad) * R_OUTER;
-        const vy = cy + Math.sin(centerRad) * R_OUTER;
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
         ctx.lineTo(vx, vy);
-        ctx.strokeStyle = "#FDE68A";
-        ctx.lineWidth = 2.6;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(vx, vy, 6, 0, Math.PI * 2);
-        ctx.fillStyle = "#10B981";
-        ctx.fill();
-        ctx.strokeStyle = "#FFFFFF";
+        ctx.strokeStyle = "rgba(253, 230, 138, 0.45)";
+        ctx.setLineDash([3, 3]);
         ctx.lineWidth = 1.5;
         ctx.stroke();
         ctx.restore();
       }
 
-      // 7. Right-Side Telemetry & Equilateral 60° × 3.14π Legend Panel
-      const rx = 304;
-      ctx.fillStyle = "#FDE68A";
-      ctx.font = "bold 10.5px Consolas, monospace";
-      ctx.fillText("6 EQUILATERAL 60° DOMAINS (×3.14 = 188.4°)", rx, 20);
+      // 5. LIVE 60 FPS ANIMATED 2v2 / 3v3 ROSTER-VS-ROSTER BATTLE LAYER
+      if (anim) {
+        // 5A. Draw Rotating Team Formation Chords (2v2 Pincer Axis or 3v3 Equilateral Triangle)
+        const drawAnimatedRosterChords = (fighters, strokeCol, fillCol) => {
+          const alive = fighters.filter(f => f.hp > 0);
+          if (alive.length === 0) return;
+          ctx.save();
+          ctx.beginPath();
+          alive.forEach((f, idx) => {
+            const rad = (f.currentDeg - 90) * DEG_TO_RAD;
+            const px = cx + Math.cos(rad) * f.orbitRadiusPx;
+            const py = cy + Math.sin(rad) * f.orbitRadiusPx;
+            if (idx === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          });
+          if (alive.length > 1) ctx.closePath();
+          ctx.strokeStyle = strokeCol;
+          ctx.lineWidth = 2.4;
+          ctx.stroke();
+          if (alive.length >= 3) {
+            ctx.fillStyle = fillCol;
+            ctx.fill();
+          }
+          ctx.restore();
+        };
 
-      domains.forEach((d, idx) => {
-        const y = 37 + idx * 22;
-        ctx.fillStyle = d.color;
-        ctx.fillRect(rx, y - 8, 8, 8);
-        ctx.fillStyle = "#E2E8F0";
-        ctx.font = "9.5px Consolas, monospace";
-        ctx.fillText(
-          d.startDeg + "°–" + d.endDeg + "° " + d.modality.slice(0, 16) + " | Opp:" + d.oppositePoleDeg + "°",
-          rx + 13,
-          y
-        );
-      });
+        drawAnimatedRosterChords(anim.fightersB, "rgba(244, 63, 94, 0.88)", "rgba(244, 63, 94, 0.14)");
+        drawAnimatedRosterChords(anim.fightersA, "rgba(16, 185, 129, 0.95)", "rgba(16, 185, 129, 0.18)");
 
-      if (previewMetrics) {
-        const g = previewMetrics.geo;
-        const yBase = 178;
-        ctx.fillStyle = "rgba(15, 23, 42, 0.9)";
-        ctx.strokeStyle = "rgba(16, 185, 129, 0.45)";
+        // 5B. Draw Expanding 360° (2π) Completion Shockwaves
+        anim.shockwaves.forEach(sw => {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = sw.color;
+          ctx.globalAlpha = Math.max(0, sw.alpha);
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+          ctx.restore();
+        });
+
+        // 5C. Draw Flying Projectiles & Spell Beams between Roster A & Roster B
+        anim.projectiles.forEach(pr => {
+          const px = pr.x1 + (pr.x2 - pr.x1) * pr.progress;
+          const py = pr.y1 + (pr.y2 - pr.y1) * pr.progress;
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(pr.x1 + (pr.x2 - pr.x1) * Math.max(0, pr.progress - 0.22), pr.y1 + (pr.y2 - pr.y1) * Math.max(0, pr.progress - 0.22));
+          ctx.lineTo(px, py);
+          ctx.strokeStyle = pr.color;
+          ctx.lineWidth = 2.6;
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(px, py, 3.8, 0, Math.PI * 2);
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fill();
+          ctx.restore();
+        });
+
+        // 5D. Draw Orbiting Roster A & Roster B Fighters with Weapon Sweep Cones & HP Bars
+        const allFighters = anim.fightersA.concat(anim.fightersB);
+        allFighters.forEach(f => {
+          const rad = (f.currentDeg - 90) * DEG_TO_RAD;
+          const fx = cx + Math.cos(rad) * f.orbitRadiusPx;
+          const fy = cy + Math.sin(rad) * f.orbitRadiusPx;
+          f.screenX = fx;
+          f.screenY = fy;
+
+          const isDead = f.hp <= 0;
+          ctx.save();
+          if (isDead) ctx.globalAlpha = 0.32;
+
+          // Active Weapon Sweep Cone when striking
+          if (f.swingFlash > 0 && !isDead) {
+            const halfArc = Math.min(75, (f.metrics.totalArcDeg || 150) * 0.28) * DEG_TO_RAD;
+            ctx.beginPath();
+            ctx.moveTo(fx, fy);
+            ctx.arc(fx, fy, 26, f.targetRad - halfArc, f.targetRad + halfArc);
+            ctx.closePath();
+            ctx.fillStyle = f.team === "A" ? "rgba(16, 185, 129, 0.36)" : "rgba(244, 63, 94, 0.36)";
+            ctx.fill();
+          }
+
+          // 360° (2π) Revolution Progress Outer Halo around Fighter Node
+          const revRatio = Math.min(1, (f.revProgressDeg || 0) / 360);
+          ctx.beginPath();
+          ctx.arc(fx, fy, 11.5, -Math.PI / 2, -Math.PI / 2 + revRatio * Math.PI * 2);
+          ctx.strokeStyle = "#FDE68A";
+          ctx.lineWidth = 2.0;
+          ctx.stroke();
+
+          // Fighter Core Token
+          ctx.beginPath();
+          ctx.arc(fx, fy, 8.5, 0, Math.PI * 2);
+          ctx.fillStyle = f.team === "A" ? "#059669" : "#E11D48";
+          ctx.fill();
+          ctx.strokeStyle = f.team === "A" ? "#6EE7B7" : "#FDA4AF";
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+
+          // Slot Label (A1, A2, A3 / B1, B2, B3)
+          ctx.fillStyle = "#FFFFFF";
+          ctx.font = "bold 8px Consolas, monospace";
+          ctx.textAlign = "center";
+          ctx.fillText(f.slotLabel, fx, fy + 3);
+
+          // Overhead HP Bar
+          const bw = 24;
+          const bh = 3.5;
+          const hpRatio = Math.max(0, Math.min(1, f.hp / Math.max(1, f.maxHp)));
+          ctx.fillStyle = "rgba(0,0,0,0.85)";
+          ctx.fillRect(fx - bw / 2, fy - 16, bw, bh);
+          ctx.fillStyle = f.team === "A" ? "#10B981" : "#F43F5E";
+          ctx.fillRect(fx - bw / 2, fy - 16, bw * hpRatio, bh);
+
+          ctx.restore();
+        });
+
+        // 5E. Draw Floating Damage / 360° Finisher Callouts
+        anim.floatingTexts.forEach(ft => {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, ft.alpha);
+          ctx.font = "bold 9.5px Consolas, monospace";
+          ctx.textAlign = "center";
+          ctx.fillStyle = ft.color;
+          ctx.fillText(ft.text, ft.x, ft.y);
+          ctx.restore();
+        });
+      }
+
+      // 6. Right-Side Live Roster vs. Roster Scoreboard & Telemetry Panel (x = 300..632)
+      const rx = 300;
+      const rw = W - rx - 8;
+
+      if (anim) {
+        ctx.fillStyle = "rgba(8, 14, 28, 0.94)";
+        ctx.strokeStyle = "rgba(212, 175, 55, 0.45)";
         ctx.lineWidth = 1;
-        ctx.fillRect(rx, yBase, W - rx - 10, 106);
-        ctx.strokeRect(rx, yBase, W - rx - 10, 106);
-
-        ctx.fillStyle = "#6EE7B7";
-        ctx.font = "bold 10px Consolas, monospace";
-        ctx.fillText("ACTIVE CLASS: " + previewMetrics.cls.name.slice(0, 28), rx + 7, yBase + 16);
+        ctx.fillRect(rx, 8, rw, 192);
+        ctx.strokeRect(rx, 8, rw, 192);
 
         ctx.fillStyle = "#FDE68A";
-        ctx.font = "9.5px Consolas, monospace";
+        ctx.font = "bold 10px Consolas, monospace";
+        ctx.fillText(
+          "⭕ LIVE " + anim.mode + " ROSTER VS ROSTER (" + (anim.finished ? (anim.teamAWon ? "🏆 ALPHA WON" : "⚔️ OMEGA WON") : "CLASHING") + ")",
+          rx + 7,
+          23
+        );
+
+        // Team A Roster Vitals on Canvas
+        ctx.fillStyle = "#6EE7B7";
+        ctx.font = "bold 9px Consolas, monospace";
+        ctx.fillText("🛡️ ROSTER ALPHA (" + anim.synergyA.mult.toFixed(2) + "x • ⭕" + anim.completedCirclesA + " Circles)", rx + 7, 38);
+
+        anim.fightersA.forEach((f, idx) => {
+          const y = 51 + idx * 21;
+          const hpPct = Math.max(0, Math.min(1, f.hp / Math.max(1, f.maxHp)));
+          ctx.fillStyle = "#E2E8F0";
+          ctx.font = "8.8px Consolas, monospace";
+          ctx.fillText(
+            f.slotLabel + " " + Math.round(f.currentDeg) + "° " + f.cls.name.replace(/^\d+°\s*/, "").slice(0, 15),
+            rx + 7,
+            y
+          );
+          // HP bar
+          ctx.fillStyle = "rgba(15,23,42,0.95)";
+          ctx.fillRect(rx + 152, y - 7, 96, 7);
+          ctx.fillStyle = "#10B981";
+          ctx.fillRect(rx + 152, y - 7, 96 * hpPct, 7);
+          ctx.fillStyle = "#FDE68A";
+          ctx.fillText(Math.round(f.hp) + "HP ⭕" + f.completed360s, rx + 253, y);
+        });
+
+        // Team B Roster Vitals on Canvas
+        const yBHeader = 118;
+        ctx.fillStyle = "#FDA4AF";
+        ctx.font = "bold 9px Consolas, monospace";
+        ctx.fillText("⚔️ ROSTER OMEGA (" + anim.synergyB.mult.toFixed(2) + "x • ⭕" + anim.completedCirclesB + " Circles)", rx + 7, yBHeader);
+
+        anim.fightersB.forEach((f, idx) => {
+          const y = yBHeader + 13 + idx * 21;
+          const hpPct = Math.max(0, Math.min(1, f.hp / Math.max(1, f.maxHp)));
+          ctx.fillStyle = "#E2E8F0";
+          ctx.font = "8.8px Consolas, monospace";
+          ctx.fillText(
+            f.slotLabel + " " + Math.round(f.currentDeg) + "° " + f.cls.name.replace(/^\d+°\s*/, "").slice(0, 15),
+            rx + 7,
+            y
+          );
+          ctx.fillStyle = "rgba(15,23,42,0.95)";
+          ctx.fillRect(rx + 152, y - 7, 96, 7);
+          ctx.fillStyle = "#F43F5E";
+          ctx.fillRect(rx + 152, y - 7, 96 * hpPct, 7);
+          ctx.fillStyle = "#FDE68A";
+          ctx.fillText(Math.round(f.hp) + "HP ⭕" + f.completed360s, rx + 253, y);
+        });
+      }
+
+      // 7. Bottom-Right Forged Class Preview Box (y = 205..302)
+      if (previewMetrics) {
+        const g = previewMetrics.geo;
+        const yBase = 205;
+        ctx.fillStyle = "rgba(15, 23, 42, 0.92)";
+        ctx.strokeStyle = "rgba(16, 185, 129, 0.45)";
+        ctx.lineWidth = 1;
+        ctx.fillRect(rx, yBase, rw, 98);
+        ctx.strokeRect(rx, yBase, rw, 98);
+
+        ctx.fillStyle = "#6EE7B7";
+        ctx.font = "bold 9.5px Consolas, monospace";
+        ctx.fillText("FORGED CLASS: " + previewMetrics.cls.name.slice(0, 30), rx + 7, yBase + 15);
+
+        ctx.fillStyle = "#FDE68A";
+        ctx.font = "9px Consolas, monospace";
         ctx.fillText(
           "θ=" + g.inputDegree + "° | ×3.14=" + g.degTimes314 + "° | ×π=" + g.degTimesPi + "°",
           rx + 7,
-          yBase + 32
+          yBase + 30
         );
         ctx.fillStyle = "#93C5FD";
         ctx.fillText(
           "Dom: " + g.domain60.modality + " | " + g.polarity.split("_")[0] + " | " + g.alignment + " (" + g.orderChaosScore + ")",
           rx + 7,
-          yBase + 47
+          yBase + 44
         );
         ctx.fillStyle = "#E2E8F0";
         ctx.fillText(
-          "Wpn: " + previewMetrics.wpn.name.slice(0, 29),
+          "Wpn: " + previewMetrics.wpn.name.slice(0, 32),
           rx + 7,
-          yBase + 62
-        );
-        ctx.fillText(
-          "Arm: " + previewMetrics.arm.name.slice(0, 29),
-          rx + 7,
-          yBase + 76
+          yBase + 58
         );
         ctx.fillStyle = "#C084FC";
         ctx.fillText(
-          "Spl: " + previewMetrics.spl.name.slice(0, 25) + " | Pot: " + previewMetrics.pot.healPi + "π",
+          "Spl: " + previewMetrics.spl.name.slice(0, 27) + " | Pot: +" + previewMetrics.pot.healPi + "π",
           rx + 7,
-          yBase + 91
+          yBase + 72
         );
         ctx.fillStyle = "#6EE7B7";
         ctx.fillText(
           "Power: " + previewMetrics.compositePowerScore + "π | Off: " + previewMetrics.rawOffensePi + " | Def: " + previewMetrics.rawDefensePi,
           rx + 7,
-          yBase + 103
+          yBase + 87
         );
       }
     }
@@ -1305,6 +1478,7 @@
       const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
       const filter = state.databankDomainFilter || "ALL";
       const filtered = pool.filter(c => filter === "ALL" || c.domain60Id === filter);
+      const rosterSt = window.SovCommandEngine.getCoalitionRosterState ? window.SovCommandEngine.getCoalitionRosterState() : { rosterA: [], rosterB: [] };
 
       const badgeEl = document.getElementById("dbClassPersistBadge");
       if (badgeEl) {
@@ -1314,6 +1488,8 @@
       tbody.innerHTML = filtered.map(c => {
         const m = window.SovCommandEngine.computeClassProceduralMetrics(c);
         const isSel = c.id === state.selectedDatabankClassId;
+        const inA = (rosterSt.rosterA || []).indexOf(c.id);
+        const inB = (rosterSt.rosterB || []).indexOf(c.id);
         const polColor = (c.polarity || "").indexOf("+1") === 0 ? "#38BDF8" : "#C084FC";
         const alignColor = c.alignment === "ORDER" ? "#6EE7B7" : "#FDA4AF";
 
@@ -1326,7 +1502,9 @@
           '</td>' +
           '<td>' +
             '<strong style="color:#FFFFFF;">' + c.name + '</strong> ' +
-            (c.isCustom ? '<span class="badge badge-gold">CUSTOM</span>' : '') + '<br/>' +
+            (c.isCustom ? '<span class="badge badge-gold">CUSTOM</span> ' : '') +
+            (inA >= 0 ? '<span class="badge badge-emerald" style="font-size:0.6rem;">ROSTER A' + (inA + 1) + '</span> ' : '') +
+            (inB >= 0 ? '<span class="badge badge-crimson" style="font-size:0.6rem;">ROSTER B' + (inB + 1) + '</span> ' : '') + '<br/>' +
             '<span class="badge badge-emerald" style="font-size:0.65rem;">' + c.domain60Name + '</span> ' +
             '<code style="font-size:0.68rem;color:#FDE68A;">[' + c.signatureCommand + ']</code>' +
           '</td>' +
@@ -1352,10 +1530,11 @@
           '</td>' +
           '<td>' +
             '<div class="btn-row">' +
-              '<button class="btn btn-sm" onclick="window.SovGame.selectDatabankClassForEdit(\'' + c.id + '\')">✏️ Forge</button>' +
-              '<button class="btn btn-sm btn-sapphire" onclick="window.SovGame.triggerDatabankCoalitionBattle(\'2v2\', \'' + c.id + '\')">🛡️ 2v2</button>' +
-              '<button class="btn btn-sm btn-emerald" onclick="window.SovGame.triggerDatabankCoalitionBattle(\'3v3\', \'' + c.id + '\')">🔺 3v3</button>' +
-              '<button class="btn btn-sm" onclick="window.SovGame.spawnForgedClassInArena(\'' + c.id + '\')">🚀</button>' +
+              '<button class="btn btn-sm" onclick="window.SovGame.selectDatabankClassForEdit(\'' + c.id + '\')" title="Load into CRUD Forge">✏️ Forge</button>' +
+              '<button class="btn btn-sm btn-emerald" onclick="window.SovGame.assignClassToRoster(\'A\', \'' + c.id + '\')" title="Add to Persistent Allied Roster A">+Roster A</button>' +
+              '<button class="btn btn-sm btn-crimson" onclick="window.SovGame.assignClassToRoster(\'B\', \'' + c.id + '\')" title="Add to Persistent Opposition Roster B">+Roster B</button>' +
+              '<button class="btn btn-sm btn-sapphire" onclick="window.SovGame.startAnimatedRosterClash(\'2v2\', \'' + c.id + '\')" title="Animate 2v2 Roster Clash with this Class">🛡️ 2v2</button>' +
+              '<button class="btn btn-sm btn-emerald" onclick="window.SovGame.startAnimatedRosterClash(\'3v3\', \'' + c.id + '\')" title="Animate 3v3 Roster Clash with this Class">🔺 3v3</button>' +
             '</div>' +
           '</td>' +
         '</tr>';
@@ -1599,32 +1778,453 @@
       addLog("🚀 Spawned Databank Class [" + cls.name + "] (" + cls.degree + "° | " + m.wpn.name.split("(")[0].trim() + ") onto Ring r=" + rPi.toFixed(2) + "π!", "#6EE7B7");
     };
 
-    G.triggerDatabankCoalitionBattle = function (modeStr, classIdOverride, silentLog) {
-      const targetId = classIdOverride || state.selectedDatabankClassId;
-      const res = window.SovCommandEngine.runProceduralCoalitionEncounter(modeStr || "3v3", targetId);
-      state.lastCoalitionResult = res;
-
+    /* ========================================================================
+     * LIVE 60 FPS ANIMATED 2v2 & 3v3 ROSTER VS. ROSTER BATTLE ENGINE
+     * Spawns Team A & Team B from Persistent Databank Rosters onto the 360°
+     * Circular Arena AND Main 2.5D Isometric Rings, animates orbital movement,
+     * 2v2 Pincer Chords, 3v3 Equilateral Triangles, weapon sweeps, spell beams,
+     * 360° Finisher shockwaves, and persists outcomes to localStorage.
+     * ======================================================================== */
+    function renderRosterVitalsAndLedgerUI() {
+      const anim = state.rosterAnim;
+      const strip = document.getElementById("databankRosterVitalsStrip");
       const box = document.getElementById("databankCoalitionLiveBox");
-      if (box) {
-        const teamANames = res.teamA.map(c => '<strong style="color:#6EE7B7;">' + c.degree + '° ' + c.name + '</strong> <span style="color:#94A3B8;">(' + c.modality.slice(0, 8) + ')</span>').join(" + ");
-        const teamBNames = res.teamB.map(c => '<strong style="color:#FDA4AF;">' + c.degree + '° ' + c.name + '</strong> <span style="color:#94A3B8;">(' + c.modality.slice(0, 8) + ')</span>').join(" + ");
+      const rosterSt = window.SovCommandEngine.getCoalitionRosterState ? window.SovCommandEngine.getCoalitionRosterState() : null;
+
+      if (strip && anim) {
+        const renderTeamColumn = (fighters, teamLabel, borderCol, barCol) => {
+          return '<div style="background:rgba(9,15,28,0.92);border:1px solid ' + borderCol + ';border-radius:6px;padding:0.32rem 0.45rem;">' +
+            '<div style="font-size:0.66rem;font-weight:800;color:' + barCol + ';margin-bottom:0.22rem;display:flex;justify-content:space-between;">' +
+              '<span>' + teamLabel + '</span>' +
+              '<span>⭕ ' + (fighters === anim.fightersA ? anim.completedCirclesA : anim.completedCirclesB) + ' Circles</span>' +
+            '</div>' +
+            fighters.map(f => {
+              const hpPct = Math.max(0, Math.min(100, Math.round((f.hp / Math.max(1, f.maxHp)) * 100)));
+              const revPct = Math.max(0, Math.min(100, Math.round(((f.revProgressDeg || 0) / 360) * 100)));
+              return '<div style="margin-bottom:0.22rem;font-family:Consolas,monospace;font-size:0.64rem;">' +
+                '<div style="display:flex;justify-content:space-between;color:#E2E8F0;">' +
+                  '<span><strong style="color:#FDE68A;">' + f.slotLabel + '</strong> ' + Math.round(f.currentDeg) + '° ' + f.cls.name.replace(/^\d+°\s*/, "").slice(0, 16) + '</span>' +
+                  '<span style="color:' + barCol + ';">' + Math.round(f.hp) + '/' + Math.round(f.maxHp) + ' HP (' + hpPct + '%)</span>' +
+                '</div>' +
+                '<div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin:2px 0;">' +
+                  '<div style="height:100%;width:' + hpPct + '%;background:' + barCol + ';transition:width 0.1s linear;"></div>' +
+                '</div>' +
+                '<div style="display:flex;justify-content:space-between;font-size:0.6rem;color:#94A3B8;">' +
+                  '<span>⚔️ ' + f.metrics.wpn.name.split(" ")[0] + ' + ✨ ' + f.metrics.spl.name.split(" ")[0] + '</span>' +
+                  '<span style="color:#FDE68A;">360° Meter: ' + revPct + '%</span>' +
+                '</div>' +
+              '</div>';
+            }).join("") +
+          '</div>';
+        };
+
+        strip.innerHTML =
+          renderTeamColumn(anim.fightersA, "🛡️ ROSTER ALPHA (" + anim.mode + " • " + anim.synergyA.mult.toFixed(2) + "x)", "rgba(16,185,129,0.4)", "#10B981") +
+          renderTeamColumn(anim.fightersB, "⚔️ ROSTER OMEGA (" + anim.mode + " • " + anim.synergyB.mult.toFixed(2) + "x)", "rgba(244,63,94,0.4)", "#F43F5E");
+      }
+
+      if (box && anim) {
+        const hist = (rosterSt && Array.isArray(rosterSt.matchHistory)) ? rosterSt.matchHistory.slice(0, 4) : [];
+        const histHtml = hist.map(h =>
+          '<div style="color:#93C5FD;font-family:Consolas,monospace;font-size:0.64rem;">' +
+            '💾 [Saved Match #' + h.matchNo + ' • ' + h.mode + '] ' +
+            '<strong style="color:' + (h.winner === "ROSTER_A" ? "#6EE7B7" : "#FDA4AF") + ';">' + (h.winner === "ROSTER_A" ? "ALPHA WON" : "OMEGA WON") + ' (' + h.winProbPct + '%)</strong> — ' +
+            h.teamANames + ' vs ' + h.teamBNames + ' (⭕' + h.circlesA + ':' + h.circlesB + ')' +
+          '</div>'
+        ).join("");
 
         box.innerHTML =
           '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:3px;margin-bottom:4px;">' +
-            '<span style="color:#FDE68A;font-weight:700;">⭕ ' + res.mode + ' PROCEDURAL COALITION CLASH (' + (res.teamAWon ? '🏆 ALLIED VICTORY' : '⚔️ OPPOSITION SURGE') + ' • ' + res.winProbPct + '%)</span>' +
-            '<span style="color:#38BDF8;font-family:Consolas,monospace;">360° Completions: ' + res.completedCirclesA + ' vs ' + res.completedCirclesB + ' | Mean τ=' + res.meanTorqueA + 'π</span>' +
+            '<span style="color:#FDE68A;font-weight:700;">⭕ ' + anim.mode + ' ANIMATED ROSTER CLASH (' +
+              (anim.finished ? (anim.teamAWon ? '🏆 ROSTER ALPHA VICTORY — PERSISTED' : '⚔️ ROSTER OMEGA VICTORY — PERSISTED') : '⚡ LIVE ORBITAL COMBAT IN PROGRESS') +
+            ')</span>' +
+            '<span style="color:#38BDF8;font-family:Consolas,monospace;">Mean τ=' + anim.meanTorqueA.toFixed(1) + 'π | Saved Matches: ' + (rosterSt ? rosterSt.totalMatchesPersisted : 29) + '</span>' +
           '</div>' +
-          '<div style="margin-bottom:3px;">🛡️ <strong>Coalition A [' + res.synergyA.chordLabel + ']:</strong> ' + teamANames + '</div>' +
-          '<div style="margin-bottom:4px;">⚔️ <strong>Coalition B [' + res.synergyB.chordLabel + ']:</strong> ' + teamBNames + '</div>' +
-          res.roundLog.map(line => '<div style="color:#CBD5E1;font-family:Consolas,monospace;font-size:0.67rem;">• ' + line + '</div>').join("");
+          '<div style="margin-bottom:4px;">' +
+            anim.roundLog.slice(0, 4).map(line => '<div style="color:#CBD5E1;font-family:Consolas,monospace;font-size:0.65rem;">• ' + line + '</div>').join("") +
+          '</div>' +
+          '<div style="border-top:1px dashed rgba(212,175,55,0.28);padding-top:3px;">' +
+            '<div style="font-size:0.64rem;color:#FDE68A;font-weight:700;">📜 Persistent Databank Roster Match History (localStorage):</div>' +
+            histHtml +
+          '</div>';
+      }
+    }
+
+    function syncRosterFightersToMainArena(anim) {
+      if (!anim) return;
+      // Keep core castle units and replace/update active roster duelists on the 2.5D Concentric Rings
+      state.units = state.units.filter(u => !u.isRosterClashUnit);
+      const all = anim.fightersA.concat(anim.fightersB);
+      all.forEach(f => {
+        const rPi = f.orbitRadiusPi || 2.51;
+        const rad = (f.currentDeg || 0) * DEG_TO_RAD;
+        state.units.push({
+          idx: state.units.length,
+          isRosterClashUnit: true,
+          rosterSlotLabel: f.slotLabel,
+          profileId: f.cls.id,
+          name: "[" + f.slotLabel + "] " + f.cls.name,
+          archetype: f.cls.modality + " • " + f.cls.alignment,
+          coreArchetype: f.cls.coreArchetype,
+          form: f.cls.modality === "SPELL_ALCHEMICAL" || f.cls.modality === "SOVEREIGN_HYBRID" ? "Floating Aura" : "Armored Stride",
+          verb: f.cls.signatureCommand || "ATTACK",
+          gambit: f.cls.signatureCommand + " -> " + f.metrics.spl.name,
+          statW: f.cls.statWeightPi,
+          armorW: f.metrics.arm.weightPi,
+          weaponW: f.metrics.wpn.weightPi,
+          vfxType: f.metrics.spl.vfx || "SWORD_SWIPE_AND_SPARKLES",
+          tone: f.cls.polarity,
+          tradeSkill: f.metrics.wpn.name.split("(")[0].trim(),
+          experience: f.cls.combatStyleDesc,
+          hp: Math.round(f.hp),
+          maxHp: Math.round(f.maxHp),
+          atk: Math.round(f.metrics.rawOffensePi),
+          def: Math.round(f.metrics.rawDefensePi),
+          isEnemy: f.team === "B",
+          isFloating: f.cls.modality === "SPELL_ALCHEMICAL" || f.cls.modality === "SOVEREIGN_HYBRID",
+          isMounted: f.cls.modality === "PHYSICAL_ATTACKER",
+          empowered: true,
+          orbitRadiusPi: rPi,
+          customOrbitPi: rPi,
+          angleDeg: f.currentDeg,
+          arcDegrees: f.metrics.totalArcDeg,
+          angularVelocityDeg: f.angularSpeedDeg * (f.team === "B" ? -0.9 : 1.0),
+          revProgressDeg: f.revProgressDeg || 0,
+          completedCircles: f.completed360s || 0,
+          lastIncidenceDeg: 135,
+          lastTorquePi: f.metrics.compositePowerScore,
+          lastProceduralDmg: Math.round(f.metrics.rawOffensePi * 0.6),
+          gx: Math.cos(rad) * rPi * 1.18,
+          gy: Math.sin(rad) * rPi * 1.18,
+          conversions: f.cls.wins || 5,
+          activeResonance: f.team === "A" ? anim.synergyA.mult : anim.synergyB.mult,
+          resonanceTier: "PRIME_RESONANCE"
+        });
+      });
+      renderCircularTelemetryTable();
+    }
+
+    G.startAnimatedRosterClash = function (modeStr, primaryClassId, silentLog) {
+      if (!window.SovCommandEngine) return;
+      const st = window.SovCommandEngine.getCoalitionRosterState();
+      const mode = modeStr || st.mode || "3v3";
+      window.SovCommandEngine.setCoalitionRosterMode(mode);
+
+      if (primaryClassId) {
+        window.SovCommandEngine.setCoalitionRosterSlot("A", 0, primaryClassId);
       }
 
+      refreshPersistentRosterSelects();
+      const resolved = window.SovCommandEngine.resolveActiveRosterTeams(mode);
+
+      const buildFighter = (cls, m, idx, teamKey, synMult) => {
+        const baseHp = Math.round((1250 + m.rawDefensePi * 3.14) * synMult);
+        const radiiPx = [98, 74, 112];
+        const radiiPi = [2.51, 1.85, 3.14];
+        return {
+          team: teamKey,
+          slotIdx: idx,
+          slotLabel: teamKey + (idx + 1),
+          cls: cls,
+          metrics: m,
+          hp: baseHp,
+          maxHp: baseHp,
+          currentDeg: (cls.degree + (teamKey === "B" ? 15 : 0)) % 360,
+          orbitRadiusPx: radiiPx[idx % radiiPx.length],
+          orbitRadiusPi: cls.orbitRadiusPi || radiiPi[idx % radiiPi.length],
+          angularSpeedDeg: Math.max(55, Math.min(185, m.angularSpeedDeg * 0.65)),
+          revProgressDeg: 0,
+          completed360s: 0,
+          attackCooldown: 0.25 + idx * 0.18 + (teamKey === "B" ? 0.12 : 0),
+          swingFlash: 0,
+          targetRad: 0,
+          screenX: 152,
+          screenY: 152
+        };
+      };
+
+      const fightersA = resolved.teamA.map((c, i) => buildFighter(c, resolved.metricsA[i], i, "A", resolved.synergyA.mult));
+      const fightersB = resolved.teamB.map((c, i) => buildFighter(c, resolved.metricsB[i], i, "B", resolved.synergyB.mult));
+
+      state.rosterAnim = {
+        active: true,
+        finished: false,
+        mode: mode,
+        teamA: resolved.teamA,
+        teamB: resolved.teamB,
+        synergyA: resolved.synergyA,
+        synergyB: resolved.synergyB,
+        fightersA: fightersA,
+        fightersB: fightersB,
+        projectiles: [],
+        shockwaves: [],
+        floatingTexts: [],
+        roundLog: [
+          "🚀 Launched Persistent " + mode + " Roster Clash: [" +
+          fightersA.map(f => f.cls.degree + "° " + f.cls.name.replace(/^\d+°\s*/, "").split(" ")[0]).join(" + ") +
+          "] vs [" +
+          fightersB.map(f => f.cls.degree + "° " + f.cls.name.replace(/^\d+°\s*/, "").split(" ")[0]).join(" + ") + "]"
+        ],
+        completedCirclesA: 0,
+        completedCirclesB: 0,
+        sumTorqueA: 0,
+        sumTorqueB: 0,
+        strikesA: 0,
+        strikesB: 0,
+        meanTorqueA: 68.4,
+        meanTorqueB: 62.1,
+        elapsedSec: 0,
+        cooldownAfterFinish: 0,
+        teamAWon: true,
+        winProbPct: 82.0
+      };
+
+      state.lastCoalitionResult = state.rosterAnim;
+      syncRosterFightersToMainArena(state.rosterAnim);
+      renderRosterVitalsAndLedgerUI();
       renderDatabankArchetypePoolTable();
-      G.previewForgedClassLive();
+
+      const statusRo = document.getElementById("rosterWheelStatusReadout");
+      if (statusRo) {
+        statusRo.textContent = "⭕ LIVE " + mode + " ROSTER VS ROSTER ANIMATING (" + fightersA.length + "v" + fightersB.length + " PERSISTENT DATABANK)";
+      }
 
       if (!silentLog) {
-        vp.spawnCircularShockwave(2.51, res.teamA[0].degree % 360, 100, res.teamAWon ? "#10B981" : "#F43F5E", 240, res.teamA[0].degree % 360);
-        addLog("⭕ " + res.mode + " Databank Coalition Clash: [" + res.teamA.map(x => x.degree + "°").join("/") + "] vs [" + res.teamB.map(x => x.degree + "°").join("/") + "] -> " + (res.teamAWon ? "VICTORY" : "CONTESTED") + " (" + res.winProbPct + "% | τ=" + res.meanTorqueA + "π)!", "#FDE68A");
+        vp.spawnCircularShockwave(2.51, fightersA[0].currentDeg, 105, "#10B981", 270, fightersA[0].currentDeg);
+        addLog("🎬 Animating Persistent " + mode + " Roster vs. Roster Clash: [" + fightersA.map(f => f.slotLabel + ":" + f.cls.degree + "°").join(", ") + "] vs [" + fightersB.map(f => f.slotLabel + ":" + f.cls.degree + "°").join(", ") + "]!", "#6EE7B7");
+      }
+    };
+
+    // Keep backward compatibility alias
+    G.triggerDatabankCoalitionBattle = function (modeStr, classIdOverride, silentLog) {
+      G.startAnimatedRosterClash(modeStr, classIdOverride, silentLog);
+    };
+
+    function finalizeAndPersistRosterClash(anim) {
+      if (!anim || anim.finished) return;
+      anim.finished = true;
+      const remHpA = anim.fightersA.reduce((s, f) => s + Math.max(0, f.hp), 0);
+      const maxHpA = anim.fightersA.reduce((s, f) => s + f.maxHp, 0);
+      const remHpB = anim.fightersB.reduce((s, f) => s + Math.max(0, f.hp), 0);
+      const maxHpB = anim.fightersB.reduce((s, f) => s + f.maxHp, 0);
+
+      const scoreA = (anim.completedCirclesA * 520) + (remHpA / Math.max(1, maxHpA) * 1000) + anim.meanTorqueA * 4;
+      const scoreB = (anim.completedCirclesB * 520) + (remHpB / Math.max(1, maxHpB) * 1000) + anim.meanTorqueB * 4;
+      anim.teamAWon = remHpB <= 0 ? true : (remHpA <= 0 ? false : (scoreA >= scoreB));
+      anim.winProbPct = +((scoreA / Math.max(1, scoreA + scoreB)) * 100).toFixed(1);
+      anim.cooldownAfterFinish = 2.6;
+
+      const outcome = {
+        mode: anim.mode,
+        teamA: anim.teamA,
+        teamB: anim.teamB,
+        synergyA: anim.synergyA,
+        synergyB: anim.synergyB,
+        teamAWon: anim.teamAWon,
+        winProbPct: anim.winProbPct,
+        completedCirclesA: Math.max(1, anim.completedCirclesA),
+        completedCirclesB: Math.max(1, anim.completedCirclesB),
+        meanTorqueA: +anim.meanTorqueA.toFixed(1),
+        meanTorqueB: +anim.meanTorqueB.toFixed(1)
+      };
+
+      const savedRec = window.SovCommandEngine.persistCoalitionBattleOutcome(outcome);
+      state.lastCoalitionResult = outcome;
+
+      anim.roundLog.unshift(
+        "🏆 MATCH #" + savedRec.matchNo + " PERSISTED (" + anim.mode + "): " +
+        (anim.teamAWon ? "ROSTER ALPHA WON" : "ROSTER OMEGA WON") +
+        " (" + anim.winProbPct + "% | ⭕" + outcome.completedCirclesA + ":" + outcome.completedCirclesB + " | MVP: " + savedRec.mvpName + ")"
+      );
+
+      anim.shockwaves.push({
+        x: 152,
+        y: 152,
+        radius: 18,
+        maxRadius: 122,
+        color: anim.teamAWon ? "#10B981" : "#F43F5E",
+        alpha: 1.0
+      });
+
+      refreshPersistentRosterSelects();
+      renderDatabankArchetypePoolTable();
+      renderRosterVitalsAndLedgerUI();
+    }
+
+    function stepRosterBattleAnimation(dt) {
+      const anim = state.rosterAnim;
+      if (!anim || state.rosterAnimPaused) return;
+
+      // Update transient VFX (shockwaves, projectiles, floating texts)
+      for (let i = anim.shockwaves.length - 1; i >= 0; i--) {
+        const sw = anim.shockwaves[i];
+        sw.radius += dt * 115;
+        sw.alpha -= dt * 1.1;
+        if (sw.alpha <= 0 || sw.radius >= sw.maxRadius) anim.shockwaves.splice(i, 1);
+      }
+      for (let i = anim.projectiles.length - 1; i >= 0; i--) {
+        const pr = anim.projectiles[i];
+        pr.progress += dt * 3.4;
+        if (pr.progress >= 1) anim.projectiles.splice(i, 1);
+      }
+      for (let i = anim.floatingTexts.length - 1; i >= 0; i--) {
+        const ft = anim.floatingTexts[i];
+        ft.y -= dt * 22;
+        ft.alpha -= dt * 0.95;
+        if (ft.alpha <= 0) anim.floatingTexts.splice(i, 1);
+      }
+
+      if (anim.finished) {
+        anim.cooldownAfterFinish -= dt;
+        if (anim.cooldownAfterFinish <= 0 && state.autoWeighPoolActive) {
+          // Cycle between 2v2 and 3v3 Roster vs. Roster animations automatically
+          const nextMode = anim.mode === "3v3" ? "2v2" : "3v3";
+          G.startAnimatedRosterClash(nextMode, null, true);
+        }
+        return;
+      }
+
+      anim.elapsedSec += dt;
+
+      const stepFighter = (f, enemyList, synMult, isTeamA) => {
+        if (f.hp <= 0) return;
+        const dir = isTeamA ? 1 : -1;
+        const stepDeg = f.angularSpeedDeg * dt;
+        f.currentDeg = (f.currentDeg + dir * stepDeg + 360) % 360;
+        f.revProgressDeg += stepDeg;
+        if (f.swingFlash > 0) f.swingFlash = Math.max(0, f.swingFlash - dt);
+
+        // Check 360° (2π) Full-Circle Completion Finisher!
+        if (f.revProgressDeg >= 360) {
+          f.revProgressDeg -= 360;
+          f.completed360s++;
+          if (isTeamA) anim.completedCirclesA++;
+          else anim.completedCirclesB++;
+
+          // Potion heal + 360° Shockwave
+          const healAmt = Math.round((f.metrics.pot.healPi || 3.14) * 28);
+          f.hp = Math.min(f.maxHp, f.hp + healAmt);
+          anim.shockwaves.push({
+            x: f.screenX || 152,
+            y: f.screenY || 152,
+            radius: 8,
+            maxRadius: 68,
+            color: isTeamA ? "#10B981" : "#F43F5E",
+            alpha: 0.95
+          });
+          anim.floatingTexts.push({
+            x: f.screenX || 152,
+            y: (f.screenY || 152) - 14,
+            text: "⭕360° +" + healAmt + "HP",
+            color: "#FDE68A",
+            alpha: 1.0
+          });
+        }
+
+        f.attackCooldown -= dt;
+        if (f.attackCooldown <= 0) {
+          f.attackCooldown = 0.62 + Math.random() * 0.28;
+          const aliveEnemies = enemyList.filter(e => e.hp > 0);
+          if (aliveEnemies.length === 0) return;
+          const target = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+
+          let phiDeg = Math.abs(f.currentDeg - target.currentDeg) % 360;
+          if (phiDeg > 180) phiDeg = 360 - phiDeg;
+
+          const angleMult = phiDeg >= 135 ? 1.48 : (phiDeg >= 45 ? 1.24 : 0.92);
+          const polBonus = f.cls.polarity !== target.cls.polarity ? 1.12 : 1.0;
+          const torque = +(f.metrics.rawOffensePi * synMult * angleMult * polBonus * (0.9 + Math.random() * 0.2) * 0.25).toFixed(1);
+          const dmg = Math.max(38, Math.round(torque * 2.25 - target.metrics.rawDefensePi * 0.28));
+
+          target.hp = Math.max(0, target.hp - dmg);
+          f.swingFlash = 0.26;
+          f.targetRad = Math.atan2((target.screenY || 152) - (f.screenY || 152), (target.screenX || 152) - (f.screenX || 152));
+
+          if (isTeamA) {
+            anim.strikesA++;
+            anim.sumTorqueA += torque;
+            anim.meanTorqueA = anim.sumTorqueA / anim.strikesA;
+          } else {
+            anim.strikesB++;
+            anim.sumTorqueB += torque;
+            anim.meanTorqueB = anim.sumTorqueB / anim.strikesB;
+          }
+
+          anim.projectiles.push({
+            x1: f.screenX || 152,
+            y1: f.screenY || 152,
+            x2: target.screenX || 152,
+            y2: target.screenY || 152,
+            progress: 0,
+            color: isTeamA ? "#6EE7B7" : "#FDA4AF"
+          });
+
+          anim.floatingTexts.push({
+            x: target.screenX || 152,
+            y: (target.screenY || 152) - 10,
+            text: "-" + dmg + (phiDeg >= 135 ? " CRIT!" : ""),
+            color: isTeamA ? "#6EE7B7" : "#FDA4AF",
+            alpha: 1.0
+          });
+
+          anim.roundLog.unshift(
+            "[" + f.slotLabel + "→" + target.slotLabel + " φ=" + Math.round(phiDeg) + "°] " +
+            f.cls.name.replace(/^\d+°\s*/, "").split(" ").slice(0, 2).join(" ") +
+            " (" + f.metrics.wpn.name.split(" ")[0] + ") hit for " + dmg + " DMG (τ=" + torque + "π)"
+          );
+          if (anim.roundLog.length > 10) anim.roundLog.length = 10;
+        }
+      };
+
+      anim.fightersA.forEach(f => stepFighter(f, anim.fightersB, anim.synergyA.mult, true));
+      anim.fightersB.forEach(f => stepFighter(f, anim.fightersA, anim.synergyB.mult, false));
+
+      const aliveA = anim.fightersA.some(f => f.hp > 0);
+      const aliveB = anim.fightersB.some(f => f.hp > 0);
+      if (!aliveA || !aliveB || anim.elapsedSec >= 8.5) {
+        finalizeAndPersistRosterClash(anim);
+      }
+    }
+
+    G.onRosterSlotChange = function (teamKey, slotIdx, classId) {
+      window.SovCommandEngine.setCoalitionRosterSlot(teamKey, slotIdx, classId);
+      const st = window.SovCommandEngine.getCoalitionRosterState();
+      G.startAnimatedRosterClash(st.mode, null, false);
+    };
+
+    G.assignClassToRoster = function (teamKey, classId) {
+      window.SovCommandEngine.assignClassToNextRosterSlot(teamKey, classId);
+      const st = window.SovCommandEngine.getCoalitionRosterState();
+      G.startAnimatedRosterClash(st.mode, null, false);
+    };
+
+    G.autoBuildRosterTeam = function (teamKey) {
+      window.SovCommandEngine.autoBuildEquilateralRoster(teamKey, state.selectedDatabankClassId);
+      const st = window.SovCommandEngine.getCoalitionRosterState();
+      G.startAnimatedRosterClash(st.mode, null, false);
+    };
+
+    G.swapRosterTeams = function () {
+      window.SovCommandEngine.swapCoalitionRosters();
+      const st = window.SovCommandEngine.getCoalitionRosterState();
+      G.startAnimatedRosterClash(st.mode, null, false);
+    };
+
+    G.toggleRosterBattleAnimation = function () {
+      state.rosterAnimPaused = !state.rosterAnimPaused;
+      const btn = document.getElementById("btnToggleRosterAnim");
+      if (btn) {
+        btn.textContent = state.rosterAnimPaused ? "▶️ Anim: PAUSED" : "⏯️ Anim: LIVE";
+        btn.className = state.rosterAnimPaused ? "btn btn-sm" : "btn btn-sm btn-emerald";
+      }
+    };
+
+    G.instantResolveAndPersistRosterClash = function () {
+      if (state.rosterAnim && !state.rosterAnim.finished) {
+        finalizeAndPersistRosterClash(state.rosterAnim);
+      } else {
+        const st = window.SovCommandEngine.getCoalitionRosterState();
+        G.startAnimatedRosterClash(st.mode, null, false);
       }
     };
 
@@ -1632,10 +2232,10 @@
       state.autoWeighPoolActive = !state.autoWeighPoolActive;
       const btn = document.getElementById("autoWeighPoolBtn");
       if (btn) {
-        btn.textContent = state.autoWeighPoolActive ? "🔄 Auto-Weigh Pool: ON" : "⏸️ Auto-Weigh Pool: OFF";
+        btn.textContent = state.autoWeighPoolActive ? "🔄 Auto-Clash Pool: ON" : "⏸️ Auto-Clash Pool: OFF";
         btn.className = state.autoWeighPoolActive ? "btn btn-emerald" : "btn";
       }
-      addLog("Automated Databank Pool Procedural Coalition Weighing: " + (state.autoWeighPoolActive ? "ENABLED" : "PAUSED"), "#6EE7B7");
+      addLog("Automated Databank Roster vs. Roster (2v2 / 3v3) Loop: " + (state.autoWeighPoolActive ? "ENABLED" : "PAUSED"), "#6EE7B7");
     };
 
     function bindArchetypeWheelCanvasEvents() {
@@ -2242,11 +2842,9 @@
         renderAgencyCouncilUI();
       }
 
-      // 8. Automated Databank Pool 2v2 / 3v3 Procedural Coalition Weighing every 12 intervals (~3.6s)
-      if (state.autoWeighPoolActive && loopTick % 12 === 0) {
-        const modes = ["2v2", "3v3", "1v1"];
-        const chosenMode = modes[(loopTick / 12) % modes.length | 0];
-        G.triggerDatabankCoalitionBattle(chosenMode, state.selectedDatabankClassId, true);
+      // 8. Refresh Live Animated 2v2 / 3v3 Roster vs. Roster HTML Vitals & Match Ledger
+      if (state.rosterAnim) {
+        renderRosterVitalsAndLedgerUI();
       }
 
       if (window.SovCommandEngine) {
@@ -2255,7 +2853,18 @@
       }
     }, 300);
 
+    // 60 FPS Animated 2v2 / 3v3 Roster vs. Roster Battle Wheel Loop
+    let lastRosterFrameTs = performance.now();
+    function animateRosterBattleLoop(nowTs) {
+      const dt = Math.min(0.05, Math.max(0.005, (nowTs - lastRosterFrameTs) / 1000));
+      lastRosterFrameTs = nowTs;
+      stepRosterBattleAnimation(dt * (state.simSpeedMult || 1.0));
+      renderArchetypeDegreeWheelCanvas();
+      requestAnimationFrame(animateRosterBattleLoop);
+    }
+
     addLog("♊ Pre-Thought Repository Agency (12 Embedded MDs in agency/) accessed FIRST — All combat curved to 3.14π Circular Degrees (0°→360°).", "#FDE68A");
     requestAnimationFrame(vp.renderAllViewports);
+    requestAnimationFrame(animateRosterBattleLoop);
   });
 })();

@@ -923,49 +923,294 @@
     };
   }
 
-  /* Run Procedural Circular Clash between Coalition A (Player/Selected) and Coalition B (Databank Pool) */
-  function runProceduralCoalitionEncounter(modeStr, primaryClassId, customEnemyIds) {
+  /* ==========================================================================
+   * PERSISTENT 2v2 & 3v3 ROSTER VS. ROSTER DATABANK MANAGER & MATCH LEDGER
+   * Stores Team A Roster (3 slots), Team B Roster (3 slots), Active Mode (2v2/3v3),
+   * Cumulative Roster Team W-L Records, and Match History in localStorage.
+   * ========================================================================== */
+  const COALITION_ROSTER_STORAGE_KEY = "SOV_COALITION_ROSTERS_V314";
+
+  function getDefaultCoalitionRosterState() {
+    return {
+      mode: "3v3",
+      rosterA: [
+        "DB_ARCH_015_AEGIS_WARDEN",
+        "DB_ARCH_135_QAWS_OVERWATCH",
+        "DB_ARCH_255_BIMARISTAN_PHYSICIAN"
+      ],
+      rosterB: [
+        "DB_ARCH_090_MAMLUK_SHOCK_LANCER",
+        "DB_ARCH_210_NAFT_PYROMANCER",
+        "DB_ARCH_330_SHURA_MARSHAL"
+      ],
+      rosterAWins2v2: 8,
+      rosterBWins2v2: 3,
+      rosterAWins3v3: 14,
+      rosterBWins3v3: 4,
+      totalMatchesPersisted: 29,
+      matchHistory: [
+        {
+          matchNo: 29,
+          mode: "3v3",
+          teamANames: "15° Phalanx + 135° Qaws + 255° Physician",
+          teamBNames: "90° Mamlūk + 210° Nafṭ + 330° Marshal",
+          winner: "ROSTER_A",
+          winProbPct: 86.4,
+          circlesA: 4,
+          circlesB: 2,
+          meanTorqueA: 74.2,
+          mvpName: "15° Badr Phalanx Warden"
+        },
+        {
+          matchNo: 28,
+          mode: "2v2",
+          teamANames: "15° Phalanx + 135° Qaws",
+          teamBNames: "90° Mamlūk + 210° Nafṭ",
+          winner: "ROSTER_A",
+          winProbPct: 81.2,
+          circlesA: 3,
+          circlesB: 2,
+          meanTorqueA: 68.5,
+          mvpName: "135° Badr Qaws Overwatch"
+        }
+      ]
+    };
+  }
+
+  function initCoalitionRosterState() {
+    const def = getDefaultCoalitionRosterState();
+    try {
+      const raw = localStorage.getItem(COALITION_ROSTER_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.rosterA) && Array.isArray(parsed.rosterB)) {
+          window.SOV_COALITION_ROSTER_STATE = Object.assign({}, def, parsed);
+          return window.SOV_COALITION_ROSTER_STATE;
+        }
+      }
+    } catch (e) {}
+    window.SOV_COALITION_ROSTER_STATE = def;
+    return window.SOV_COALITION_ROSTER_STATE;
+  }
+
+  function saveCoalitionRosterState() {
+    try {
+      if (window.SOV_COALITION_ROSTER_STATE) {
+        localStorage.setItem(COALITION_ROSTER_STORAGE_KEY, JSON.stringify(window.SOV_COALITION_ROSTER_STATE));
+      }
+    } catch (e) {}
+  }
+
+  function getCoalitionRosterState() {
+    if (!window.SOV_COALITION_ROSTER_STATE) initCoalitionRosterState();
+    return window.SOV_COALITION_ROSTER_STATE;
+  }
+
+  function setCoalitionRosterMode(modeStr) {
+    const st = getCoalitionRosterState();
+    st.mode = (modeStr === "2v2" || modeStr === "1v1") ? modeStr : "3v3";
+    saveCoalitionRosterState();
+    return st;
+  }
+
+  function setCoalitionRosterSlot(teamKey, slotIdx, classId) {
+    const st = getCoalitionRosterState();
+    const arr = teamKey === "B" ? st.rosterB : st.rosterA;
+    const idx = Math.max(0, Math.min(2, parseInt(slotIdx, 10) || 0));
+    arr[idx] = classId;
+    saveCoalitionRosterState();
+    return st;
+  }
+
+  function assignClassToNextRosterSlot(teamKey, classId) {
+    const st = getCoalitionRosterState();
+    const arr = teamKey === "B" ? st.rosterB : st.rosterA;
+    const teamSize = st.mode === "2v2" ? 2 : (st.mode === "1v1" ? 1 : 3);
+    const existingIdx = arr.slice(0, teamSize).indexOf(classId);
+    if (existingIdx === -1) {
+      // Shift into active slots and persist
+      if (teamSize === 1) {
+        arr[0] = classId;
+      } else if (teamSize === 2) {
+        arr[1] = arr[0];
+        arr[0] = classId;
+      } else {
+        arr[2] = arr[1];
+        arr[1] = arr[0];
+        arr[0] = classId;
+      }
+    }
+    saveCoalitionRosterState();
+    return st;
+  }
+
+  function autoBuildEquilateralRoster(teamKey, anchorClassId) {
     if (!window.SOV_ARCHETYPE_DATABANK_POOL) initDatabankArchetypePool();
     const pool = window.SOV_ARCHETYPE_DATABANK_POOL;
-    const teamSize = modeStr === "3v3" ? 3 : (modeStr === "2v2" ? 2 : 1);
+    const st = getCoalitionRosterState();
+    const arr = teamKey === "B" ? st.rosterB : st.rosterA;
+    const otherArr = teamKey === "B" ? st.rosterA : st.rosterB;
 
-    const primaryCls = pool.find(c => c.id === primaryClassId) || pool[0];
-    const teamA = [primaryCls];
+    const lead = pool.find(c => c.id === anchorClassId) ||
+                 pool.find(c => c.id === arr[0]) ||
+                 pool[Math.floor(Math.random() * pool.length)];
 
-    // Pick complementary Equilateral teammates for Team A from Databank Pool
-    const othersForA = pool.filter(c => c.id !== primaryCls.id);
-    while (teamA.length < teamSize && othersForA.length > 0) {
-      // Weigh toward ~120° or ~60° equilateral spacing
-      const idealDeg = (primaryCls.degree + teamA.length * (teamSize === 3 ? 120 : 180)) % 360 || 360;
-      othersForA.sort((x, y) => {
-        const dx = Math.abs(x.degree - idealDeg) + (Math.random() * 45);
-        const dy = Math.abs(y.degree - idealDeg) + (Math.random() * 45);
-        return dx - dy;
+    const chosen = [lead];
+    const spacingStep = st.mode === "2v2" ? 180 : 120;
+    const candidates = pool.filter(c => c.id !== lead.id && otherArr.indexOf(c.id) === -1);
+
+    for (let s = 1; s < 3; s++) {
+      const targetDeg = (lead.degree + s * spacingStep) % 360 || 360;
+      candidates.sort((x, y) => {
+        let dx = Math.abs((x.degree % 360 || 360) - targetDeg);
+        if (dx > 180) dx = 360 - dx;
+        let dy = Math.abs((y.degree % 360 || 360) - targetDeg);
+        if (dy > 180) dy = 360 - dy;
+        return (dx + Math.random() * 25) - (dy + Math.random() * 25);
       });
-      teamA.push(othersForA.shift());
+      if (candidates.length > 0) {
+        chosen.push(candidates.shift());
+      } else {
+        chosen.push(pool[(s * 7) % pool.length]);
+      }
     }
 
-    // Pick Opposition Coalition B from Databank Pool (randomly weighed across different domains)
+    if (teamKey === "B") {
+      st.rosterB = chosen.map(c => c.id);
+    } else {
+      st.rosterA = chosen.map(c => c.id);
+    }
+    saveCoalitionRosterState();
+    return st;
+  }
+
+  function swapCoalitionRosters() {
+    const st = getCoalitionRosterState();
+    const tmp = st.rosterA.slice();
+    st.rosterA = st.rosterB.slice();
+    st.rosterB = tmp;
+    saveCoalitionRosterState();
+    return st;
+  }
+
+  function resolveActiveRosterTeams(modeOverride) {
+    if (!window.SOV_ARCHETYPE_DATABANK_POOL) initDatabankArchetypePool();
+    const pool = window.SOV_ARCHETYPE_DATABANK_POOL;
+    const st = getCoalitionRosterState();
+    const mode = modeOverride || st.mode || "3v3";
+    const teamSize = mode === "3v3" ? 3 : (mode === "2v2" ? 2 : 1);
+
+    const resolveSlot = (id, fallbackIdx) => pool.find(c => c.id === id) || pool[fallbackIdx % pool.length];
+    const teamA = [];
     const teamB = [];
-    const candidatesB = pool.filter(c => !teamA.some(a => a.id === c.id));
-    if (Array.isArray(customEnemyIds) && customEnemyIds.length > 0) {
-      customEnemyIds.forEach(eid => {
-        const found = pool.find(c => c.id === eid);
-        if (found && teamB.length < teamSize) teamB.push(found);
-      });
+    for (let i = 0; i < teamSize; i++) {
+      teamA.push(resolveSlot(st.rosterA[i], i * 4));
+      teamB.push(resolveSlot(st.rosterB[i], (i * 4 + 6) % pool.length));
     }
-    while (teamB.length < teamSize && candidatesB.length > 0) {
-      const randIdx = Math.floor(Math.random() * candidatesB.length);
-      teamB.push(candidatesB.splice(randIdx, 1)[0]);
-    }
-    while (teamB.length < teamSize) {
-      teamB.push(pool[Math.floor(Math.random() * pool.length)]);
-    }
+    return {
+      mode: mode,
+      teamSize: teamSize,
+      teamA: teamA,
+      teamB: teamB,
+      synergyA: evaluateCoalitionTeamSynergy(teamA),
+      synergyB: evaluateCoalitionTeamSynergy(teamB),
+      metricsA: teamA.map(computeClassProceduralMetrics),
+      metricsB: teamB.map(computeClassProceduralMetrics)
+    };
+  }
 
-    const synA = evaluateCoalitionTeamSynergy(teamA);
-    const synB = evaluateCoalitionTeamSynergy(teamB);
-    const metricsA = teamA.map(computeClassProceduralMetrics);
-    const metricsB = teamB.map(computeClassProceduralMetrics);
+  function persistCoalitionBattleOutcome(outcome) {
+    if (!window.SOV_ARCHETYPE_DATABANK_POOL) initDatabankArchetypePool();
+    const st = getCoalitionRosterState();
+    const mode = outcome.mode || st.mode || "3v3";
+    const teamA = outcome.teamA || [];
+    const teamB = outcome.teamB || [];
+    const teamAWon = !!outcome.teamAWon;
+
+    teamA.forEach(c => {
+      if (teamAWon) {
+        c.wins = (c.wins || 0) + 1;
+        if (mode === "2v2") c.wins2v2 = (c.wins2v2 || 0) + 1;
+        if (mode === "3v3") c.wins3v3 = (c.wins3v3 || 0) + 1;
+        c.eloRating = Math.round((c.eloRating || 1650) + 12);
+      } else {
+        c.losses = (c.losses || 0) + 1;
+        if (mode === "2v2") c.losses2v2 = (c.losses2v2 || 0) + 1;
+        if (mode === "3v3") c.losses3v3 = (c.losses3v3 || 0) + 1;
+        c.eloRating = Math.max(1200, Math.round((c.eloRating || 1650) - 8));
+      }
+      c.completed360Count = (c.completed360Count || 0) + Math.max(1, outcome.completedCirclesA || 1);
+      c.avgTorquePi = +(((c.avgTorquePi || 60) * 0.8 + (outcome.meanTorqueA || 64) * 0.2)).toFixed(1);
+    });
+
+    teamB.forEach(c => {
+      if (!teamAWon) {
+        c.wins = (c.wins || 0) + 1;
+        if (mode === "2v2") c.wins2v2 = (c.wins2v2 || 0) + 1;
+        if (mode === "3v3") c.wins3v3 = (c.wins3v3 || 0) + 1;
+        c.eloRating = Math.round((c.eloRating || 1650) + 12);
+      } else {
+        c.losses = (c.losses || 0) + 1;
+        if (mode === "2v2") c.losses2v2 = (c.losses2v2 || 0) + 1;
+        if (mode === "3v3") c.losses3v3 = (c.losses3v3 || 0) + 1;
+        c.eloRating = Math.max(1200, Math.round((c.eloRating || 1650) - 8));
+      }
+      c.completed360Count = (c.completed360Count || 0) + Math.max(1, outcome.completedCirclesB || 1);
+      c.avgTorquePi = +(((c.avgTorquePi || 60) * 0.8 + (outcome.meanTorqueB || 60) * 0.2)).toFixed(1);
+    });
+
+    if (mode === "2v2") {
+      if (teamAWon) st.rosterAWins2v2 = (st.rosterAWins2v2 || 0) + 1;
+      else st.rosterBWins2v2 = (st.rosterBWins2v2 || 0) + 1;
+    } else if (mode === "3v3") {
+      if (teamAWon) st.rosterAWins3v3 = (st.rosterAWins3v3 || 0) + 1;
+      else st.rosterBWins3v3 = (st.rosterBWins3v3 || 0) + 1;
+    }
+    st.totalMatchesPersisted = (st.totalMatchesPersisted || 0) + 1;
+
+    const mvpCls = (teamAWon ? teamA[0] : teamB[0]) || { name: "Sovereign Vanguard" };
+    const recordEntry = {
+      matchNo: st.totalMatchesPersisted,
+      mode: mode,
+      teamANames: teamA.map(x => x.degree + "° " + x.name.replace(/^\d+°\s*/, "").split(" ").slice(0, 2).join(" ")).join(" + "),
+      teamBNames: teamB.map(x => x.degree + "° " + x.name.replace(/^\d+°\s*/, "").split(" ").slice(0, 2).join(" ")).join(" + "),
+      winner: teamAWon ? "ROSTER_A" : "ROSTER_B",
+      winProbPct: outcome.winProbPct || 78.5,
+      circlesA: outcome.completedCirclesA || 3,
+      circlesB: outcome.completedCirclesB || 2,
+      meanTorqueA: outcome.meanTorqueA || 68.4,
+      mvpName: mvpCls.name
+    };
+
+    if (!Array.isArray(st.matchHistory)) st.matchHistory = [];
+    st.matchHistory.unshift(recordEntry);
+    if (st.matchHistory.length > 20) st.matchHistory.length = 20;
+
+    saveDatabankPoolToStorage();
+    saveCoalitionRosterState();
+    return recordEntry;
+  }
+
+  /* Run Procedural Circular Clash between Persisted Roster A and Persisted Roster B */
+  function runProceduralCoalitionEncounter(modeStr, primaryClassId, customEnemyIds, useSavedRoster) {
+    if (!window.SOV_ARCHETYPE_DATABANK_POOL) initDatabankArchetypePool();
+    const pool = window.SOV_ARCHETYPE_DATABANK_POOL;
+    const st = getCoalitionRosterState();
+    const mode = modeStr || st.mode || "3v3";
+    const teamSize = mode === "3v3" ? 3 : (mode === "2v2" ? 2 : 1);
+
+    if (primaryClassId && !useSavedRoster) {
+      st.rosterA[0] = primaryClassId;
+    }
+    st.mode = mode;
+
+    const resolved = resolveActiveRosterTeams(mode);
+    const teamA = resolved.teamA;
+    const teamB = resolved.teamB;
+    const synA = resolved.synergyA;
+    const synB = resolved.synergyB;
+    const metricsA = resolved.metricsA;
+    const metricsB = resolved.metricsB;
 
     // Simulate Circular Revolution Ticks (0° → 360° / 2π Phase Dominance + HP/Poise)
     let hpA = metricsA.reduce((s, m) => s + 1200 + m.rawDefensePi * 3.14, 0) * synA.mult;
@@ -1034,41 +1279,13 @@
       if (hpA <= 0 || hpB <= 0) break;
     }
 
-    // Circular + Procedural Winner Determination (Phase Completions + Remaining HP + Torque)
     const scoreA = (completedCirclesA * 650) + (hpA / maxHpA * 1000) + totalTorqueA * 0.8;
     const scoreB = (completedCirclesB * 650) + (hpB / maxHpB * 1000) + totalTorqueB * 0.8;
     const teamAWon = scoreA >= scoreB;
     const winProbPct = +((scoreA / Math.max(1, scoreA + scoreB)) * 100).toFixed(1);
 
-    // Update Persistent Win/Loss/ELO/Torque/360° Completions in the Databank Pool
-    teamA.forEach(c => {
-      if (teamAWon) {
-        c.wins = (c.wins || 0) + 1;
-        c.eloRating = Math.round((c.eloRating || 1650) + 12);
-      } else {
-        c.losses = (c.losses || 0) + 1;
-        c.eloRating = Math.max(1200, Math.round((c.eloRating || 1650) - 8));
-      }
-      c.completed360Count = (c.completed360Count || 0) + Math.max(1, completedCirclesA);
-      c.avgTorquePi = +(((c.avgTorquePi || 60) * 0.8 + (totalTorqueA / 12) * 0.2)).toFixed(1);
-    });
-
-    teamB.forEach(c => {
-      if (!teamAWon) {
-        c.wins = (c.wins || 0) + 1;
-        c.eloRating = Math.round((c.eloRating || 1650) + 12);
-      } else {
-        c.losses = (c.losses || 0) + 1;
-        c.eloRating = Math.max(1200, Math.round((c.eloRating || 1650) - 8));
-      }
-      c.completed360Count = (c.completed360Count || 0) + Math.max(1, completedCirclesB);
-      c.avgTorquePi = +(((c.avgTorquePi || 60) * 0.8 + (totalTorqueB / 12) * 0.2)).toFixed(1);
-    });
-
-    saveDatabankPoolToStorage();
-
-    return {
-      mode: modeStr || "3v3",
+    const outcome = {
+      mode: mode,
       teamA: teamA,
       teamB: teamB,
       metricsA: metricsA,
@@ -1077,16 +1294,20 @@
       synergyB: synB,
       teamAWon: teamAWon,
       winProbPct: winProbPct,
-      completedCirclesA: completedCirclesA,
-      completedCirclesB: completedCirclesB,
+      completedCirclesA: Math.max(1, completedCirclesA),
+      completedCirclesB: Math.max(1, completedCirclesB),
       meanTorqueA: +(totalTorqueA / 12).toFixed(1),
       meanTorqueB: +(totalTorqueB / 12).toFixed(1),
       roundLog: roundLog
     };
+
+    persistCoalitionBattleOutcome(outcome);
+    return outcome;
   }
 
-  // Initialize pool immediately
+  // Initialize pool and persistent rosters immediately
   initDatabankArchetypePool();
+  initCoalitionRosterState();
 
   window.SovCommandEngine = {
     getCommandByVerb: getCommandByVerb,
@@ -1106,6 +1327,14 @@
     computeClassProceduralMetrics: computeClassProceduralMetrics,
     evaluateCoalitionTeamSynergy: evaluateCoalitionTeamSynergy,
     runProceduralCoalitionEncounter: runProceduralCoalitionEncounter,
+    getCoalitionRosterState: getCoalitionRosterState,
+    setCoalitionRosterMode: setCoalitionRosterMode,
+    setCoalitionRosterSlot: setCoalitionRosterSlot,
+    assignClassToNextRosterSlot: assignClassToNextRosterSlot,
+    autoBuildEquilateralRoster: autoBuildEquilateralRoster,
+    swapCoalitionRosters: swapCoalitionRosters,
+    resolveActiveRosterTeams: resolveActiveRosterTeams,
+    persistCoalitionBattleOutcome: persistCoalitionBattleOutcome,
     ringBuffer: new RingBufferCommandQueue(64),
     spcEngine: new GeminiSPCEngine()
   };

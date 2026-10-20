@@ -258,7 +258,7 @@
           <div>
             <h2 class="panel-title">♊ The 12-Agent Pre-Thought Repository Agency (360° / 2π Wheel • 12 Embedded MDs in <code>agency/</code>)</h2>
             <div style="font-size:0.76rem;color:var(--text-muted);">
-              <strong>Accessed First Before Thought, Analyzation, Principle &amp; Priory-to-Form:</strong> Curves development inefficiencies into $3.14\pi$ circular completion ($0^\circ \rightarrow 360^\circ$), enforces component standards, and provides 100% in-game customization.
+              <strong>Accessed First Before Thought, Analyzation, Principle &amp; Priory-to-Form:</strong> Curves development inefficiencies into <strong>3.14π</strong> circular completion (0° → 360°), enforces component standards, and provides 100% in-game customization.
             </div>
           </div>
           <div class="btn-row">
@@ -375,16 +375,16 @@
       <div class="panel">
         <div class="panel-header">
           <div>
-            <h2 class="panel-title">2. Interactive 3.14π Command &amp; Archetype Class Forge — 6×60° Equilateral Domains, 24×15° Degree Field &amp; 2v2/3v3 Databank Pool</h2>
+            <h2 class="panel-title">2. Interactive 3.14π Command &amp; Archetype Class Forge — 6×60° Equilateral Domains, 24×15° Degree Field &amp; Persistent Animated 2v2 / 3v3 Roster vs. Roster Arena</h2>
             <div style="font-size:0.75rem;color:var(--text-muted);">
-              Every Archetype Class is weighed in a <strong>$360^\circ$ Equilateral Combat Circle</strong> ($6 \times 60^\circ$ Domains $\times$ $\pm 30^\circ$ Polarity $\times$ $15^\circ$ Order/Chaos = <strong>24 Dominant $15^\circ$ Archetypes</strong> multiplied by $\mathbf{3.14}$ and $\boldsymbol{\pi}$ up to $1,130.4^\circ$), persisted with <strong>Weapons, Armor, Spells, Potions &amp; Inventory Offerings</strong>, and procedurally weighed in live <strong>1v1 / 2v2 / 3v3 Circular Coalition Clashes</strong>.
+              Every Archetype Class is weighed in a <strong>360° Equilateral Combat Circle</strong> (6 × 60° Domains × ±30° Polarity × 15° Order/Chaos = <strong>24 Dominant 15° Archetypes</strong> multiplied by <strong>3.14</strong> and <strong>π</strong> up to 1,130.4°), persisted with <strong>Weapons, Armor, Spells, Potions &amp; Inventory Offerings</strong>, and animated live in persistent <strong>2v2 &amp; 3v3 Roster vs. Roster Circular Clashes</strong>.
             </div>
           </div>
           <div class="btn-row">
             <button class="btn btn-emerald" onclick="window.SovGame.saveForgedArchetypeClass()">💾 Save Class to Databank Pool</button>
-            <button class="btn btn-sapphire" onclick="window.SovGame.triggerDatabankCoalitionBattle('2v2')">🛡️ Clash 2v2 Coalition</button>
-            <button class="btn btn-crimson" onclick="window.SovGame.triggerDatabankCoalitionBattle('3v3')">🔺 Clash 3v3 Equilateral</button>
-            <button id="autoWeighPoolBtn" class="btn btn-emerald" onclick="window.SovGame.toggleAutoWeighDatabankPool()">🔄 Auto-Weigh Pool: ON</button>
+            <button class="btn btn-sapphire" onclick="window.SovGame.startAnimatedRosterClash('2v2')">🛡️ Animate 2v2 Roster vs. Roster</button>
+            <button class="btn btn-crimson" onclick="window.SovGame.startAnimatedRosterClash('3v3')">🔺 Animate 3v3 Roster vs. Roster</button>
+            <button id="autoWeighPoolBtn" class="btn btn-emerald" onclick="window.SovGame.toggleAutoWeighDatabankPool()">🔄 Auto-Clash Pool: ON</button>
           </div>
         </div>
 
@@ -416,7 +416,7 @@
             <!-- Row 2: Freeform & 15°-Snapped Degree Slider + Live ×3.14 & ×π Readout Banner -->
             <div style="background:#040812;border:1px solid rgba(212,175,55,0.35);border-radius:8px;padding:0.45rem 0.6rem;margin-bottom:0.45rem;">
               <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0.35rem;margin-bottom:0.3rem;">
-                <span style="font-size:0.71rem;color:#FDE68A;font-weight:700;">📐 Dominant Combat Degree ($\theta^\circ$ Freeform or $15^\circ$ Steps):</span>
+                <span style="font-size:0.71rem;color:#FDE68A;font-weight:700;">📐 Dominant Combat Degree (θ° Freeform or 15° Steps):</span>
                 <div class="btn-row">
                   <button type="button" class="btn btn-sm" onclick="window.SovGame.stepForgedClassDegree(-15)">-15°</button>
                   <button type="button" class="btn btn-sm btn-emerald" onclick="window.SovGame.snapForgedClassDegreeTo15()">Snap 15°</button>
@@ -518,28 +518,87 @@
             </div>
           </div>
 
-          <!-- RIGHT: Interactive 360° (6×60° Equilateral & 24×15° Dominant) Wheel Canvas + Automated 1v1/2v2/3v3 Coalition Arena -->
+          <!-- RIGHT: Persistent Databank Roster vs. Roster (2v2 & 3v3) Builder + Live 60 FPS Animated Circular Arena -->
           <div class="sub-card" style="border-color:var(--gold);">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:0.4rem;margin-bottom:0.35rem;">
-              <h4 style="margin:0;">⭕ 360° Equilateral (6×60° / 24×15°) Wheel &amp; Live Coalition Clash</h4>
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0.35rem;margin-bottom:0.38rem;">
+              <h4 style="margin:0;">⭕ Live Animated 2v2 &amp; 3v3 Roster vs. Roster Circular Arena (Persistent Databank)</h4>
               <div class="btn-row">
-                <button class="btn btn-sm" onclick="window.SovGame.triggerDatabankCoalitionBattle('1v1')">⚔️ 1v1 Duel</button>
-                <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.triggerDatabankCoalitionBattle('2v2')">🛡️ 2v2 Pincer</button>
-                <button class="btn btn-sm btn-emerald" onclick="window.SovGame.triggerDatabankCoalitionBattle('3v3')">🔺 3v3 Equilateral</button>
+                <button id="btnRosterMode_1v1" class="btn btn-sm" onclick="window.SovGame.startAnimatedRosterClash('1v1')">⚔️ 1v1 Duel</button>
+                <button id="btnRosterMode_2v2" class="btn btn-sm btn-sapphire" onclick="window.SovGame.startAnimatedRosterClash('2v2')">🛡️ 2v2 Roster Clash</button>
+                <button id="btnRosterMode_3v3" class="btn btn-sm btn-emerald active" onclick="window.SovGame.startAnimatedRosterClash('3v3')">🔺 3v3 Roster Clash</button>
+                <button id="btnToggleRosterAnim" class="btn btn-sm btn-emerald" onclick="window.SovGame.toggleRosterBattleAnimation()">⏯️ Anim: LIVE</button>
+                <button class="btn btn-sm" onclick="window.SovGame.instantResolveAndPersistRosterClash()">⏭️ Resolve &amp; Save</button>
               </div>
             </div>
 
-            <!-- Interactive 24-Sector (15°) & 6-Domain (60°) Canvas Wheel -->
-            <div style="position:relative;background:#04070E;border:1px solid rgba(212,175,55,0.35);border-radius:8px;overflow:hidden;margin-bottom:0.45rem;text-align:center;">
-              <canvas id="archetypeDegreeWheelCanvas" width="620" height="295" style="width:100%;height:265px;display:block;cursor:crosshair;"></canvas>
-              <div style="position:absolute;bottom:5px;left:8px;right:8px;display:flex;justify-content:space-between;pointer-events:none;font-family:Consolas,monospace;font-size:0.66rem;">
-                <span style="background:rgba(4,7,14,0.85);padding:2px 6px;border-radius:4px;color:#FDE68A;border:1px solid rgba(212,175,55,0.3);">Click any 15° Sector or 60° Domain on Wheel to Tune Class &amp; Run Matchup</span>
-                <span id="wheelHoverReadout" style="background:rgba(4,7,14,0.85);padding:2px 6px;border-radius:4px;color:#6EE7B7;border:1px solid rgba(16,185,129,0.3);">θ=15° • ×3.14=47.1° • ×π=47.12°</span>
+            <!-- PERSISTENT DATABANK ROSTER VS. ROSTER BUILDER (ROSTER ALPHA vs. ROSTER OMEGA) -->
+            <div id="persistentRosterBuilderBox" style="display:grid;grid-template-columns:1fr 1fr;gap:0.42rem;margin-bottom:0.42rem;background:#040814;border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:0.4rem 0.5rem;">
+              <!-- TEAM A: ALLIED ROSTER ALPHA -->
+              <div style="border-right:1px solid rgba(255,255,255,0.08);padding-right:0.38rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+                  <span style="font-size:0.68rem;font-weight:800;color:#6EE7B7;">🛡️ ROSTER ALPHA (ALLIED)</span>
+                  <div style="display:flex;gap:3px;align-items:center;">
+                    <span id="rosterARecordBadge" class="badge badge-emerald" style="font-size:0.6rem;padding:1px 5px;">14W–4L</span>
+                    <button type="button" class="btn btn-sm" style="padding:1px 5px;font-size:0.62rem;" onclick="window.SovGame.autoBuildRosterTeam('A')" title="Auto-Pick 120°/180° Equilateral Synergy Team A">🎲 Auto-A</button>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:0.22rem;">
+                  <div style="display:flex;align-items:center;gap:4px;">
+                    <span style="font-family:Consolas,monospace;font-size:0.64rem;color:#6EE7B7;width:24px;">A1:</span>
+                    <select id="rosterSelect_A0" class="studio-select" style="flex:1;padding:0.14rem 0.3rem;font-size:0.66rem;color:#6EE7B7;" onchange="window.SovGame.onRosterSlotChange('A', 0, this.value)"></select>
+                  </div>
+                  <div id="rosterSlotRow_A1" style="display:flex;align-items:center;gap:4px;">
+                    <span style="font-family:Consolas,monospace;font-size:0.64rem;color:#6EE7B7;width:24px;">A2:</span>
+                    <select id="rosterSelect_A1" class="studio-select" style="flex:1;padding:0.14rem 0.3rem;font-size:0.66rem;color:#6EE7B7;" onchange="window.SovGame.onRosterSlotChange('A', 1, this.value)"></select>
+                  </div>
+                  <div id="rosterSlotRow_A2" style="display:flex;align-items:center;gap:4px;">
+                    <span style="font-family:Consolas,monospace;font-size:0.64rem;color:#6EE7B7;width:24px;">A3:</span>
+                    <select id="rosterSelect_A2" class="studio-select" style="flex:1;padding:0.14rem 0.3rem;font-size:0.66rem;color:#6EE7B7;" onchange="window.SovGame.onRosterSlotChange('A', 2, this.value)"></select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TEAM B: OPPOSITION ROSTER OMEGA -->
+              <div style="padding-left:0.1rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+                  <span style="font-size:0.68rem;font-weight:800;color:#FDA4AF;">⚔️ ROSTER OMEGA (OPPOSITION)</span>
+                  <div style="display:flex;gap:3px;align-items:center;">
+                    <span id="rosterBRecordBadge" class="badge badge-crimson" style="font-size:0.6rem;padding:1px 5px;">4W–14L</span>
+                    <button type="button" class="btn btn-sm" style="padding:1px 5px;font-size:0.62rem;" onclick="window.SovGame.autoBuildRosterTeam('B')" title="Auto-Pick 120°/180° Equilateral Synergy Team B">🎲 Auto-B</button>
+                    <button type="button" class="btn btn-sm" style="padding:1px 5px;font-size:0.62rem;" onclick="window.SovGame.swapRosterTeams()" title="Swap Roster A &amp; Roster B">⇄</button>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:0.22rem;">
+                  <div style="display:flex;align-items:center;gap:4px;">
+                    <span style="font-family:Consolas,monospace;font-size:0.64rem;color:#FDA4AF;width:24px;">B1:</span>
+                    <select id="rosterSelect_B0" class="studio-select" style="flex:1;padding:0.14rem 0.3rem;font-size:0.66rem;color:#FDA4AF;" onchange="window.SovGame.onRosterSlotChange('B', 0, this.value)"></select>
+                  </div>
+                  <div id="rosterSlotRow_B1" style="display:flex;align-items:center;gap:4px;">
+                    <span style="font-family:Consolas,monospace;font-size:0.64rem;color:#FDA4AF;width:24px;">B2:</span>
+                    <select id="rosterSelect_B1" class="studio-select" style="flex:1;padding:0.14rem 0.3rem;font-size:0.66rem;color:#FDA4AF;" onchange="window.SovGame.onRosterSlotChange('B', 1, this.value)"></select>
+                  </div>
+                  <div id="rosterSlotRow_B2" style="display:flex;align-items:center;gap:4px;">
+                    <span style="font-family:Consolas,monospace;font-size:0.64rem;color:#FDA4AF;width:24px;">B3:</span>
+                    <select id="rosterSelect_B2" class="studio-select" style="flex:1;padding:0.14rem 0.3rem;font-size:0.66rem;color:#FDA4AF;" onchange="window.SovGame.onRosterSlotChange('B', 2, this.value)"></select>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Live Procedural 1v1 / 2v2 / 3v3 Coalition Clash Output -->
-            <div id="databankCoalitionLiveBox" class="combat-log-box" style="height:175px;font-size:0.71rem;line-height:1.45;"></div>
+            <!-- Interactive 24-Sector (15°) & 6-Domain (60°) Live Animated 2v2/3v3 Battle Wheel -->
+            <div style="position:relative;background:#04070E;border:1px solid rgba(212,175,55,0.35);border-radius:8px;overflow:hidden;margin-bottom:0.4rem;text-align:center;">
+              <canvas id="archetypeDegreeWheelCanvas" width="640" height="310" style="width:100%;height:265px;display:block;cursor:crosshair;"></canvas>
+              <div style="position:absolute;bottom:4px;left:8px;right:8px;display:flex;justify-content:space-between;pointer-events:none;font-family:Consolas,monospace;font-size:0.64rem;">
+                <span id="rosterWheelStatusReadout" style="background:rgba(4,7,14,0.88);padding:2px 6px;border-radius:4px;color:#FDE68A;border:1px solid rgba(212,175,55,0.3);">⭕ LIVE 3v3 ROSTER CLASH ANIMATING • Click any 15° Sector to Edit Class</span>
+                <span id="wheelHoverReadout" style="background:rgba(4,7,14,0.88);padding:2px 6px;border-radius:4px;color:#6EE7B7;border:1px solid rgba(16,185,129,0.3);">θ=15° • ×3.14=47.1° • ×π=47.12°</span>
+              </div>
+            </div>
+
+            <!-- Live Animated Roster vs. Roster Fighter Vitals Strip (HP & 360° Finisher Bars) -->
+            <div id="databankRosterVitalsStrip" style="display:grid;grid-template-columns:1fr 1fr;gap:0.38rem;margin-bottom:0.4rem;"></div>
+
+            <!-- Live Procedural 1v1 / 2v2 / 3v3 Coalition Clash Output & Persistent Match Ledger -->
+            <div id="databankCoalitionLiveBox" class="combat-log-box" style="height:135px;font-size:0.69rem;line-height:1.42;"></div>
           </div>
         </div>
 
@@ -710,7 +769,7 @@
           <div>
             <h2 class="panel-title">3. Live 3.14π Circular Degree Clash Protractor &amp; Stochastic Monte Carlo Tournament Lab</h2>
             <div style="font-size:0.76rem;color:var(--text-muted);">
-              Computes procedural impact from <strong>Incidence Angle ($\phi^\circ \in [0^\circ, 180^\circ]$)</strong>, <strong>Command Sweep Arc ($\Delta\theta^\circ \in [30^\circ, 360^\circ]$)</strong>, <strong>Centripetal Force ($F_c$)</strong>, <strong>Tangential Torque ($\tau_\pi$)</strong>, and <strong>$360^\circ$ ($2\pi$) Completion Surges</strong>.
+              Computes procedural impact from <strong>Incidence Angle (φ° ∈ [0°, 180°])</strong>, <strong>Command Sweep Arc (Δθ° ∈ [30°, 360°])</strong>, <strong>Centripetal Force (F_c)</strong>, <strong>Tangential Torque (τ_π)</strong>, and <strong>360° (2π) Completion Surges</strong>.
             </div>
           </div>
           <div class="btn-row">
@@ -807,7 +866,7 @@
           <div>
             <h2 class="panel-title">4A. Single-Castle 3D Throne Rooms (I, II &amp; The 3rd Throne Room: 3.14π Equilateral Apex) + 6 Sovereign Departments</h2>
             <div style="font-size:0.75rem;color:var(--text-muted);">
-              Explore all <strong>3 AI-Generated 3D Isometric Throne Rooms</strong> ascending the Single Castle ($0.00\pi$ Sanctuary Core $\rightarrow$ $1.57\pi$ Bayt al-Ḥikmah War-Room $\rightarrow$ <strong>The 3rd Throne Room: $3.14\pi$ Equilateral $6\times 60^\circ$ Apex Council</strong>) and issue decrees across the 6 Sovereign Departments.
+              Explore all <strong>3 AI-Generated 3D Isometric Throne Rooms</strong> ascending the Single Castle (0.00π Sanctuary Core → 1.57π Bayt al-Ḥikmah War-Room → <strong>The 3rd Throne Room: 3.14π Equilateral 6×60° Apex Council</strong>) and issue decrees across the 6 Sovereign Departments.
             </div>
           </div>
           <div class="btn-row">
