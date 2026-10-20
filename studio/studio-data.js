@@ -783,6 +783,55 @@
     }
   ];
 
+  /* 3 AI-Generated 3D Isometric Throne Rooms (Culminating in Throne Room III — The 3rd Throne Room) */
+  window.SOV_THRONE_ROOMS_DATA = [
+    {
+      id: "THRONE_01_SANCTUARY",
+      ordinal: "THRONE ROOM I (1ST THRONE ROOM)",
+      title: "Throne Room I — Dār Al-Ḍiyāfah & Badr 313 Shūrā Sanctuary Hall",
+      arabic: "القاعة الأولى • دار الضيافة ومجلس الشورى البدري (٠.٠٠π)",
+      ringRadiusPi: "0.00π Core Sanctuary",
+      degreeGeometry: "24×15° Lapis & Brass Protractor Floor • 313 White-and-Gold Banners",
+      imagePath: "images/throne_room_1_sanctuary_shura.jpg",
+      governedDepts: ["DEPT-01-CAFETERIA", "DEPT-04-RELIGIOSITY"],
+      governedDeptLabels: "Depts #1 (Simāṭ Cafeteria) & #4 (Al-Masjid & Shūrā Suffrage)",
+      architecture: "Era I–III Cordoban/Madīnah white marble colonnades, emerald and gold zellij tilework, sunken 24-spoke circular protractor floor, and the Prophetic Simāṭ hospitality banquet table with blessed vinegar (Khall) and olive oil.",
+      combatAuraDesc: "+31.4% Concentric Ring HP Regeneration, +100% Poison/Miasma Immunity, and +3.14x Mu'ākhāh Suffrage Conversion Aura.",
+      auraBonusPi: 3.14,
+      badgeClass: "badge-emerald"
+    },
+    {
+      id: "THRONE_02_HIKMAH_WARROOM",
+      ordinal: "THRONE ROOM II (2ND THRONE ROOM)",
+      title: "Throne Room II — Bayt Al-Ḥikmah, Al-Kīmiyāʾ & Dīwān Al-Jund War-Room",
+      arabic: "القاعة الثانية • بيت الحكمة ودار الكيمياء وديوان الجند (١.٥٧π)",
+      ringRadiusPi: "1.57π Inner Command Ring",
+      degreeGeometry: "3D Suspended Brass Armillary Sphere • Concentric 3.14π War-Table",
+      imagePath: "images/throne_room_2_bayt_al_hikmah.jpg",
+      governedDepts: ["DEPT-02-BARRACKS", "DEPT-03-SCIENCES"],
+      governedDeptLabels: "Depts #2 (Dīwān al-Jund Barracks) & #3 (Bayt al-Ḥikmah Sciences)",
+      architecture: "Abbasid Baghdad & Toledo scientific war-chamber featuring towering walnut bookshelves holding 68 illuminated golden tomes, glowing copper Al-Inbīq alembic distillers, sealed brass Solomonic Qumqum vessels, Damascus Fūlādh saber racks, and a 3D armillary sphere over the circular tactical war-table.",
+      combatAuraDesc: "+31.4% Tangential Torque (τ_π), +25% Damascus Sword Cleave & Alchemical Missile Power, and -0.45σ Gemini SPC Variance Lock.",
+      auraBonusPi: 6.28,
+      badgeClass: "badge-sapphire"
+    },
+    {
+      id: "THRONE_03_EQUILATERAL_APEX",
+      ordinal: "THRONE ROOM III ★ THE 3RD THRONE ROOM (3D EQUILATERAL APEX)",
+      title: "Throne Room III — The 3rd Throne Room: Sovereign 3.14π Equilateral 6×60° Apex Council",
+      arabic: "القاعة الثالثة العظمى • عرش الائتلاف المتساوي الأضلاع (٦×٦٠° = ٣٦٠° • ٣.١٤π)",
+      ringRadiusPi: "3.14π Sovereign Zenith Dome",
+      degreeGeometry: "6 Equilateral 60° Archways (I–VI) • 24×15° Archetype Spokes • 32-Bearing Star Compass",
+      imagePath: "images/throne_room_3_sovereign_equilateral_apex.jpg",
+      governedDepts: ["DEPT-05-GUILD-BAZAAR-BANK", "DEPT-06-CASTLE-LIBRARY-67"],
+      governedDeptLabels: "Depts #5 (Bayt al-Māl & 32-Pt Caravans) & #6 (68-Tome Library) + All 6×60° Domains",
+      architecture: "Monumental 3D isometric hexagonal zenith chamber crowning the Single Castle: 6 grand equilateral 60° archways (I–VI for Defenders, Attackers, Ranged, Spell/Alchemy, Support, and Sovereign), 12 celestial constellation pillars, a sunken 360° (2π) 32-bearing Qiblah compass arena floor (AL-QUDS, SHIMAL, JANUB, MASHRIQ), and a golden muqarnas dome uniting scholars, Mamlūk vanguard guards, and foreign envoys around the Sovereign Throne.",
+      combatAuraDesc: "Unlocks 3.14x Full-Circle (360°) Finisher Multiplier, +18.5% Equilateral 3v3 Coalition Chord Synergy, and +9.86π Omniscient Library & Caravan Yield/sec.",
+      auraBonusPi: 9.86,
+      badgeClass: "badge-gold"
+    }
+  ];
+
   /* 8 Canonical Commodities */
   window.SOV_COMMODITIES_DATA = [
     { id: "COMM-01-VINEGAR", name: "Vinegar Harvesting & Acetic Acid Distillation (Al-Khall & Ḥamḍ Al-Khall)", sub: "الخَلّ وحامض الخلّ • Prophetic Hadith: 'Ni'ma al-idām al-khall' (Sahih Muslim 2052)", ports: "Madīnah Date Groves, Córdoba & Seville Vineyards (Spain), Damascus Orchards, Kūfah Alchemical Labs", chain: "Date & Grape Must -> Aerobic Fermentation in Clay Jars -> Culinary & Medical Vinegar (Khall) -> Jābir ibn Ḥayyān's Al-Inbīq Alembic Fractional Distillation -> Concentrated Acetic Acid", credit: "Islam canonically elevated vinegar from a blessed household condiment into the first purified mineral-organic acid solvent in human history (distilled by Jābir ibn Ḥayyān in 8th-century Kūfah), used for sterile Bīmāristān wound irrigation and cooling caravan water.", utility: "Cafeteria: +31.4% Stamina & Gut Immunity | Combat VFX: Purifying Vinegar-Rosewater Mist (dissolves Poison Clouds & heals allies) | Siege: Acidic mortar-weakener.", valPi: 3.14 },

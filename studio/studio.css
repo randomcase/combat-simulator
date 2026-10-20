@@ -172,8 +172,8 @@ body {
   flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.28rem;
-  overflow-x: auto;
+  gap: 0.2rem;
+  overflow-x: hidden;
 }
 
 .studio-tab-group,
@@ -181,7 +181,7 @@ body {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  gap: 0.2rem;
+  gap: 0.16rem;
   white-space: nowrap;
 }
 
@@ -190,14 +190,14 @@ body {
   color: #cbd5e1;
   border: 1px solid rgba(212, 175, 55, 0.28);
   border-radius: 6px;
-  padding: 0.24rem 0.52rem;
-  font-size: 0.71rem;
+  padding: 0.18rem 0.42rem;
+  font-size: 0.66rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
   white-space: nowrap;
 }
 
@@ -767,4 +767,157 @@ table.sov-table tr:nth-child(even) {
 
 .studio-section.hidden-tab {
   display: none;
+}
+
+/* ============================================================================
+ * 3D AI-GENERATED THRONE ROOMS SHOWCASE & INTERACTIVE GALLERY (I, II & 3RD)
+ * ============================================================================ */
+.throne-3d-hero {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 1rem;
+  background: linear-gradient(135deg, rgba(10, 22, 42, 0.96), rgba(14, 34, 40, 0.94));
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  padding: 0.85rem;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), 0 0 22px rgba(212, 175, 55, 0.2);
+}
+
+@media (max-width: 1100px) {
+  .throne-3d-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+.throne-3d-hero-visual {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.55);
+  background: #030712;
+  perspective: 900px;
+}
+
+.throne-3d-hero-visual img {
+  width: 100%;
+  height: 295px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.throne-3d-hero-visual:hover img {
+  transform: scale(1.03) rotateX(1.5deg);
+}
+
+.throne-3d-hero-overlay {
+  position: absolute;
+  bottom: 0.55rem;
+  left: 0.6rem;
+  right: 0.6rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+
+.throne-3d-hero-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.throne-3d-card {
+  background: rgba(11, 18, 34, 0.92);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.throne-3d-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--gold);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55);
+}
+
+.throne-3d-card.active-throne {
+  border: 2px solid var(--emerald);
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.28);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.1), rgba(11, 18, 34, 0.96));
+}
+
+.throne-3d-img-wrap {
+  position: relative;
+  height: 175px;
+  overflow: hidden;
+  background: #030712;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+.throne-3d-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.throne-3d-card:hover .throne-3d-img-wrap img {
+  transform: scale(1.045);
+}
+
+.throne-3d-ring-pill {
+  position: absolute;
+  bottom: 6px;
+  left: 8px;
+  background: rgba(4, 7, 14, 0.88);
+  border: 1px solid var(--gold);
+  color: var(--gold-light);
+  font-family: 'Consolas', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.throne-3d-new-pill {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: linear-gradient(135deg, #10b981, #d4af37);
+  color: #030712;
+  font-family: 'Consolas', monospace;
+  font-size: 0.64rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.throne-3d-seq-pill {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  color: #e2e8f0;
+  font-family: 'Consolas', monospace;
+  font-size: 0.63rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.throne-3d-card-body {
+  padding: 0.6rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
 }

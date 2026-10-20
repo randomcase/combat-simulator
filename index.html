@@ -804,12 +804,22 @@
     <section id="studioSec_CASTLE_GOV" class="studio-section">
       <div class="panel" style="margin-bottom:1.1rem;">
         <div class="panel-header">
-          <h2 class="panel-title">4A. Single-Castle 0.00π Core Throne Room Dictates (6 Sovereign Departments)</h2>
+          <div>
+            <h2 class="panel-title">4A. Single-Castle 3D Throne Rooms (I, II &amp; The 3rd Throne Room: 3.14π Equilateral Apex) + 6 Sovereign Departments</h2>
+            <div style="font-size:0.75rem;color:var(--text-muted);">
+              Explore all <strong>3 AI-Generated 3D Isometric Throne Rooms</strong> ascending the Single Castle ($0.00\pi$ Sanctuary Core $\rightarrow$ $1.57\pi$ Bayt al-Ḥikmah War-Room $\rightarrow$ <strong>The 3rd Throne Room: $3.14\pi$ Equilateral $6\times 60^\circ$ Apex Council</strong>) and issue decrees across the 6 Sovereign Departments.
+            </div>
+          </div>
           <div class="btn-row">
-            <button class="btn btn-emerald" onclick="window.SovGame.serveCafeteriaLunch()">🍲 Serve Blessed Vinegar &amp; Tharīd Lunch (100% Ring Heal)</button>
-            <button class="btn btn-sapphire" onclick="window.SovGame.collectCastleSuffrage()">⚖️ Collect Suffrage &amp; Pair Mu'ākhāh Patrons</button>
+            <button class="btn btn-sm" onclick="window.SovGame.activateThroneRoom3D('THRONE_01_SANCTUARY')">🏛️ Throne I (0.00π)</button>
+            <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.activateThroneRoom3D('THRONE_02_HIKMAH_WARROOM')">⚗️ Throne II (1.57π)</button>
+            <button class="btn btn-sm btn-emerald" onclick="window.SovGame.activateThroneRoom3D('THRONE_03_EQUILATERAL_APEX')">👑 3rd Throne Room (3.14π Apex)</button>
+            <button class="btn btn-emerald" onclick="window.SovGame.serveCafeteriaLunch()">🍲 Serve Vinegar &amp; Tharīd Lunch</button>
+            <button class="btn btn-sapphire" onclick="window.SovGame.collectCastleSuffrage()">⚖️ Collect Suffrage</button>
           </div>
         </div>
+        <!-- 3 AI-Generated 3D Isometric Throne Rooms Showcase & Interactive Selector -->
+        <div id="throneRooms3DGalleryMount" style="margin-bottom:0.95rem;"></div>
         <div id="throneRoomDeptsGrid" class="sub-grid-3"></div>
       </div>
 

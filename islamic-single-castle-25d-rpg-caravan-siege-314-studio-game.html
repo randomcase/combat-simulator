@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sovereign 3.14π Circular Combat Studio — Procedural Degrees &amp; 12-Agent Pre-Thought Agency</title>
+  <link rel="stylesheet" href="studio/studio.css" />
+</head>
+<body>
+  <!-- ========================================================================
+       ABSTRACTED UNIFIED STUDIO HEADER MOUNT (DATA-DRIVEN TELEMETRY & RIBBON)
+       Rendered dynamically by renderAbstractedStudioChrome() from studio-data.js
+       ======================================================================== -->
+  <header id="sovereignStudioHeaderMount" class="hud-sticky-bar"></header>
+
+  <div class="container">
+    <!-- ======================================================================
+         STUDIO SECTION 1: ABOVE-THE-FOLD 3.14π CIRCULAR VIEWPORTS & DEGREES HUD
+         ====================================================================== -->
+    <section id="studioSec_VIEWPORTS" class="studio-section">
+      <!-- Collapsible 4 Concept Art Plates Drawer (Toggled from Header Ribbon) -->
+      <div id="conceptPlatesDrawer" class="plates-grid-4" style="display:none;margin-bottom:0.65rem;">
+        <div class="plate-card">
+          <img src="images/castle_game_plate_1_single_castle_sanctuary.jpg" alt="Plate 1: The Single Castle Sanctuary" />
+          <div class="plate-body"><div class="plate-title">Plate I — Single Castle 0.00π Core &amp; 68-Tome Library</div></div>
+        </div>
+        <div class="plate-card">
+          <img src="images/castle_game_plate_2_3d_unit_sprite_atlas.jpg" alt="Plate 2: 3D Unit Sprite Atlas" />
+          <div class="plate-body"><div class="plate-title">Plate II — 3D Sprite Atlas: Good Warlock, Mamlūks &amp; 313 Defenders</div></div>
+        </div>
+        <div class="plate-card">
+          <img src="images/castle_game_plate_3_combat_vfx_siege_action.jpg" alt="Plate 3: Circular Combat VFX" />
+          <div class="plate-body"><div class="plate-title">Plate III — 314° Damascus Cleaves, 120° Volleys &amp; Vinegar Rings</div></div>
+        </div>
+        <div class="plate-card">
+          <img src="images/castle_game_plate_4_diplomacy_caravan_discovery.jpg" alt="Plate 4: Orbital Caravans & Diplomacy" />
+          <div class="plate-body"><div class="plate-title">Plate IV — 32-Bearing Compasses, Port Faires &amp; Rumored Kings</div></div>
+        </div>
+      </div>
+
+      <!-- Main Studio Split: Left = 4 Circular Gaming Windows + Live Circular Degree Table | Right = Node Inspector & Ring Buffer -->
+      <div id="studioMainWorkspaceGrid" class="studio-main-grid">
+        <!-- LEFT: 1x / 2x / 4x Circular Gaming Windows Matrix -->
+        <div>
+          <div id="viewportsMatrixContainer" class="viewports-matrix layout-2x">
+            <!-- GAMING WINDOW #1: 3.14π Concentric Ring Isometric Arena (0°..360°) -->
+            <div id="gameWin1_Main25D" class="game-window-card">
+              <div class="window-titlebar">
+                <div class="window-title">
+                  <span>⭕ WINDOW #1 — 3.14π Circular Isometric Arena (Concentric Rings 1π, 2π, 3.14π, 4.71π &amp; 360° Protractor)</span>
+                </div>
+                <div class="window-controls">
+                  <button class="btn btn-sm" onclick="window.SovGame.adjustCameraZoom(0.15)">➕</button>
+                  <button class="btn btn-sm" onclick="window.SovGame.adjustCameraZoom(-0.15)">➖</button>
+                  <button class="btn btn-sm" onclick="window.SovGame.resetCamera()">🎯</button>
+                  <button class="btn btn-sm" onclick="window.SovGame.setSimSpeed(1.0)">1x</button>
+                  <button class="btn btn-sm" onclick="window.SovGame.setSimSpeed(2.0)">2x</button>
+                  <button class="btn btn-sm btn-emerald" onclick="window.SovGame.setSimSpeed(3.14)">3.14x</button>
+                  <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.toggleMaximizeWindow('gameWin1_Main25D')">⛶ Max</button>
+                </div>
+              </div>
+              <div class="canvas-wrap">
+                <canvas id="sovereign25dGameCanvas" width="1140" height="660"></canvas>
+                <div class="canvas-overlay-top">
+                  <div class="canvas-pill" id="canvasTopLeftReadout">3.14π Circular Mode: WORLD • 4 Concentric Rings (1π..4.71π) • 360° Protractor</div>
+                  <div class="canvas-pill" id="canvasWinCalcReadout">Win: 98.4% • [DEFEND Δ180° @ φ=145°] • τ=54.2 N·π</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- GAMING WINDOW #2: 360° (2π) Procedural Impact Protractor & Circular Frame-Phase Wheel -->
+            <div id="gameWin2_Arena" class="game-window-card secondary-window">
+              <div class="window-titlebar">
+                <div class="window-title">
+                  <span>🧭 WINDOW #2 — 360° (2π) Procedural Impact Protractor, Circular Frame Wheel &amp; Torque Dial</span>
+                </div>
+                <div class="window-controls">
+                  <button class="btn btn-sm btn-emerald" onclick="window.SovGame.executeLiveClashOnCanvas()">⚡ Strike Arc</button>
+                  <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.toggleMaximizeWindow('gameWin2_Arena')">⛶ Max</button>
+                </div>
+              </div>
+              <div class="canvas-wrap">
+                <canvas id="tacticalArenaCanvas" class="secondary-canvas" width="780" height="460"></canvas>
+              </div>
+            </div>
+
+            <!-- GAMING WINDOW #3: 3.14π Orbital Caravan & 32-Bearing (11.25°) Harmonics Wheel -->
+            <div id="gameWin3_Radar" class="game-window-card secondary-window" style="display:none;">
+              <div class="window-titlebar">
+                <div class="window-title">
+                  <span>🐪 WINDOW #3 — 3.14π Orbital Caravan Circuit &amp; 32-Bearing (11.25°) Degree Harmonics Radar</span>
+                </div>
+                <div class="window-controls">
+                  <button class="btn btn-sm btn-emerald" onclick="window.SovGame.spawnProceduralCaravan()">🐪 Add Orbit</button>
+                  <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.toggleMaximizeWindow('gameWin3_Radar')">⛶ Max</button>
+                </div>
+              </div>
+              <div class="canvas-wrap">
+                <canvas id="worldCaravanRadarCanvas" class="secondary-canvas" width="780" height="460"></canvas>
+              </div>
+            </div>
+
+            <!-- GAMING WINDOW #4: Polar Gemini SPC Limit-Cycle Attractor (S0..S3) & 360° Phase Rose -->
+            <div id="gameWin4_Spc" class="game-window-card secondary-window" style="display:none;">
+              <div class="window-titlebar">
+                <div class="window-title">
+                  <span>📈 WINDOW #4 — Polar Gemini SPC Limit-Cycle Attractor (S0–S3) &amp; 360° Phase-Drift Rose</span>
+                </div>
+                <div class="window-controls">
+                  <button class="btn btn-sm btn-emerald" onclick="window.SovCommandEngine.spcEngine.stepTick(-0.65)">🛡️ -1.2σ Lock</button>
+                  <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.toggleMaximizeWindow('gameWin4_Spc')">⛶ Max</button>
+                </div>
+              </div>
+              <div class="canvas-wrap">
+                <canvas id="spcPhaseOscilloscopeCanvas" class="secondary-canvas" width="780" height="460"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- LIVE 12-UNIT CIRCULAR COMBAT, DEGREES & 360° COMPLETION TELEMETRY TABLE -->
+          <div class="panel" style="margin-top:0.75rem;padding:0.75rem 0.95rem;">
+            <div class="panel-header" style="margin-bottom:0.45rem;padding-bottom:0.35rem;">
+              <div>
+                <h3 class="panel-title" style="font-size:0.95rem;">⭕ Live 3.14π Circular Combat, Procedural Degrees (θ°, Δθ°, φ°) &amp; 360° (2π) Completion Telemetry</h3>
+                <div style="font-size:0.72rem;color:var(--text-muted);">Click any unit to inspect, trigger an instant 360° (2π) Completion Pulse (3.14x), or shift its concentric orbit ring (1.00π → 2.00π → 3.14π → 4.71π).</div>
+              </div>
+              <div class="btn-row">
+                <button class="btn btn-sm btn-emerald" onclick="window.SovGame.triggerGlobal360CompletionPulse()">⭕ Pulse All Friendly Rings (360°)</button>
+              </div>
+            </div>
+            <div class="data-table-wrap" style="max-height:260px;">
+              <table class="sov-table">
+                <thead>
+                  <tr>
+                    <th>Unit &amp; ECAT Archetype</th>
+                    <th>Command &amp; Resonance</th>
+                    <th>Polar Bearing θ° (rad)</th>
+                    <th>Orbit Ring (r·π)</th>
+                    <th>Sweep Arc Δθ° &amp; ω</th>
+                    <th>Revolution to 360° (2π Completion)</th>
+                    <th>Incidence φ° &amp; Torque τ_π</th>
+                    <th>Circular Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="circularCombatTelemetryBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Animation Rig Sliders & Live Combat Telemetry Under Table -->
+          <div class="sub-grid-2" style="margin-top:0.75rem;">
+            <div class="sub-card">
+              <h4>🎨 Circular Angular Velocity (ω), Sweep Scale &amp; 3.14π Rig Customizer</h4>
+              <div class="slider-row">
+                <span>Angular Velocity ω Multiplier (π):</span>
+                <input type="range" id="animWalkSlider" min="0.5" max="9.42" step="0.1" value="3.14" oninput="window.SovGame.updateAnimSliders()" />
+                <span class="pi-val" id="animWalkVal">3.14π</span>
+              </div>
+              <div class="slider-row">
+                <span>Good Warlock Z-Levitation Harmonic:</span>
+                <input type="range" id="animFloatSlider" min="0.5" max="9.42" step="0.1" value="3.14" oninput="window.SovGame.updateAnimSliders()" />
+                <span class="pi-val" id="animFloatVal">3.14π</span>
+              </div>
+              <div class="slider-row">
+                <span>Sweep Sector Cone &amp; Shockwave Scale:</span>
+                <input type="range" id="animVfxSlider" min="0.5" max="9.42" step="0.1" value="3.14" oninput="window.SovGame.updateAnimSliders()" />
+                <span class="pi-val" id="animVfxVal">3.14π</span>
+              </div>
+              <div class="slider-row">
+                <span>Default Sovereign Orbit Radius (r·π):</span>
+                <input type="range" id="animOrbitSlider" min="1.0" max="4.71" step="0.1" value="3.14" oninput="window.SovGame.updateAnimSliders()" />
+                <span class="pi-val" id="animOrbitVal">3.14π</span>
+              </div>
+            </div>
+            <div class="sub-card">
+              <h4>📜 Live Procedural Circular Combat, Degrees &amp; Pre-Thought Agency Log</h4>
+              <div id="liveCombatLog" class="combat-log-box"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR: Circular Node Inspector, Archetype Resonance & Priority Ring-Buffer -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Circular Node &amp; Degree Inspector</h2>
+            <span class="badge badge-emerald" id="selectedNodeBadge">Node #002 • θ=30° (r=2.00π)</span>
+          </div>
+
+          <div class="sub-card" style="margin-bottom:0.75rem;border-color:var(--gold);">
+            <div style="margin-bottom:0.4rem;">
+              <h4 id="inspNodeName" style="font-size:0.96rem;color:#FDE68A;">Ḥamzah Al-Badrī</h4>
+              <div id="inspNodeRole" style="font-size:0.74rem;color:#6EE7B7;">Archetype: Vanguard Defender [ARCH_VANGUARD] • Ring r=2.00π</div>
+            </div>
+
+            <div style="margin-bottom:0.45rem;">
+              <label style="font-size:0.71rem;color:#FDE68A;font-weight:700;display:block;margin-bottom:3px;">Active Circular Command (Shows Δθ° Arc, r·π Ring &amp; Resonance):</label>
+              <div style="display:flex;gap:0.35rem;">
+                <select id="inspVerbSelect" class="studio-select" style="flex:1;font-weight:700;color:#FDE68A;" onchange="window.SovGame.setSelectedNodeVerb(this.value)"></select>
+                <button class="btn btn-sm btn-emerald" title="Let Utility-AI pick the optimal circular command" onclick="window.SovGame.applyUtilityAiToSelectedUnit()">🤖 AI Pick</button>
+              </div>
+            </div>
+
+            <div id="inspActiveResonanceBanner" style="background:rgba(16,185,129,0.12);border:1px solid #10B981;border-radius:7px;padding:0.4rem 0.55rem;font-family:Consolas,monospace;font-size:0.71rem;color:#6EE7B7;margin-bottom:0.45rem;">
+              ⚡ PRIME RESONANCE (1.45x | Δ180° @ r=2.00π): Command resonates with unit archetype!
+            </div>
+
+            <p id="inspNodeExperience" style="margin:0.38rem 0;font-size:0.73rem;color:#CBD5E1;"></p>
+
+            <div class="btn-row" style="margin-bottom:0.45rem;">
+              <button class="btn btn-sm btn-emerald" onclick="window.SovGame.forceUnit360Completion()">⭕ Complete 360° (2π) Now</button>
+              <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.cycleUnitRing()">🔄 Shift Concentric Ring (r·π)</button>
+            </div>
+
+            <div style="margin:0.4rem 0;">
+              <label style="font-size:0.71rem;color:#93C5FD;font-weight:700;">Autonomous Circular Gambit AST (Command Loader #3):</label>
+              <input type="text" id="inspNodeGambitInput" class="studio-input" style="width:100%;margin-top:0.2rem;color:#6EE7B7;font-family:Consolas,monospace;" onchange="window.SovGame.updateSelectedNodeGambit(this.value)" />
+              <div id="inspGambitAstBadges" style="margin-top:0.35rem;display:flex;flex-wrap:wrap;gap:0.22rem;align-items:center;font-size:0.69rem;"></div>
+            </div>
+
+            <div id="inspNodeMetrics" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.32rem;margin-top:0.45rem;font-family:Consolas,monospace;font-size:0.7rem;color:#FDE68A;">
+              <div>Stat: <span id="inspStatW">6.28π</span></div>
+              <div>Armor: <span id="inspArmorW">3.14π</span></div>
+              <div>Weapon: <span id="inspWeaponW">2.51π</span></div>
+              <div>Tone: <span id="inspTone">Ḥamāsah</span></div>
+              <div>Sector: <span id="inspTradeSkill">Δ180° @ 2.00π</span></div>
+              <div>Cycles: <span id="inspConversions">2 Circles</span></div>
+            </div>
+          </div>
+
+          <!-- Command Loader #4: Live Priority Ring-Buffer Tick Queue -->
+          <div class="sub-card" style="margin-bottom:0.75rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.32rem;">
+              <h4 style="margin:0;">⏱️ Loader #4: Circular Ring-Buffer Heap</h4>
+              <span class="badge badge-sapphire">Tick • Δθ° • φ°</span>
+            </div>
+            <div id="ringBufferQueueBox" class="combat-log-box" style="height:155px;"></div>
+          </div>
+
+          <!-- Quick Pre-Thought Agency & Throne Dictates -->
+          <div class="sub-card">
+            <h4>♊ Quick Pre-Thought Agency &amp; Castle Dictates</h4>
+            <div class="btn-row">
+              <button class="btn btn-sm btn-emerald" onclick="window.SovGame.runFull360AgencyAutoTune()">♊ 360° Agency Auto-Tune</button>
+              <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.serveCafeteriaLunch()">🍲 0.00π Core Heal (100%)</button>
+              <button class="btn btn-sm btn-purple" onclick="window.SovGame.studyAll67Tomes()">📚 Illuminate 68 Tomes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         STUDIO SECTION 1B: 12-AGENT PRE-THOUGHT REPOSITORY AGENCY (agency/*.md)
+         ====================================================================== -->
+    <section id="studioSec_AGENCY" class="studio-section">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">♊ The 12-Agent Pre-Thought Repository Agency (360° / 2π Wheel • 12 Embedded MDs in <code>agency/</code>)</h2>
+            <div style="font-size:0.76rem;color:var(--text-muted);">
+              <strong>Accessed First Before Thought, Analyzation, Principle &amp; Priory-to-Form:</strong> Curves development inefficiencies into $3.14\pi$ circular completion ($0^\circ \rightarrow 360^\circ$), enforces component standards, and provides 100% in-game customization.
+            </div>
+          </div>
+          <div class="btn-row">
+            <button id="toggleAgencyLoopBtn" class="btn btn-sm active" onclick="window.SovGame.toggleAgencyAutoTuneLoop()">🔄 Auto-Tune Loop: ACTIVE (360°)</button>
+            <button class="btn btn-emerald" onclick="window.SovGame.runFull360AgencyAutoTune()">♊ Execute Full 360° (12-Sector) Auto-Tune Now</button>
+          </div>
+        </div>
+
+        <div class="sub-grid-2" style="margin-bottom:1rem;">
+          <!-- Left: Pre-Thought Component & Addition Standardizer -->
+          <div class="sub-card" style="border-color:var(--emerald);">
+            <h4>📐 Pre-Thought Standardized Component &amp; Addition Blueprint Generator</h4>
+            <p style="margin:0 0 0.45rem 0;font-size:0.74rem;color:#CBD5E1;">
+              Every new component or command passes through the <strong>12-Agent Pre-Thought Gate</strong> (`agency/00-PRE-THOUGHT-INDEX.md` + `agency/01..12_*.md`) before instantiation to guarantee circular degree geometry, archetype resonance, and zero inefficiency.
+            </p>
+            <div style="display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:0.45rem;margin-bottom:0.45rem;">
+              <div>
+                <label style="font-size:0.7rem;color:#6EE7B7;">Component Type:</label>
+                <select id="stdCompType" class="studio-select" style="width:100%;">
+                  <option value="CIRCULAR_COMMAND" selected>CIRCULAR_COMMAND</option>
+                  <option value="ORBITAL_RING_UNIT">ORBITAL_RING_UNIT</option>
+                  <option value="RIBAT_360_TOWER">RIBAT_360_TOWER</option>
+                  <option value="CARAVAN_CIRCUIT">CARAVAN_CIRCUIT</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.7rem;color:#FDE68A;">Component / Verb Identifier:</label>
+                <input type="text" id="stdCompName" class="studio-input" style="width:100%;font-family:Consolas,monospace;color:#FDE68A;" value="CRESCENT_314_GUARD" />
+              </div>
+              <div>
+                <label style="font-size:0.7rem;color:#93C5FD;">Primary Resonant Archetype:</label>
+                <select id="stdCompArch" class="studio-select" style="width:100%;">
+                  <option value="ARCH_VANGUARD" selected>ARCH_VANGUARD (Defender)</option>
+                  <option value="ARCH_BERSERKER">ARCH_BERSERKER (Cavalry)</option>
+                  <option value="ARCH_TACTICIAN">ARCH_TACTICIAN (Healer)</option>
+                  <option value="ARCH_ARCANIST">ARCH_ARCANIST (Alchemist)</option>
+                  <option value="ARCH_ASSASSIN">ARCH_ASSASSIN (Marksman)</option>
+                  <option value="ARCH_SENTINEL">ARCH_SENTINEL (Good Warlock)</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.45rem;margin-bottom:0.5rem;">
+              <div>
+                <label style="font-size:0.7rem;color:#6EE7B7;">Sweep Arc Degrees (Δθ°: 30°–360°):</label>
+                <input type="number" id="stdCompArc" class="studio-input" style="width:100%;font-family:Consolas,monospace;" min="30" max="360" value="314" />
+              </div>
+              <div>
+                <label style="font-size:0.7rem;color:#FDE68A;">Concentric Orbit Ring (r·π: 1.00–4.71):</label>
+                <input type="number" id="stdCompRing" class="studio-input" style="width:100%;font-family:Consolas,monospace;" step="0.1" min="1.0" max="4.71" value="2.00" />
+              </div>
+            </div>
+            <button class="btn btn-emerald" style="width:100%;margin-bottom:0.5rem;" onclick="window.SovGame.generateAndRegisterStandardComponent()">⚡ Pass Pre-Thought Gate &amp; Instantiate Standardized Component</button>
+            <div id="agencyGateOutputBox" class="combat-log-box" style="height:105px;">
+              <div style="color:#6EE7B7;">✔ Pre-Thought Gate Ready: All 12 Embedded MDs in <code>agency/01..12_*.md</code> loaded and active.</div>
+            </div>
+          </div>
+
+          <!-- Right: 100% In-Game Agency Customizer & Embedded Markdown Editor -->
+          <div class="sub-card" style="border-color:var(--gold);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
+              <h4 id="agencySelectedHeader" style="margin:0;">[0° | 0.00π] Al-Mudabbir — Pre-Thought Gate</h4>
+              <code id="agencySelectedFileBadge" style="font-size:0.72rem;color:#38BDF8;">agency/01-pi-thought-curver.md</code>
+            </div>
+            <div style="margin-bottom:0.4rem;">
+              <label style="font-size:0.7rem;color:#FDE68A;">Select Repository Agent (0°..330° Sector):</label>
+              <select id="agencySelectDropdown" class="studio-select" style="width:100%;color:#FDE68A;font-weight:700;" onchange="window.SovGame.selectAgencyForEdit(this.value)"></select>
+            </div>
+            <div class="slider-row">
+              <span>Agent Thought-Curving Weight (π):</span>
+              <input type="range" id="agencyWeightSlider" min="0.314" max="9.42" step="0.314" value="3.14" oninput="document.getElementById('agencyWeightVal').textContent=Number(this.value).toFixed(2)+'π'" />
+              <span class="pi-val" id="agencyWeightVal">3.14π</span>
+            </div>
+            <div style="margin-bottom:0.35rem;">
+              <label style="font-size:0.69rem;color:#93C5FD;">Priory-to-Form Principle:</label>
+              <input type="text" id="agencyPrioryInput" class="studio-input" style="width:100%;" />
+            </div>
+            <div style="margin-bottom:0.35rem;">
+              <label style="font-size:0.69rem;color:#6EE7B7;">Component &amp; Addition Standard:</label>
+              <input type="text" id="agencyStandardInput" class="studio-input" style="width:100%;font-family:Consolas,monospace;" />
+            </div>
+            <div style="margin-bottom:0.4rem;">
+              <label style="font-size:0.69rem;color:#FDE68A;">Embedded <code>agency/*.md</code> Specification (100% Customizable In-Game):</label>
+              <textarea id="agencyMarkdownEditor" class="code-studio-area" style="height:82px;"></textarea>
+            </div>
+            <button class="btn btn-emerald" style="width:100%;" onclick="window.SovGame.saveCustomizedAgencyMd()">💾 Save Customized Agent Standard &amp; Apply to Auto-Tune Loop</button>
+          </div>
+        </div>
+
+        <!-- Complete 12-Agent Circular Pre-Thought Table -->
+        <div class="data-table-wrap">
+          <table class="sov-table">
+            <thead>
+              <tr>
+                <th>Sector θ° (rad)</th>
+                <th>Agent &amp; Embedded MD File</th>
+                <th>Gameplay Facet &amp; Priory-to-Form Principle</th>
+                <th>Development Inefficiency Curved</th>
+                <th>Component &amp; Addition Standard</th>
+                <th>Weight &amp; Loop</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="agencyCouncilTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         STUDIO SECTION 2: 3.14π COMMAND & ARCHETYPE CLASS FORGE (6×60° EQUILATERAL
+         DOMAINS, 24×15° DOMINANT ARCHETYPES, DATABANK OFFERINGS & 2v2/3v3 POOL)
+         ====================================================================== -->
+    <section id="studioSec_COMMAND_FORGE" class="studio-section">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">2. Interactive 3.14π Command &amp; Archetype Class Forge — 6×60° Equilateral Domains, 24×15° Degree Field &amp; 2v2/3v3 Databank Pool</h2>
+            <div style="font-size:0.75rem;color:var(--text-muted);">
+              Every Archetype Class is weighed in a <strong>$360^\circ$ Equilateral Combat Circle</strong> ($6 \times 60^\circ$ Domains $\times$ $\pm 30^\circ$ Polarity $\times$ $15^\circ$ Order/Chaos = <strong>24 Dominant $15^\circ$ Archetypes</strong> multiplied by $\mathbf{3.14}$ and $\boldsymbol{\pi}$ up to $1,130.4^\circ$), persisted with <strong>Weapons, Armor, Spells, Potions &amp; Inventory Offerings</strong>, and procedurally weighed in live <strong>1v1 / 2v2 / 3v3 Circular Coalition Clashes</strong>.
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-emerald" onclick="window.SovGame.saveForgedArchetypeClass()">💾 Save Class to Databank Pool</button>
+            <button class="btn btn-sapphire" onclick="window.SovGame.triggerDatabankCoalitionBattle('2v2')">🛡️ Clash 2v2 Coalition</button>
+            <button class="btn btn-crimson" onclick="window.SovGame.triggerDatabankCoalitionBattle('3v3')">🔺 Clash 3v3 Equilateral</button>
+            <button id="autoWeighPoolBtn" class="btn btn-emerald" onclick="window.SovGame.toggleAutoWeighDatabankPool()">🔄 Auto-Weigh Pool: ON</button>
+          </div>
+        </div>
+
+        <!-- TOP SPLIT: LEFT = Interactive Persistent Class & Offerings CRUD Builder | RIGHT = 360° (6×60° / 24×15°) Wheel & Live Coalition Simulator -->
+        <div class="sub-grid-2" style="margin-bottom:0.9rem;">
+          <!-- LEFT: Interactive Studio Archetype Class & Loadout CRUD Builder -->
+          <div class="sub-card" style="border-color:var(--emerald);">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:0.4rem;margin-bottom:0.4rem;">
+              <h4 style="margin:0;">🛠️ Interactive Archetype Class &amp; 15° Degree Field CRUD Builder</h4>
+              <span id="dbClassPersistBadge" class="badge badge-emerald" style="font-family:Consolas,monospace;font-size:0.66rem;">PERSISTENT DATABANK POOL (24+ CLASSES)</span>
+            </div>
+
+            <!-- Row 1: Select Existing Databank Template + Class Name + Signature Command Verb -->
+            <div style="display:grid;grid-template-columns:1.25fr 1.15fr 0.8fr;gap:0.4rem;margin-bottom:0.4rem;">
+              <div>
+                <label style="font-size:0.68rem;color:#FDE68A;font-weight:700;">Load Databank Archetype Template (15°–360°):</label>
+                <select id="dbClassTemplateSelect" class="studio-select" style="width:100%;color:#FDE68A;font-weight:700;" onchange="window.SovGame.selectDatabankClassForEdit(this.value)"></select>
+              </div>
+              <div>
+                <label style="font-size:0.68rem;color:#6EE7B7;font-weight:700;">Archetype Class Title / Name:</label>
+                <input type="text" id="dbClassNameInput" class="studio-input" style="width:100%;font-weight:700;" value="15° Badr Phalanx Warden" oninput="window.SovGame.previewForgedClassLive()" />
+              </div>
+              <div>
+                <label style="font-size:0.68rem;color:#93C5FD;font-weight:700;">Signature Command:</label>
+                <input type="text" id="forgeCmdVerb" class="studio-input" style="width:100%;font-family:Consolas,monospace;color:#FDE68A;" value="DEFEND" oninput="window.SovGame.previewForgedClassLive()" />
+              </div>
+            </div>
+
+            <!-- Row 2: Freeform & 15°-Snapped Degree Slider + Live ×3.14 & ×π Readout Banner -->
+            <div style="background:#040812;border:1px solid rgba(212,175,55,0.35);border-radius:8px;padding:0.45rem 0.6rem;margin-bottom:0.45rem;">
+              <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0.35rem;margin-bottom:0.3rem;">
+                <span style="font-size:0.71rem;color:#FDE68A;font-weight:700;">📐 Dominant Combat Degree ($\theta^\circ$ Freeform or $15^\circ$ Steps):</span>
+                <div class="btn-row">
+                  <button type="button" class="btn btn-sm" onclick="window.SovGame.stepForgedClassDegree(-15)">-15°</button>
+                  <button type="button" class="btn btn-sm btn-emerald" onclick="window.SovGame.snapForgedClassDegreeTo15()">Snap 15°</button>
+                  <button type="button" class="btn btn-sm" onclick="window.SovGame.stepForgedClassDegree(15)">+15°</button>
+                  <button type="button" class="btn btn-sm btn-sapphire" onclick="window.SovGame.stepForgedClassDegree(60)">+60° Equilateral</button>
+                  <input type="number" id="dbClassDegreeInput" class="studio-input" style="width:72px;font-family:Consolas,monospace;color:#FDE68A;font-weight:700;" min="1" max="1130.4" step="1" value="15" oninput="window.SovGame.syncDegreeSliderFromInput(this.value)" />
+                </div>
+              </div>
+              <input type="range" id="dbClassDegreeSlider" min="1" max="360" step="1" value="15" style="width:100%;accent-color:#D4AF37;margin-bottom:0.3rem;" oninput="window.SovGame.syncDegreeInputFromSlider(this.value)" />
+              <div id="dbClassPiReadoutStrip" style="display:grid;grid-template-columns:repeat(5,1fr);gap:0.3rem;font-family:Consolas,monospace;font-size:0.69rem;text-align:center;">
+                <div style="background:rgba(16,185,129,0.12);padding:3px 4px;border-radius:4px;border:1px solid rgba(16,185,129,0.3);"><span style="color:#94A3B8;">θ° (Sector):</span><br/><strong id="roDegSector" style="color:#6EE7B7;">15° (#1/24)</strong></div>
+                <div style="background:rgba(212,175,55,0.14);padding:3px 4px;border-radius:4px;border:1px solid rgba(212,175,55,0.35);"><span style="color:#94A3B8;">θ × 3.14:</span><br/><strong id="roDeg314" style="color:#FDE68A;">47.10°</strong></div>
+                <div style="background:rgba(56,189,248,0.12);padding:3px 4px;border-radius:4px;border:1px solid rgba(56,189,248,0.3);"><span style="color:#94A3B8;">θ × π:</span><br/><strong id="roDegPi" style="color:#38BDF8;">47.12°</strong></div>
+                <div style="background:rgba(168,85,247,0.12);padding:3px 4px;border-radius:4px;border:1px solid rgba(168,85,247,0.3);"><span style="color:#94A3B8;">Radian (π):</span><br/><strong id="roRadPi" style="color:#C084FC;">0.083π rad</strong></div>
+                <div style="background:rgba(244,63,94,0.12);padding:3px 4px;border-radius:4px;border:1px solid rgba(244,63,94,0.3);"><span style="color:#94A3B8;">720° Spinor:</span><br/><strong id="roSpinor720" style="color:#FDA4AF;">375.0° (4π)</strong></div>
+              </div>
+            </div>
+
+            <!-- Row 3: 60° Equilateral Domain, Polarity (±30°) & Order/Chaos Linear Alignment (15°) -->
+            <div style="display:grid;grid-template-columns:1.25fr 1fr 1.15fr;gap:0.4rem;margin-bottom:0.4rem;">
+              <div>
+                <label style="font-size:0.68rem;color:#6EE7B7;font-weight:700;">60° Equilateral Domain (Attribute):</label>
+                <select id="dbClassDomainSelect" class="studio-select" style="width:100%;" onchange="window.SovGame.onDomainSelectChange(this.value)">
+                  <option value="DOM_01_DEFENDERS">0°–60° Defenders (DEFENSE_POISE)</option>
+                  <option value="DOM_02_PHYSICAL_ATTACKERS">60°–120° Physical Attackers (MIGHT)</option>
+                  <option value="DOM_03_RANGED">120°–180° Ranged Overwatch (PRECISION)</option>
+                  <option value="DOM_04_SPELL">180°–240° Spell &amp; Alchemical (POTENCY)</option>
+                  <option value="DOM_05_SUPPORT">240°–300° Physical Support (VITALITY)</option>
+                  <option value="DOM_06_SOVEREIGN">300°–360° Sovereign Hybrid (WILL)</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.68rem;color:#38BDF8;font-weight:700;">Polarity Hemisphere (±30°):</label>
+                <select id="dbClassPolaritySelect" class="studio-select" style="width:100%;" onchange="window.SovGame.previewForgedClassLive()">
+                  <option value="+1_PROJECTIVE">+1 Projective (Outward Kinetic 0°–30°)</option>
+                  <option value="-1_REFLECTIVE">-1 Reflective (Inward Counter 30°–60°)</option>
+                </select>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:0.68rem;">
+                  <span style="color:#FDE68A;font-weight:700;">Order ↔ Chaos Alignment:</span>
+                  <strong id="dbClassAlignmentBadge" style="color:#6EE7B7;font-family:Consolas,monospace;">ORDER (-75)</strong>
+                </div>
+                <input type="range" id="dbClassOrderChaosSlider" min="-100" max="100" step="5" value="-75" style="width:100%;accent-color:#10B981;margin-top:4px;" oninput="window.SovGame.previewForgedClassLive()" />
+              </div>
+            </div>
+
+            <!-- Row 4: Persistent Databank Offerings (Weapon, Armor, Spell, Potion, Inventory Relic) -->
+            <div style="background:rgba(15,23,42,0.75);border:1px solid rgba(56,189,248,0.28);border-radius:8px;padding:0.45rem 0.6rem;margin-bottom:0.45rem;">
+              <div style="font-size:0.69rem;color:#38BDF8;font-weight:700;margin-bottom:0.3rem;">🎒 Persistent Databank Offerings Loadout (Weighed by 3.14π in Every Circular Clash):</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.38rem;margin-bottom:0.35rem;">
+                <div>
+                  <label style="font-size:0.66rem;color:#FDE68A;">⚔️ Weapon Offering:</label>
+                  <select id="dbClassWeaponSelect" class="studio-select" style="width:100%;" onchange="window.SovGame.previewForgedClassLive()"></select>
+                </div>
+                <div>
+                  <label style="font-size:0.66rem;color:#6EE7B7;">🛡️ Armor / Shield Offering:</label>
+                  <select id="dbClassArmorSelect" class="studio-select" style="width:100%;" onchange="window.SovGame.previewForgedClassLive()"></select>
+                </div>
+                <div>
+                  <label style="font-size:0.66rem;color:#C084FC;">✨ Spell / Circular Gambit Offering:</label>
+                  <select id="dbClassSpellSelect" class="studio-select" style="width:100%;" onchange="window.SovGame.previewForgedClassLive()"></select>
+                </div>
+                <div>
+                  <label style="font-size:0.66rem;color:#FDA4AF;">🧪 Potion / Alchemical Elixir:</label>
+                  <select id="dbClassPotionSelect" class="studio-select" style="width:100%;" onchange="window.SovGame.previewForgedClassLive()"></select>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1.4fr 0.8fr 0.8fr 0.8fr;gap:0.38rem;">
+                <div>
+                  <label style="font-size:0.66rem;color:#93C5FD;">🧭 Inventory / Relic Offering:</label>
+                  <select id="dbClassInventorySelect" class="studio-select" style="width:100%;" onchange="window.SovGame.previewForgedClassLive()"></select>
+                </div>
+                <div>
+                  <label style="font-size:0.66rem;color:#FDE68A;">Sweep Arc (Δθ°):</label>
+                  <input type="number" id="forgeCmdArcDeg" class="studio-input" style="width:100%;font-family:Consolas,monospace;" min="15" max="360" value="180" oninput="window.SovGame.previewForgedClassLive()" />
+                </div>
+                <div>
+                  <label style="font-size:0.66rem;color:#93C5FD;">Orbit Ring (r·π):</label>
+                  <input type="number" id="forgeCmdOrbitPi" class="studio-input" style="width:100%;font-family:Consolas,monospace;" step="0.1" min="1.0" max="4.71" value="2.00" oninput="window.SovGame.previewForgedClassLive()" />
+                </div>
+                <div>
+                  <label style="font-size:0.66rem;color:#6EE7B7;">Stat Weight (π):</label>
+                  <input type="number" id="dbClassStatWeightPi" class="studio-input" style="width:100%;font-family:Consolas,monospace;" step="0.314" min="3.14" max="15.7" value="6.28" oninput="window.SovGame.previewForgedClassLive()" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Computed Class Metrics Preview Bar -->
+            <div id="dbClassLiveMetricsBar" style="font-family:Consolas,monospace;font-size:0.7rem;color:#E2E8F0;background:#050914;padding:0.4rem 0.6rem;border-radius:6px;border-left:3px solid #10B981;margin-bottom:0.45rem;"></div>
+
+            <!-- CRUD Action Buttons -->
+            <div class="btn-row" style="justify-content:space-between;">
+              <button class="btn btn-sm btn-emerald" onclick="window.SovGame.saveForgedArchetypeClass()">💾 Save / Update in Pool</button>
+              <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.createNewCustomArchetypeClass()">➕ Save as New Class</button>
+              <button class="btn btn-sm" onclick="window.SovGame.cloneActiveArchetypeClass()">🧬 Clone Variant</button>
+              <button class="btn btn-sm btn-emerald" onclick="window.SovGame.spawnForgedClassInArena()">🚀 Spawn in Arena</button>
+              <button class="btn btn-sm btn-crimson" onclick="window.SovGame.deleteActiveArchetypeClass()">🗑️ Reset/Delete</button>
+            </div>
+          </div>
+
+          <!-- RIGHT: Interactive 360° (6×60° Equilateral & 24×15° Dominant) Wheel Canvas + Automated 1v1/2v2/3v3 Coalition Arena -->
+          <div class="sub-card" style="border-color:var(--gold);">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:0.4rem;margin-bottom:0.35rem;">
+              <h4 style="margin:0;">⭕ 360° Equilateral (6×60° / 24×15°) Wheel &amp; Live Coalition Clash</h4>
+              <div class="btn-row">
+                <button class="btn btn-sm" onclick="window.SovGame.triggerDatabankCoalitionBattle('1v1')">⚔️ 1v1 Duel</button>
+                <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.triggerDatabankCoalitionBattle('2v2')">🛡️ 2v2 Pincer</button>
+                <button class="btn btn-sm btn-emerald" onclick="window.SovGame.triggerDatabankCoalitionBattle('3v3')">🔺 3v3 Equilateral</button>
+              </div>
+            </div>
+
+            <!-- Interactive 24-Sector (15°) & 6-Domain (60°) Canvas Wheel -->
+            <div style="position:relative;background:#04070E;border:1px solid rgba(212,175,55,0.35);border-radius:8px;overflow:hidden;margin-bottom:0.45rem;text-align:center;">
+              <canvas id="archetypeDegreeWheelCanvas" width="620" height="295" style="width:100%;height:265px;display:block;cursor:crosshair;"></canvas>
+              <div style="position:absolute;bottom:5px;left:8px;right:8px;display:flex;justify-content:space-between;pointer-events:none;font-family:Consolas,monospace;font-size:0.66rem;">
+                <span style="background:rgba(4,7,14,0.85);padding:2px 6px;border-radius:4px;color:#FDE68A;border:1px solid rgba(212,175,55,0.3);">Click any 15° Sector or 60° Domain on Wheel to Tune Class &amp; Run Matchup</span>
+                <span id="wheelHoverReadout" style="background:rgba(4,7,14,0.85);padding:2px 6px;border-radius:4px;color:#6EE7B7;border:1px solid rgba(16,185,129,0.3);">θ=15° • ×3.14=47.1° • ×π=47.12°</span>
+              </div>
+            </div>
+
+            <!-- Live Procedural 1v1 / 2v2 / 3v3 Coalition Clash Output -->
+            <div id="databankCoalitionLiveBox" class="combat-log-box" style="height:175px;font-size:0.71rem;line-height:1.45;"></div>
+          </div>
+        </div>
+
+        <!-- ====================================================================
+             COMPLETE 24+ DATABANK ARCHETYPE POOL & DEGREE MULTIPLICATION LEDGER
+             ==================================================================== -->
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0.4rem;margin-bottom:0.45rem;">
+          <div>
+            <h3 class="panel-title" style="font-size:0.96rem;margin:0;">📐 Persistent 24×15° Dominant Archetype Databank Pool (Weighed by ×3.14 &amp; ×π Across 6 Equilateral 60° Domains)</h3>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-sm active" id="dbFilter_ALL" onclick="window.SovGame.filterDatabankPool('ALL')">All Pool (24+)</button>
+            <button class="btn btn-sm" id="dbFilter_DOM_01_DEFENDERS" onclick="window.SovGame.filterDatabankPool('DOM_01_DEFENDERS')">🛡️ Defenders (0°–60°)</button>
+            <button class="btn btn-sm" id="dbFilter_DOM_02_PHYSICAL_ATTACKERS" onclick="window.SovGame.filterDatabankPool('DOM_02_PHYSICAL_ATTACKERS')">⚔️ Attackers (60°–120°)</button>
+            <button class="btn btn-sm" id="dbFilter_DOM_03_RANGED" onclick="window.SovGame.filterDatabankPool('DOM_03_RANGED')">🏹 Ranged (120°–180°)</button>
+            <button class="btn btn-sm" id="dbFilter_DOM_04_SPELL" onclick="window.SovGame.filterDatabankPool('DOM_04_SPELL')">✨ Spell/Alchemy (180°–240°)</button>
+            <button class="btn btn-sm" id="dbFilter_DOM_05_SUPPORT" onclick="window.SovGame.filterDatabankPool('DOM_05_SUPPORT')">🧪 Support (240°–300°)</button>
+            <button class="btn btn-sm" id="dbFilter_DOM_06_SOVEREIGN" onclick="window.SovGame.filterDatabankPool('DOM_06_SOVEREIGN')">👑 Sovereign (300°–360°)</button>
+            <button class="btn btn-sm btn-crimson" onclick="window.SovGame.resetDatabankPool()">↺ Reset Pool</button>
+          </div>
+        </div>
+
+        <div class="data-table-wrap" style="max-height:390px;overflow-y:auto;margin-bottom:0.9rem;">
+          <table class="sov-table">
+            <thead>
+              <tr>
+                <th>Deg θ° | ×3.14 | ×π | Rad</th>
+                <th>Dominant Archetype Class &amp; 60° Equilateral Domain</th>
+                <th>Attribute • Polarity (±30°) • Order/Chaos</th>
+                <th>Persistent Databank Offerings (Weapon, Armor, Spell, Potion, Relic)</th>
+                <th>Procedural Power, Torque τ_π &amp; Arc</th>
+                <th>Coalition Record (W-L / ELO / 360°s)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="databankArchetypePoolTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- COLLAPSIBLE ADVANCED COMMAND VERB REGISTRY & .CMD DSL RUNNER -->
+        <details style="background:rgba(9,14,26,0.75);border:1px solid rgba(212,175,55,0.28);border-radius:10px;padding:0.65rem 0.85rem;">
+          <summary style="cursor:pointer;font-weight:700;color:#FDE68A;font-size:0.86rem;">
+            ⚡ Expand Low-Level Command Verb Parameters, 13-Verb Registry Table &amp; Live .cmd DSL Script Runner
+          </summary>
+          <div class="sub-grid-2" style="margin-top:0.65rem;margin-bottom:0.75rem;">
+            <div class="sub-card">
+              <h4>🔧 Fine-Tune Command Verb Frame Wheel &amp; Resonance</h4>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4rem;margin-bottom:0.4rem;">
+                <div>
+                  <label style="font-size:0.68rem;color:#6EE7B7;">Display Name:</label>
+                  <input type="text" id="forgeCmdName" class="studio-input" style="width:100%;" value="Ansār 240° Interlocking Aegis Phalanx" />
+                </div>
+                <div>
+                  <label style="font-size:0.68rem;color:#6EE7B7;">Category:</label>
+                  <select id="forgeCmdCategory" class="studio-select" style="width:100%;">
+                    <option value="DEFENSIVE" selected>DEFENSIVE (Shield Arc)</option>
+                    <option value="OFFENSIVE">OFFENSIVE (Crescent Strike)</option>
+                    <option value="SUPPORT">SUPPORT (360° Ring Aura)</option>
+                    <option value="TACTICAL_MOVEMENT">TACTICAL_MOVEMENT (Spiral/Orbit)</option>
+                    <option value="SIEGE_ARCANE">SIEGE_ARCANE (Vortex/Bombard)</option>
+                    <option value="DIPLOMATIC_TRADE">DIPLOMATIC_TRADE (Orbital Circuit)</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:0.68rem;color:#6EE7B7;">Angular Speed (ω °/s):</label>
+                  <input type="number" id="forgeCmdSpeedDeg" class="studio-input" style="width:100%;font-family:Consolas,monospace;" min="30" max="360" value="125" />
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 0.7fr;gap:0.4rem;margin-bottom:0.4rem;">
+                <div>
+                  <label style="font-size:0.68rem;color:#FDE68A;">Primary Archetype:</label>
+                  <select id="forgeCmdArch1" class="studio-select" style="width:100%;">
+                    <option value="ARCH_VANGUARD" selected>ARCH_VANGUARD (Defender)</option>
+                    <option value="ARCH_BERSERKER">ARCH_BERSERKER (Attacker)</option>
+                    <option value="ARCH_ASSASSIN">ARCH_ASSASSIN (Ranged)</option>
+                    <option value="ARCH_ARCANIST">ARCH_ARCANIST (Spell/Alchemy)</option>
+                    <option value="ARCH_TACTICIAN">ARCH_TACTICIAN (Support)</option>
+                    <option value="ARCH_SENTINEL">ARCH_SENTINEL (Sovereign)</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:0.68rem;color:#93C5FD;">Secondary Archetype:</label>
+                  <select id="forgeCmdArch2" class="studio-select" style="width:100%;">
+                    <option value="ARCH_SENTINEL" selected>ARCH_SENTINEL (Sovereign)</option>
+                    <option value="ARCH_VANGUARD">ARCH_VANGUARD (Defender)</option>
+                    <option value="ARCH_TACTICIAN">ARCH_TACTICIAN (Support)</option>
+                    <option value="ARCH_BERSERKER">ARCH_BERSERKER (Attacker)</option>
+                    <option value="ARCH_ARCANIST">ARCH_ARCANIST (Spell/Alchemy)</option>
+                    <option value="ARCH_ASSASSIN">ARCH_ASSASSIN (Ranged)</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:0.68rem;color:#6EE7B7;">Resonance (x):</label>
+                  <input type="number" id="forgeCmdResMult" class="studio-input" style="width:100%;font-family:Consolas,monospace;" step="0.05" min="1.05" max="3.14" value="1.65" />
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.4rem;margin-bottom:0.4rem;">
+                <div>
+                  <label style="font-size:0.68rem;color:#CBD5E1;">Power (π):</label>
+                  <input type="number" id="forgeCmdPower" class="studio-input" style="width:100%;" step="0.1" value="3.14" />
+                </div>
+                <div>
+                  <label style="font-size:0.68rem;color:#CBD5E1;">Mitigation (π):</label>
+                  <input type="number" id="forgeCmdMitigation" class="studio-input" style="width:100%;" step="0.1" value="6.28" />
+                </div>
+                <div>
+                  <label style="font-size:0.68rem;color:#CBD5E1;">Wheel (S/A/R):</label>
+                  <input type="text" id="forgeCmdFrames" class="studio-input" style="width:100%;font-family:Consolas,monospace;" value="3/20/5" />
+                </div>
+                <div>
+                  <label style="font-size:0.68rem;color:#CBD5E1;">VFX Emitter:</label>
+                  <select id="forgeCmdVfx" class="studio-select" style="width:100%;">
+                    <option value="SWORD_SWIPE_AND_SPARKLES" selected>SWORD_SWIPE_AND_SPARKLES</option>
+                    <option value="SPARKLES">SPARKLES</option>
+                    <option value="SWORD_SWIPE">SWORD_SWIPE</option>
+                    <option value="ARROWS">ARROWS</option>
+                    <option value="MISSILES">MISSILES</option>
+                    <option value="SPARKLES_AND_VINEGAR_MIST">SPARKLES_AND_VINEGAR_MIST</option>
+                    <option value="CAVALRY_CHARGE">CAVALRY_CHARGE</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-bottom:0.4rem;">
+                <input type="text" id="forgeCmdDesc" class="studio-input" style="width:100%;" value="Resonates with Defender / Vanguard (+65% Shield Wall Mitigation across Δ240° @ Ring 2.00π & -0.35σ SPC Lock)" />
+              </div>
+              <button class="btn btn-sm btn-emerald" style="width:100%;" onclick="window.SovGame.saveCustomCommandFromForge()">⚡ Register / Update Command Verb in All 5 Loaders</button>
+            </div>
+
+            <!-- Right: Command Loader #2 (.cmd DSL Script Runner) -->
+            <div class="sub-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
+                <h4 style="margin:0;">📜 Command Loader #2: Live Circular .cmd DSL Script Runner</h4>
+                <button class="btn btn-sm btn-emerald" onclick="window.SovGame.runLiveDslScript()">▶️ Execute .cmd Script</button>
+              </div>
+              <textarea id="dslScriptEditorArea" class="code-studio-area" style="height:135px;margin-bottom:0.4rem;" spellcheck="false"></textarea>
+              <div id="dslExecutionOutputBox" class="combat-log-box" style="height:80px;">
+                <div style="color:#94A3B8;">Click "Execute .cmd Script" to define circular commands (ARC_DEG, ORBIT_PI), spawn units at polar (R_PI, DEG), and run simulations.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="data-table-wrap">
+            <table class="sov-table">
+              <thead>
+                <tr>
+                  <th>Command Verb &amp; ID</th>
+                  <th>Name, Category &amp; VFX</th>
+                  <th>Circular Geometry (Δθ°, r·π, ω)</th>
+                  <th>Resonant Archetypes &amp; Archetypical Bonus</th>
+                  <th>Resonance Multiplier</th>
+                  <th>360° Frame Wheel &amp; SPC Δσ</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="commandRegistryTableBody"></tbody>
+            </table>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         STUDIO SECTION 3: CIRCULAR DEGREE CLASH & MONTE CARLO TOURNAMENT LAB
+         ====================================================================== -->
+    <section id="studioSec_TOURNAMENT" class="studio-section">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">3. Live 3.14π Circular Degree Clash Protractor &amp; Stochastic Monte Carlo Tournament Lab</h2>
+            <div style="font-size:0.76rem;color:var(--text-muted);">
+              Computes procedural impact from <strong>Incidence Angle ($\phi^\circ \in [0^\circ, 180^\circ]$)</strong>, <strong>Command Sweep Arc ($\Delta\theta^\circ \in [30^\circ, 360^\circ]$)</strong>, <strong>Centripetal Force ($F_c$)</strong>, <strong>Tangential Torque ($\tau_\pi$)</strong>, and <strong>$360^\circ$ ($2\pi$) Completion Surges</strong>.
+            </div>
+          </div>
+          <div class="btn-row">
+            <label style="font-size:0.75rem;color:#FDE68A;display:flex;align-items:center;gap:4px;">
+              Iterations / Matchup:
+              <input type="number" id="mcIterationsInput" class="studio-input" style="width:78px;font-family:Consolas,monospace;" min="20" max="2000" value="150" />
+            </label>
+            <button class="btn btn-emerald" onclick="window.SovGame.runMonteCarloTournament()">🎲 Run Circular Monte Carlo Matrix</button>
+          </div>
+        </div>
+
+        <div class="sub-grid-2" style="margin-bottom:1rem;">
+          <!-- Left: 11-Vector + Circular Degree Clash Controls -->
+          <div class="sub-card">
+            <h4>🧭 Live Circular Degree (φ°, Δθ°) &amp; 11-Vector Clash Calculator</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.45rem;">
+              <div>
+                <label style="font-size:0.72rem;color:#6EE7B7;font-weight:700;">Attacker Profile:</label>
+                <select id="clashAttackerSelect" class="studio-select" style="width:100%;color:#FDE68A;" onchange="window.SovGame.recalc11VectorClash()"></select>
+              </div>
+              <div>
+                <label style="font-size:0.72rem;color:#FDA4AF;font-weight:700;">Defender Profile:</label>
+                <select id="clashDefenderSelect" class="studio-select" style="width:100%;color:#FDA4AF;" onchange="window.SovGame.recalc11VectorClash()"></select>
+              </div>
+            </div>
+
+            <div style="margin-bottom:0.45rem;">
+              <label style="font-size:0.72rem;color:#FDE68A;font-weight:700;">Executed Circular Command:</label>
+              <select id="clashVerbSelect" class="studio-select" style="width:100%;color:#6EE7B7;font-weight:700;" onchange="window.SovGame.recalc11VectorClash()"></select>
+            </div>
+
+            <div class="slider-row">
+              <span>Incidence Angle φ° (0° Frontal..180° Flank):</span>
+              <input type="range" id="clashAngleSlider" min="0" max="180" step="5" value="145" oninput="window.SovGame.recalc11VectorClash()" />
+              <span class="pi-val" id="clashAngleVal">145° (2.53r)</span>
+            </div>
+            <div class="slider-row">
+              <span>Command Sweep Arc Δθ° (30°..360°):</span>
+              <input type="range" id="clashArcSlider" min="30" max="360" step="10" value="180" oninput="window.SovGame.recalc11VectorClash()" />
+              <span class="pi-val" id="clashArcVal">Δ180° (1.00π)</span>
+            </div>
+            <div class="slider-row">
+              <span>Attacker Stat Weight (π):</span>
+              <input type="range" id="clashStatSlider" min="0.314" max="15.70" step="0.314" value="6.28" oninput="window.SovGame.recalc11VectorClash()" />
+              <span class="pi-val" id="clashStatVal">6.28π</span>
+            </div>
+            <div class="slider-row">
+              <span>Attacker Weapon Weight (π):</span>
+              <input type="range" id="clashWeaponSlider" min="0.314" max="12.56" step="0.314" value="2.51" oninput="window.SovGame.recalc11VectorClash()" />
+              <span class="pi-val" id="clashWeaponVal">2.51π</span>
+            </div>
+            <div class="slider-row">
+              <span>Defender Armor Weight (π):</span>
+              <input type="range" id="clashArmorSlider" min="0.314" max="12.56" step="0.314" value="1.57" oninput="window.SovGame.recalc11VectorClash()" />
+              <span class="pi-val" id="clashArmorVal">1.57π</span>
+            </div>
+            <button class="btn btn-emerald" style="width:100%;margin-top:0.4rem;" onclick="window.SovGame.executeLiveClashOnCanvas()">⚡ Execute Circular Clash on Window #1 &amp; Window #2 Protractor</button>
+          </div>
+
+          <!-- Right: Granular Circular Degree & 11-Vector Output -->
+          <div class="sub-card">
+            <h4>📐 Procedural Circular Impact, Torque (τ_π) &amp; Degree Formula Output</h4>
+            <div id="clashFormulaOutput" style="font-family:Consolas,monospace;font-size:0.74rem;color:#E2E8F0;line-height:1.58;background:#04070E;padding:0.75rem;border-radius:8px;border:1px solid rgba(212,175,55,0.3);"></div>
+          </div>
+        </div>
+
+        <!-- Monte Carlo Tournament Matrix Table -->
+        <h3 class="panel-title" style="font-size:0.98rem;margin-bottom:0.4rem;">🎲 Stochastic Circular Monte Carlo Tournament Telemetry (With 360° Completions, Mean Torque τ_π &amp; SPC Transitions)</h3>
+        <div class="data-table-wrap">
+          <table class="sov-table">
+            <thead>
+              <tr>
+                <th>Attacker Profile &amp; Archetype</th>
+                <th>Resonant Command, Arc Δθ° &amp; Ring r·π</th>
+                <th>Oppositional Defender &amp; Stance</th>
+                <th>Simulations</th>
+                <th>Monte Carlo Win Rate Distribution</th>
+                <th>Avg 360° (2π) Completions &amp; Ticks</th>
+                <th>Mean Torque τ_π &amp; SPC</th>
+              </tr>
+            </thead>
+            <tbody id="monteCarloResultsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         STUDIO SECTION 4: CASTLE THRONE ROOM, ORBITAL CARAVANS & RUMORED KINGS
+         ====================================================================== -->
+    <section id="studioSec_CASTLE_GOV" class="studio-section">
+      <div class="panel" style="margin-bottom:1.1rem;">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">4A. Single-Castle 3D Throne Rooms (I, II &amp; The 3rd Throne Room: 3.14π Equilateral Apex) + 6 Sovereign Departments</h2>
+            <div style="font-size:0.75rem;color:var(--text-muted);">
+              Explore all <strong>3 AI-Generated 3D Isometric Throne Rooms</strong> ascending the Single Castle ($0.00\pi$ Sanctuary Core $\rightarrow$ $1.57\pi$ Bayt al-Ḥikmah War-Room $\rightarrow$ <strong>The 3rd Throne Room: $3.14\pi$ Equilateral $6\times 60^\circ$ Apex Council</strong>) and issue decrees across the 6 Sovereign Departments.
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-sm" onclick="window.SovGame.activateThroneRoom3D('THRONE_01_SANCTUARY')">🏛️ Throne I (0.00π)</button>
+            <button class="btn btn-sm btn-sapphire" onclick="window.SovGame.activateThroneRoom3D('THRONE_02_HIKMAH_WARROOM')">⚗️ Throne II (1.57π)</button>
+            <button class="btn btn-sm btn-emerald" onclick="window.SovGame.activateThroneRoom3D('THRONE_03_EQUILATERAL_APEX')">👑 3rd Throne Room (3.14π Apex)</button>
+            <button class="btn btn-emerald" onclick="window.SovGame.serveCafeteriaLunch()">🍲 Serve Vinegar &amp; Tharīd Lunch</button>
+            <button class="btn btn-sapphire" onclick="window.SovGame.collectCastleSuffrage()">⚖️ Collect Suffrage</button>
+          </div>
+        </div>
+        <!-- 3 AI-Generated 3D Isometric Throne Rooms Showcase & Interactive Selector -->
+        <div id="throneRooms3DGalleryMount" style="margin-bottom:0.95rem;"></div>
+        <div id="throneRoomDeptsGrid" class="sub-grid-3"></div>
+      </div>
+
+      <div class="panel" style="margin-bottom:1.1rem;">
+        <div class="panel-header">
+          <h2 class="panel-title">4B. Stronghold Duties, 8 Commodity Supply Chains &amp; 32-Bearing Orbital Caravan Delegation</h2>
+          <div class="btn-row">
+            <button class="btn btn-emerald" onclick="window.SovGame.delegateFullCaravanFormation()">🐪 Launch 10-Specialist Orbital Caravan</button>
+            <button class="btn btn-sapphire" onclick="window.SovGame.absorbNeutralCaravans()">🤝 Convert &amp; Absorb Neutral Caravans</button>
+          </div>
+        </div>
+        <div class="data-table-wrap">
+          <table class="sov-table">
+            <thead>
+              <tr>
+                <th>Commodity &amp; Etymology</th>
+                <th>Primary Strongholds &amp; Ports</th>
+                <th>Granular Extraction &amp; Refining Supply Chain</th>
+                <th>Canonical Credit to Islam</th>
+                <th>Circular Arena &amp; Combat VFX Utility</th>
+                <th>Bazaar Value (3.14π)</th>
+              </tr>
+            </thead>
+            <tbody id="commoditiesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">4C. Diplomacy with Rumored Kings on the 4.71π Outer Ring &amp; Uncovering Syndications</h2>
+        </div>
+        <div id="rumoredKingsGrid" class="sub-grid-2"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         STUDIO SECTION 5: 12 CANONICAL PROFILES, 12 LDM FORMATS & 68 TOMES
+         ====================================================================== -->
+    <section id="studioSec_LDM_LIBRARY" class="studio-section">
+      <div class="panel" style="margin-bottom:1.1rem;">
+        <div class="panel-header">
+          <h2 class="panel-title">5A. Complete 12-Character 11-Vector Roster &amp; Circular Gambit Resonance Breakdown</h2>
+        </div>
+        <div class="data-table-wrap">
+          <table class="sov-table">
+            <thead>
+              <tr>
+                <th>Character &amp; ID</th>
+                <th>Archetype &amp; ECAT Class</th>
+                <th>Lived Experience, Will &amp; Patronage</th>
+                <th>1. Circular Commands (Gambit AST + Δθ° Chips)</th>
+                <th>2. Function &amp; 3. 3D Sprite Form</th>
+                <th>4–6. Stat, Armor &amp; Weapon Weights (π)</th>
+                <th>7–10. Skill, Ability &amp; Defense</th>
+                <th>11. Canonical Metrics &amp; Deploy</th>
+              </tr>
+            </thead>
+            <tbody id="profiles11VectorTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:1.1rem;">
+        <div class="panel-header">
+          <h2 class="panel-title">5B. Command Loader #1: The 12-Format Polyglot Circular Combat, Agency &amp; Character Data Studio</h2>
+          <div class="btn-row">
+            <button class="btn btn-emerald" onclick="window.SovGame.injectStudioDataModel()">🚀 Hot-Inject Edited Data Model into Circular Engine</button>
+            <button class="btn btn-sapphire" onclick="window.SovGame.downloadCurrentFormatFile()">💾 Download / Export Current Format File</button>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-bottom:0.6rem;">
+          <button class="btn btn-sm active" id="fmtBtn_0" onclick="window.SovGame.selectStorageFormat(0)">1. JSON (.json)</button>
+          <button class="btn btn-sm" id="fmtBtn_1" onclick="window.SovGame.selectStorageFormat(1)">2. JSONL (.jsonl)</button>
+          <button class="btn btn-sm" id="fmtBtn_2" onclick="window.SovGame.selectStorageFormat(2)">3. CSV (.csv)</button>
+          <button class="btn btn-sm" id="fmtBtn_3" onclick="window.SovGame.selectStorageFormat(3)">4. TSV (.tsv)</button>
+          <button class="btn btn-sm" id="fmtBtn_4" onclick="window.SovGame.selectStorageFormat(4)">5. SQL (.sql)</button>
+          <button class="btn btn-sm" id="fmtBtn_5" onclick="window.SovGame.selectStorageFormat(5)">6. YAML (.yml)</button>
+          <button class="btn btn-sm" id="fmtBtn_6" onclick="window.SovGame.selectStorageFormat(6)">7. TOML (.toml)</button>
+          <button class="btn btn-sm" id="fmtBtn_7" onclick="window.SovGame.selectStorageFormat(7)">8. XML (.xml)</button>
+          <button class="btn btn-sm" id="fmtBtn_8" onclick="window.SovGame.selectStorageFormat(8)">9. Protobuf (.pbtxt)</button>
+          <button class="btn btn-sm" id="fmtBtn_9" onclick="window.SovGame.selectStorageFormat(9)">10. Binary Base64 (.bin64)</button>
+          <button class="btn btn-sm" id="fmtBtn_10" onclick="window.SovGame.selectStorageFormat(10)">11. Cypher Graph (.cypher)</button>
+          <button class="btn btn-sm" id="fmtBtn_11" onclick="window.SovGame.selectStorageFormat(11)">12. Wafq Markdown (.md)</button>
+        </div>
+        <div id="studioFormatMeta" style="font-size:0.76rem;color:#FDE68A;margin-bottom:0.35rem;font-family:Consolas,monospace;"></div>
+        <textarea id="polyglotStudioTextarea" class="code-studio-area" spellcheck="false"></textarea>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">5C. The Grand Castle Library (Khizānat Al-Kutub) — All 68 Portals Abstracted</h2>
+            <div style="font-size:0.75rem;color:var(--text-muted);">Data-driven template rendering of all 68 Castle Tomes with live 3.14π circular arena scenario injection</div>
+          </div>
+          <div class="btn-row">
+            <input type="text" id="tomeSearchInput" class="studio-input" style="width:310px;" placeholder="Search 68 Castle Library Tomes..." oninput="window.SovGame.filterLibraryTomes(this.value)" />
+            <button class="btn btn-emerald" onclick="window.SovGame.studyAll67Tomes()">📚 Study All 68 Portals (+3,140π Surge)</button>
+          </div>
+        </div>
+        <div class="tome-grid" id="castleLibraryTomeGrid"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modular Sovereign 3.14π Circular Studio & Pre-Thought Agency Scripts -->
+  <script src="studio/studio-data.js"></script>
+  <script src="studio/studio-commands.js"></script>
+  <script src="studio/studio-agency.js"></script>
+  <script src="studio/studio-viewports.js"></script>
+  <script src="studio/studio-app.js"></script>
+</body>
+</html>

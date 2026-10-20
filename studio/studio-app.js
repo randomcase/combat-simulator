@@ -36,6 +36,7 @@
     meanIncidenceDeg: 135.0,
     selectedUnitIndex: 1, // Default to Hamzah Vanguard Defender on Ring II (2.00π)
     selectedAgencyIndex: 0,
+    activeThroneRoomId: "THRONE_03_EQUILATERAL_APEX", // Default to The 3rd Throne Room (3.14π Equilateral Apex)
     currentStorageFormat: 0,
     tickCount: 0,
     units: [],
@@ -332,20 +333,90 @@
   }
 
   function renderThroneRoomDepartments() {
+    const galleryMount = document.getElementById("throneRooms3DGalleryMount");
     const grid = document.getElementById("throneRoomDeptsGrid");
-    if (!grid) return;
+    const thrones = window.SOV_THRONE_ROOMS_DATA || [];
     const depts = window.SOV_THRONE_DEPTS || [];
-    grid.innerHTML = depts.map(d =>
-      '<div class="sub-card">' +
-      '<h4>' + d.title + '</h4>' +
-      '<div style="color:#FDE68A;font-size:0.75rem;margin-bottom:0.28rem;">' + d.arabic + '</div>' +
-      '<p style="margin:0 0 0.32rem 0;color:#CBD5E1;font-size:0.74rem;"><strong>Prophetic Precedent:</strong> ' + d.precedent + '</p>' +
-      '<p style="margin:0 0 0.32rem 0;color:#93C5FD;font-size:0.74rem;"><strong>Manual Dictate:</strong> ' + d.dictate + '</p>' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.4rem;padding-top:0.38rem;border-top:1px solid rgba(255,255,255,0.08);">' +
-      '<span style="font-family:Consolas,monospace;font-size:0.7rem;color:#6EE7B7;">' + d.formula + '</span>' +
-      '<button class="btn btn-sm btn-emerald" onclick="window.SovGame.issueThroneDecree(\'' + d.id + '\')">Issue Decree (+3.14π)</button>' +
-      '</div></div>'
-    ).join("");
+    const activeThrone = thrones.find(t => t.id === state.activeThroneRoomId) || thrones[2] || thrones[0];
+
+    if (galleryMount && thrones.length > 0 && activeThrone) {
+      const cardsHtml = thrones.map((t, idx) => {
+        const isAct = t.id === activeThrone.id;
+        return '<div class="throne-3d-card' + (isAct ? ' active-throne' : '') + '" onclick="window.SovGame.activateThroneRoom3D(\'' + t.id + '\')">' +
+          '<div class="throne-3d-img-wrap">' +
+            '<img src="' + t.imagePath + '" alt="' + t.title + '" loading="lazy" />' +
+            '<span class="throne-3d-ring-pill">' + t.ringRadiusPi + '</span>' +
+            (idx === 2 ? '<span class="throne-3d-new-pill">★ 3RD THRONE ROOM (AI 3D)</span>' : '<span class="throne-3d-seq-pill">AI 3D ROOM #' + (idx + 1) + '</span>') +
+          '</div>' +
+          '<div class="throne-3d-card-body">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;gap:0.35rem;margin-bottom:0.2rem;">' +
+              '<span class="badge ' + t.badgeClass + '" style="font-size:0.64rem;">' + t.ordinal + '</span>' +
+              '<span style="font-family:Consolas,monospace;font-size:0.68rem;color:#6EE7B7;">+' + t.auraBonusPi.toFixed(2) + 'π/s</span>' +
+            '</div>' +
+            '<h4 style="margin:0 0 0.18rem 0;font-size:0.82rem;color:#FDE68A;">' + t.title + '</h4>' +
+            '<div style="font-size:0.7rem;color:#93C5FD;margin-bottom:0.25rem;">' + t.degreeGeometry + '</div>' +
+            '<p style="margin:0 0 0.32rem 0;font-size:0.71rem;color:#CBD5E1;line-height:1.38;">' + t.architecture + '</p>' +
+            '<div style="font-size:0.69rem;color:#6EE7B7;background:rgba(16,185,129,0.1);padding:0.28rem 0.45rem;border-radius:6px;border-left:2px solid #10B981;margin-bottom:0.35rem;">' +
+              '<strong>Active 3D Throne Aura:</strong> ' + t.combatAuraDesc +
+            '</div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+              '<span style="font-size:0.67rem;color:#94A3B8;">' + t.governedDeptLabels + '</span>' +
+              '<button class="btn btn-sm ' + (isAct ? 'btn-emerald' : 'btn-sapphire') + '" onclick="event.stopPropagation();window.SovGame.activateThroneRoom3D(\'' + t.id + '\')">' +
+                (isAct ? '✔ Active 3D Throne' : '👑 Enter Throne Room') +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+
+      galleryMount.innerHTML =
+        '<div class="throne-3d-hero">' +
+          '<div class="throne-3d-hero-visual">' +
+            '<img src="' + activeThrone.imagePath + '" alt="' + activeThrone.title + '" />' +
+            '<div class="throne-3d-hero-overlay">' +
+              '<span class="badge badge-gold">' + activeThrone.ordinal + '</span>' +
+              '<span class="badge badge-emerald">' + activeThrone.ringRadiusPi + ' • +' + activeThrone.auraBonusPi.toFixed(2) + 'π Aura</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="throne-3d-hero-info">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.25rem;">' +
+              '<span style="font-size:0.72rem;color:#6EE7B7;font-family:Consolas,monospace;font-weight:700;">✨ AI-GENERATED 2.5D/3D ISOMETRIC SOVEREIGN THRONE CHAMBER</span>' +
+              '<span class="badge badge-gold">' + activeThrone.degreeGeometry + '</span>' +
+            '</div>' +
+            '<h3 style="margin:0 0 0.2rem 0;font-size:1.02rem;color:#FDE68A;">' + activeThrone.title + '</h3>' +
+            '<div style="font-size:0.78rem;color:#6EE7B7;margin-bottom:0.38rem;">' + activeThrone.arabic + '</div>' +
+            '<p style="margin:0 0 0.42rem 0;font-size:0.76rem;color:#E2E8F0;line-height:1.45;"><strong>3D Architectural Geometry:</strong> ' + activeThrone.architecture + '</p>' +
+            '<div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.4);padding:0.45rem 0.6rem;border-radius:8px;margin-bottom:0.45rem;font-size:0.75rem;color:#6EE7B7;">' +
+              '<strong>⭕ Program-Assigned Circular Combat &amp; Statecraft Resonance:</strong> ' + activeThrone.combatAuraDesc +
+            '</div>' +
+            '<div style="font-size:0.72rem;color:#93C5FD;margin-bottom:0.5rem;"><strong>Governed Castle Departments:</strong> ' + activeThrone.governedDeptLabels + '</div>' +
+            '<div class="btn-row">' +
+              '<button class="btn btn-emerald" onclick="window.SovGame.activateThroneRoom3D(\'' + activeThrone.id + '\')">👑 Pulse ' + activeThrone.ordinal.split("(")[0].trim() + ' Aura (+' + activeThrone.auraBonusPi.toFixed(2) + 'π)</button>' +
+              '<button class="btn btn-sapphire" onclick="window.SovGame.triggerGlobal360CompletionPulse()">⭕ Fire 360° Sovereign Zenith Finisher</button>' +
+              '<button class="btn" onclick="window.SovGame.triggerDatabankCoalitionBattle(\'3v3\')">🔺 Convene 3v3 Equilateral Apex Trial</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="sub-grid-3">' + cardsHtml + '</div>';
+    }
+
+    if (!grid) return;
+    grid.innerHTML = depts.map(d => {
+      const parentThrone = thrones.find(t => (t.governedDepts || []).indexOf(d.id) !== -1);
+      const isHighlighted = activeThrone && (activeThrone.governedDepts || []).indexOf(d.id) !== -1;
+      return '<div class="sub-card" style="' + (isHighlighted ? 'border-color:var(--emerald);box-shadow:0 0 14px rgba(16,185,129,0.18);' : '') + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:0.35rem;margin-bottom:0.2rem;">' +
+          '<h4 style="margin:0;">' + d.title + '</h4>' +
+          (parentThrone ? '<span class="badge ' + parentThrone.badgeClass + '" style="font-size:0.62rem;">' + parentThrone.ordinal.split(" ")[0] + ' ' + parentThrone.ordinal.split(" ")[2] + '</span>' : '') +
+        '</div>' +
+        '<div style="color:#FDE68A;font-size:0.75rem;margin-bottom:0.28rem;">' + d.arabic + '</div>' +
+        '<p style="margin:0 0 0.32rem 0;color:#CBD5E1;font-size:0.74rem;"><strong>Prophetic Precedent:</strong> ' + d.precedent + '</p>' +
+        '<p style="margin:0 0 0.32rem 0;color:#93C5FD;font-size:0.74rem;"><strong>Manual Dictate:</strong> ' + d.dictate + '</p>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.4rem;padding-top:0.38rem;border-top:1px solid rgba(255,255,255,0.08);">' +
+          '<span style="font-family:Consolas,monospace;font-size:0.7rem;color:#6EE7B7;">' + d.formula + '</span>' +
+          '<button class="btn btn-sm btn-emerald" onclick="window.SovGame.issueThroneDecree(\'' + d.id + '\')">Issue Decree (+3.14π)</button>' +
+        '</div></div>';
+    }).join("");
   }
 
   function renderCommoditiesTable() {
@@ -1625,6 +1696,21 @@
     };
 
     /* Throne Room, Commodities & Diplomacy */
+    G.activateThroneRoom3D = function (throneId) {
+      const thrones = window.SOV_THRONE_ROOMS_DATA || [];
+      const found = thrones.find(t => t.id === throneId) || thrones[2] || thrones[0];
+      if (!found) return;
+      state.activeThroneRoomId = found.id;
+      state.barakahRate += found.auraBonusPi;
+      state.barakahPower += found.auraBonusPi * 10;
+      state.ummahNodes += 15;
+      renderThroneRoomDepartments();
+      const ringNum = parseFloat(found.ringRadiusPi) || 3.14;
+      vp.spawnCircularShockwave(ringNum > 0.2 ? ringNum : 1.00, 0, 118, "#D4AF37", 360, 0);
+      G.triggerVfxBurst("EMPOWERED");
+      addLog("👑 Entered [" + found.title + "] (" + found.ringRadiusPi + ") -> Activated 3D Throne Aura (+" + found.auraBonusPi.toFixed(2) + "π/s & 360° Sovereign Resonance)!", "#FDE68A");
+    };
+
     G.issueThroneDecree = function (deptId) {
       state.barakahRate += 3.14;
       state.dinarRate += 9.42;
@@ -2002,16 +2088,16 @@
           '<div class="studio-nav-inner">' +
             '<div class="studio-tab-group">' + tabsHtml + '</div>' +
             '<div class="studio-layout-group">' +
-              '<select id="hudEraSelector" class="studio-select" style="padding:0.12rem 0.32rem;font-size:0.66rem;color:#CBD5E1;" onchange="window.SovGame.setContemporaryEra(this.value)" title="Select Canon Era Palette">' +
+              '<select id="hudEraSelector" class="studio-select" style="max-width:128px;padding:0.1rem 0.25rem;font-size:0.64rem;color:#CBD5E1;" onchange="window.SovGame.setContemporaryEra(this.value)" title="Select Canon Era Palette">' +
                 eraOpts +
               '</select>' +
-              '<select id="abstractModeSelect" class="studio-select" style="padding:0.12rem 0.32rem;font-size:0.66rem;color:#FDE68A;font-weight:700;" onchange="window.SovGame.setCombatMode(this.value)">' +
+              '<select id="abstractModeSelect" class="studio-select" style="max-width:118px;padding:0.1rem 0.25rem;font-size:0.64rem;color:#FDE68A;font-weight:700;" onchange="window.SovGame.setCombatMode(this.value)">' +
                 modeOpts +
               '</select>' +
-              '<select id="abstractToolSelect" class="studio-select" style="padding:0.12rem 0.32rem;font-size:0.66rem;color:#6EE7B7;" onchange="window.SovGame.setCanvasClickTool(this.value)">' +
+              '<select id="abstractToolSelect" class="studio-select" style="max-width:124px;padding:0.1rem 0.25rem;font-size:0.64rem;color:#6EE7B7;" onchange="window.SovGame.setCanvasClickTool(this.value)">' +
                 toolOpts +
               '</select>' +
-              '<select id="abstractActionSelect" class="studio-select" style="padding:0.12rem 0.32rem;font-size:0.66rem;color:#93C5FD;">' +
+              '<select id="abstractActionSelect" class="studio-select" style="max-width:126px;padding:0.1rem 0.25rem;font-size:0.64rem;color:#93C5FD;">' +
                 actionOpts +
               '</select>' +
               '<button class="btn btn-sm btn-emerald" onclick="window.SovGame.executeAbstractAction()">⚡ Cast</button>' +
