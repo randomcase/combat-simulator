@@ -2029,107 +2029,133 @@
   ];
 
   /* ==========================================================================
-   * DECLARATIVE STUDIO HEADER, TELEMETRY, TABS, MODES, TOOLS & ACTIONS SCHEMA
-   * Abstracts all top-of-screen chrome into a clean data-driven specification
+   * DECLARATIVE STUDIO HEADER, PROGRAM-ASSIGNED TELEMETRY & ACTION RIBBON SCHEMA
+   * Every metric card explains its exact combat meaning and is bound to a live
+   * program action when clicked (Class Forge, Ring Shift, Loadout Spawn, Clash,
+   * 360° Finisher Surge, and 3v3 Coalition Matchmaker).
    * ========================================================================== */
   window.SOV_STUDIO_HEADER_SCHEMA = {
     telemetryCards: [
       {
-        id: "TEL_GLOBAL_PHASE",
-        label: "1. Global π Phase (θ°)",
+        id: "TEL_ACTIVE_CLASS",
+        label: "🛡️ 1. Active Class & 15° Sector",
+        actionBadge: "Edit Class ↗",
+        valId: "hudClassVal",
+        defaultVal: "15° Phalanx Warden",
+        rateId: "hudClassDomainVal",
+        defaultRate: "DEFENDER (×3.14=47.1°)",
+        barId: "hudBarClass",
+        barColor: "#10B981",
+        onClickCode: "window.SovGame.assignMetricAction('CLASS_FORGE')",
+        tooltip: "WHAT IT TELLS YOU: Which Databank Archetype Class & 15° degree sector you are currently building/piloting. CLICK TO: Jump to the Command & Class Forge."
+      },
+      {
+        id: "TEL_UNIT_VITALS",
+        label: "⚔️ 2. Unit HP, Hit DMG & Ring",
+        actionBadge: "Shift Ring ↻",
+        valId: "hudUnitVitalsVal",
+        defaultVal: "1,480 HP • 185 DMG",
+        rateId: "hudUnitRingVal",
+        defaultRate: "Ring 2.00π [DEFEND]",
+        barId: "hudBarVitals",
+        barColor: "#38BDF8",
+        onClickCode: "window.SovGame.assignMetricAction('SHIFT_UNIT_RING')",
+        tooltip: "WHAT IT TELLS YOU: Your selected unit's live Health, Damage per strike, active Command, and Concentric Ring position. CLICK TO: Shift unit to the next Concentric π-Ring."
+      },
+      {
+        id: "TEL_LOADOUT_POWER",
+        label: "🎒 3. Equipped Loadout & Power",
+        actionBadge: "Spawn Class 🚀",
+        valId: "hudLoadoutVal",
+        defaultVal: "Rimāḥ Lance + Jawshan",
+        rateId: "hudLoadoutPwrVal",
+        defaultRate: "Pwr: 214.6π",
+        barId: "hudBarLoadout",
+        barColor: "#A855F7",
+        onClickCode: "window.SovGame.assignMetricAction('SPAWN_LOADOUT')",
+        tooltip: "WHAT IT TELLS YOU: Your class's equipped Databank Weapon, Armor, Spell & Potion and their combined procedural π-Power. CLICK TO: Spawn this equipped class into Window #1 Arena."
+      },
+      {
+        id: "TEL_ANGLE_ADVANTAGE",
+        label: "📐 4. Attack Angle & Flank Bonus",
+        actionBadge: "Test Clash ⚡",
+        valId: "hudAngleAdvantageVal",
+        defaultVal: "φ=145° Rear Flank",
+        rateId: "hudTorqueMultVal",
+        defaultRate: "1.57x Crit (τ=64π)",
+        barId: "hudBarAngle",
+        barColor: "#F59E0B",
+        onClickCode: "window.SovGame.assignMetricAction('TEST_ANGLE_CLASH')",
+        tooltip: "WHAT IT TELLS YOU: Your strike angle φ° (0°–45° Frontal Shield Block, 45°–135° Side Shear, 135°–180° Rear Flank Crit) and Torque τ_π. CLICK TO: Execute a live angular clash."
+      },
+      {
+        id: "TEL_360_FINISHER",
+        label: "⭕ 5. 360° (3.14x) Finisher Meter",
+        actionBadge: "Fire 3.14x 💥",
         valId: "hudGlobalAngleVal",
-        defaultVal: "248.4° (1.38π)",
-        rateId: "hudGlobalAnglePct",
-        defaultRate: "69% of 2π",
-        tooltip: "Global 3.14π Circular Phase Angle (0° → 360° / 0 → 2π rad)"
+        defaultVal: "69% to 360° Surge",
+        rateId: "hudCompletedCirclesVal",
+        defaultRate: "12 Full Circles",
+        barId: "hudBar360",
+        barColor: "#D4AF37",
+        onClickCode: "window.SovGame.assignMetricAction('FIRE_360_FINISHER')",
+        tooltip: "WHAT IT TELLS YOU: Progress from 0° → 360° (2π). Every full circle triggers a 3.14x Damage & Heal Finisher Surge. CLICK TO: Immediately unleash a 360° (3.14x) Finisher Pulse!"
       },
       {
-        id: "TEL_COMPLETIONS",
-        label: "2. 360° (2π) Completions",
-        valId: "hudCompletedCirclesVal",
-        defaultVal: "12 Circles",
-        rateId: "hudCompletedCirclesRate",
-        defaultRate: "3.14x Pulse",
-        tooltip: "Completed 360° (2π) Full-Circle Combat Revolutions & 3.14x Completion Surge"
-      },
-      {
-        id: "TEL_TORQUE",
-        label: "3. Torque τ_π & Incidence φ°",
-        valId: "hudTorqueImpactVal",
-        defaultVal: "54.2 N·m·π",
-        rateId: "hudIncidenceVal",
-        defaultRate: "@ φ=135°",
-        tooltip: "Real-Time Procedural Tangential Torque Impact (τ_π) & Incidence Angle (φ°)"
-      },
-      {
-        id: "TEL_COMMAND_ARC",
-        label: "4. Command Arc (Δθ° & ω)",
-        valId: "hudSweepArcVal",
-        defaultVal: "DEFEND Δ180°",
-        rateId: "hudAngularSpeedVal",
-        defaultRate: "ω=130°/s",
-        tooltip: "Active Unit Command Sweep Arc Span (Δθ°) & Angular Velocity (ω °/s)"
-      },
-      {
-        id: "TEL_RESONANCE",
-        label: "5. Resonance & Orbit Ring",
-        valId: "hudResonanceHudVal",
-        defaultVal: "1.45x (VANGUARD)",
-        rateId: "hudOrbitRingHudVal",
-        defaultRate: "r=2.00π",
-        tooltip: "Selected Unit Archetype Resonance Multiplier & Concentric Orbit Ring (r·π)"
-      },
-      {
-        id: "TEL_AGENCY_GATE",
-        label: "6. Pre-Thought Agency Gate",
-        valId: "hudAgencyGateVal",
-        defaultVal: "01. Al-Mudabbir",
-        rateId: "hudAgencyCycleVal",
-        defaultRate: "(0° | #1)",
-        tooltip: "Pre-Thought Repository Agency Gate (12 Embedded MDs in agency/)"
+        id: "TEL_COALITION_RECORD",
+        label: "🏆 6. 2v2 / 3v3 Coalition Record",
+        actionBadge: "Run 3v3 🔺",
+        valId: "hudCoalitionRecordVal",
+        defaultVal: "18W–4L (1645 ELO)",
+        rateId: "hudCoalitionWinPctVal",
+        defaultRate: "82% Win (3v3)",
+        barId: "hudBarCoalition",
+        barColor: "#10B981",
+        onClickCode: "window.SovGame.assignMetricAction('RUN_3V3_COALITION')",
+        tooltip: "WHAT IT TELLS YOU: Your active class's persistent Win-Loss record, ELO rating, and 2v2/3v3 Equilateral Coalition win rate against the Databank Pool. CLICK TO: Run a live 3v3 Coalition Clash."
       }
     ],
     studioTabs: [
       { id: "ALL", label: "🧭 All", active: true },
-      { id: "VIEWPORTS", label: "⭕ 4 Viewports" },
-      { id: "AGENCY", label: "♊ 12 Agents" },
-      { id: "COMMAND_FORGE", label: "⚡ Command Forge" },
+      { id: "VIEWPORTS", label: "⭕ Viewports" },
+      { id: "COMMAND_FORGE", label: "⚡ Class & Command Forge" },
       { id: "TOURNAMENT", label: "🎲 Clash & MC" },
+      { id: "AGENCY", label: "♊ 12 Agents" },
       { id: "CASTLE_GOV", label: "🏰 Throne" },
-      { id: "LDM_LIBRARY", label: "📦 12 LDM & 68 Tomes" }
+      { id: "LDM_LIBRARY", label: "📦 12 LDM & Tomes" }
     ],
     combatModes: [
-      { id: "WORLD", label: "🌍 Mode: Circular World Rings" },
-      { id: "RPG", label: "🧙‍♂️ Mode: RPG Warlock Orbit" },
-      { id: "TD", label: "🗼 Mode: 360° Ribāṭ Defense" },
-      { id: "TDM", label: "⚔️ Mode: Concentric Ring TDM" },
-      { id: "BRAWL", label: "🛡️ Mode: Mubārazah 314° Duel" },
-      { id: "AMBUSH", label: "🐪 Mode: Orbital Caravan Rescue" },
-      { id: "SIEGE", label: "🏰 Mode: Concentric Castle Siege" }
+      { id: "WORLD", label: "🌍 Mode: World Rings" },
+      { id: "RPG", label: "🧙‍♂️ Mode: RPG Orbit" },
+      { id: "TD", label: "🗼 Mode: 360° Ribāṭ TD" },
+      { id: "TDM", label: "⚔️ Mode: Ring TDM" },
+      { id: "BRAWL", label: "🛡️ Mode: 314° Duel" },
+      { id: "AMBUSH", label: "🐪 Mode: Rescue" },
+      { id: "SIEGE", label: "🏰 Mode: Siege" }
     ],
     canvasTools: [
-      { id: "INSPECT", label: "🔍 Click: Polar Inspect (r·π, θ°)" },
-      { id: "SPAWN_UNIT", label: "🚀 Click: Spawn Unit on Ring" },
-      { id: "BUILD_TOWER", label: "🗼 Click: Build 360° Tower" }
+      { id: "INSPECT", label: "🔍 Click: Inspect/Shift" },
+      { id: "SPAWN_UNIT", label: "🚀 Click: Spawn Unit" },
+      { id: "BUILD_TOWER", label: "🗼 Click: 360° Tower" }
     ],
     circularActions: [
-      { id: "PULSE_360", label: "⭕ 360° (2π) Completion Pulse (3.14x)" },
-      { id: "SWORD_SWIPE", label: "⚔️ 314° Damascus Cleave" },
-      { id: "ARROWS", label: "🏹 120° Composite Arrow Cone" },
-      { id: "MISSILES", label: "☄️ 90° Qumqum Vortex Salvo" },
-      { id: "POISON_VINEGAR", label: "☁️ 360° Blessed Vinegar Ring" },
-      { id: "MAMLUK_CHARGE", label: "🐎 180° Mamlūk Spiral Flank" },
-      { id: "AGENCY_AUTOTUNE", label: "♊ Run 12-Agent Pre-Thought Auto-Tune" }
+      { id: "PULSE_360", label: "⭕ 360° (3.14x) Finisher" },
+      { id: "SWORD_SWIPE", label: "⚔️ 314° Cleave" },
+      { id: "ARROWS", label: "🏹 120° Arrow Cone" },
+      { id: "MISSILES", label: "☄️ 90° Qumqum Vortex" },
+      { id: "POISON_VINEGAR", label: "☁️ 360° Vinegar Ring" },
+      { id: "MAMLUK_CHARGE", label: "🐎 180° Spiral Flank" },
+      { id: "AGENCY_AUTOTUNE", label: "♊ 12-Agent Auto-Tune" }
     ],
     eraOptions: [
-      { value: "0", label: "Era I (624 CE): Badr 313 Sanctuary" },
-      { value: "1", label: "Era II (636 CE): Yarmūk & Jerusalem" },
-      { value: "2", label: "Era III (711 CE): Al-Andalus (Spain)" },
-      { value: "3", label: "Era IV (800 CE): Baghdad Bayt al-Ḥikmah" },
-      { value: "4", label: "Era V (1187–1260 CE): Ḥiṭṭīn & Mamlūks" },
-      { value: "5", label: "Era VI (1453–1600 CE): Şahi Bombards" },
-      { value: "6", label: "Era VII (1650–1850 CE): Omani Dhows" },
-      { value: "7", label: "Era VIII (2026+ CE): 57-Nation Priory" }
+      { value: "0", label: "Era I: Badr 313" },
+      { value: "1", label: "Era II: Yarmūk" },
+      { value: "2", label: "Era III: Al-Andalus" },
+      { value: "3", label: "Era IV: Baghdad" },
+      { value: "4", label: "Era V: Mamlūks" },
+      { value: "5", label: "Era VI: Şahi 1453" },
+      { value: "6", label: "Era VII: Omani Dhows" },
+      { value: "7", label: "Era VIII: 57-Nation" }
     ]
   };
 })();

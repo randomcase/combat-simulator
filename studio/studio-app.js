@@ -1957,30 +1957,31 @@
     };
 
     /* ========================================================================
-     * DATA-DRIVEN ABSTRACTED STUDIO CHROME RENDERER & ACTION DISPATCHER
-     * Replaces hardcoded top bars & button walls with a unified component
+     * DATA-DRIVEN ABSTRACTED STUDIO CHROME RENDERER & PROGRAM-ASSIGNED METRICS
+     * Every top-bar metric card explains what it means and executes its assigned
+     * program action when clicked.
      * ======================================================================== */
     function renderAbstractedStudioChrome() {
       const mount = document.getElementById("sovereignStudioHeaderMount");
       const schema = window.SOV_STUDIO_HEADER_SCHEMA;
       if (!mount || !schema) return;
 
-      // 1. Render 6 Declarative Telemetry Cards + 7th Era Selector Card
+      // 1. Render 6 Program-Assigned Interactive Telemetry Cards (Single 6-Column Row)
       const telemetryHtml = schema.telemetryCards.map(card =>
-        '<div class="hud-metric" title="' + card.tooltip + '">' +
-          '<div class="hud-metric-label">' + card.label + '</div>' +
+        '<div class="hud-metric" title="' + card.tooltip + '" onclick="' + card.onClickCode + '">' +
+          '<div class="hud-metric-top">' +
+            '<span class="hud-metric-label">' + card.label + '</span>' +
+            '<span class="hud-metric-action">' + card.actionBadge + '</span>' +
+          '</div>' +
           '<div class="hud-metric-row">' +
             '<span id="' + card.valId + '" class="hud-metric-val">' + card.defaultVal + '</span>' +
             '<span id="' + card.rateId + '" class="hud-metric-rate">' + card.defaultRate + '</span>' +
           '</div>' +
+          '<div class="hud-metric-bar-bg">' +
+            '<div id="' + card.barId + '" class="hud-metric-bar-fill" style="background:' + card.barColor + ';width:72%;"></div>' +
+          '</div>' +
         '</div>'
-      ).join("") +
-      '<div class="hud-metric" title="Select Contemporary Canon Era Palette">' +
-        '<div class="hud-metric-label">7. Canon Era Palette</div>' +
-        '<select id="hudEraSelector" class="studio-select" style="width:100%;padding:0.1rem 0.3rem;font-size:0.68rem;" onchange="window.SovGame.setContemporaryEra(this.value)">' +
-          schema.eraOptions.map(e => '<option value="' + e.value + '">' + e.label + '</option>').join("") +
-        '</select>' +
-      '</div>';
+      ).join("");
 
       // 2. Render Studio Navigation Tabs
       const tabsHtml = schema.studioTabs.map(t =>
@@ -1989,7 +1990,8 @@
         '</button>'
       ).join("");
 
-      // 3. Render Abstracted Mode, Click Tool & Circular Action Selectors + Layout Controls
+      // 3. Render Abstracted Era, Mode, Click Tool & Circular Action Selectors + Layout Controls on One Row
+      const eraOpts = schema.eraOptions.map(e => '<option value="' + e.value + '">' + e.label + '</option>').join("");
       const modeOpts = schema.combatModes.map(m => '<option value="' + m.id + '">' + m.label + '</option>').join("");
       const toolOpts = schema.canvasTools.map(t => '<option value="' + t.id + '">' + t.label + '</option>').join("");
       const actionOpts = schema.circularActions.map(a => '<option value="' + a.id + '">' + a.label + '</option>').join("");
@@ -2000,17 +2002,20 @@
           '<div class="studio-nav-inner">' +
             '<div class="studio-tab-group">' + tabsHtml + '</div>' +
             '<div class="studio-layout-group">' +
-              '<select id="abstractModeSelect" class="studio-select" style="padding:0.14rem 0.38rem;font-size:0.68rem;color:#FDE68A;font-weight:700;" onchange="window.SovGame.setCombatMode(this.value)">' +
+              '<select id="hudEraSelector" class="studio-select" style="padding:0.12rem 0.32rem;font-size:0.66rem;color:#CBD5E1;" onchange="window.SovGame.setContemporaryEra(this.value)" title="Select Canon Era Palette">' +
+                eraOpts +
+              '</select>' +
+              '<select id="abstractModeSelect" class="studio-select" style="padding:0.12rem 0.32rem;font-size:0.66rem;color:#FDE68A;font-weight:700;" onchange="window.SovGame.setCombatMode(this.value)">' +
                 modeOpts +
               '</select>' +
-              '<select id="abstractToolSelect" class="studio-select" style="padding:0.14rem 0.38rem;font-size:0.68rem;color:#6EE7B7;" onchange="window.SovGame.setCanvasClickTool(this.value)">' +
+              '<select id="abstractToolSelect" class="studio-select" style="padding:0.12rem 0.32rem;font-size:0.66rem;color:#6EE7B7;" onchange="window.SovGame.setCanvasClickTool(this.value)">' +
                 toolOpts +
               '</select>' +
-              '<select id="abstractActionSelect" class="studio-select" style="padding:0.14rem 0.38rem;font-size:0.68rem;color:#93C5FD;">' +
+              '<select id="abstractActionSelect" class="studio-select" style="padding:0.12rem 0.32rem;font-size:0.66rem;color:#93C5FD;">' +
                 actionOpts +
               '</select>' +
-              '<button class="btn btn-sm btn-emerald" onclick="window.SovGame.executeAbstractAction()">⚡ Pulse</button>' +
-              '<span class="badge badge-emerald" style="font-family:Consolas,monospace;font-size:0.64rem;" title="Polar Gemini SPC Limit-Cycle">♊ <strong id="hudSpcBadgeVal">S0 Cp=1.62 σ=0.42</strong></span>' +
+              '<button class="btn btn-sm btn-emerald" onclick="window.SovGame.executeAbstractAction()">⚡ Cast</button>' +
+              '<span class="badge badge-emerald" style="font-family:Consolas,monospace;font-size:0.62rem;" title="Polar Gemini SPC Limit-Cycle">♊ <strong id="hudSpcBadgeVal">S0 Cp=1.62</strong></span>' +
               '<button id="layoutBtn_1x" class="btn btn-sm" onclick="window.SovGame.setViewportLayout(\'1x\')">1x</button>' +
               '<button id="layoutBtn_2x" class="btn btn-sm active" onclick="window.SovGame.setViewportLayout(\'2x\')">2x</button>' +
               '<button id="layoutBtn_4x" class="btn btn-sm" onclick="window.SovGame.setViewportLayout(\'4x\')">4x</button>' +
@@ -2021,6 +2026,26 @@
           '</div>' +
         '</nav>';
     }
+
+    /* Program-Assigned Metric Card Click Dispatcher */
+    G.assignMetricAction = function (assignmentKey) {
+      if (assignmentKey === "CLASS_FORGE") {
+        G.switchStudioTab("ALL");
+        const sec = document.getElementById("studioSec_COMMAND_FORGE");
+        if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+        addLog("🛡️ Metric #1 [Active Class & 15° Sector] -> Opened Interactive Class & Command Forge!", "#6EE7B7");
+      } else if (assignmentKey === "SHIFT_UNIT_RING") {
+        G.cycleUnitRing(state.selectedUnitIndex);
+      } else if (assignmentKey === "SPAWN_LOADOUT") {
+        G.spawnForgedClassInArena(state.selectedDatabankClassId);
+      } else if (assignmentKey === "TEST_ANGLE_CLASH") {
+        G.executeLiveClashOnCanvas();
+      } else if (assignmentKey === "FIRE_360_FINISHER") {
+        G.triggerGlobal360CompletionPulse();
+      } else if (assignmentKey === "RUN_3V3_COALITION") {
+        G.triggerDatabankCoalitionBattle("3v3", state.selectedDatabankClassId, false);
+      }
+    };
 
     G.executeAbstractAction = function (actionIdOverride) {
       const act = actionIdOverride || document.getElementById("abstractActionSelect")?.value || "PULSE_360";
@@ -2060,7 +2085,7 @@
     G.selectStorageFormat(0);
     G.runMonteCarloTournament(150);
 
-    // Live Circular Telemetry & Pre-Thought Auto-Tune Loop (Every 300ms)
+    // Live Program-Assigned Telemetry & Pre-Thought Auto-Tune Loop (Every 300ms)
     let loopTick = 0;
     setInterval(function () {
       loopTick++;
@@ -2068,41 +2093,70 @@
       state.dinars += state.dinarRate * 0.3;
 
       const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      const setBar = (id, pct) => { const el = document.getElementById(id); if (el) el.style.width = Math.max(6, Math.min(100, pct)) + "%"; };
+
       const u = state.units[state.selectedUnitIndex] || state.units[0];
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      const activeCls = pool.find(c => c.id === state.selectedDatabankClassId) || pool[0];
 
-      // 1. Global π Phase Angle (0°..360° / 0..2π rad)
-      const gDeg = +(state.globalPhaseDeg || 0).toFixed(1);
-      const gRadPi = (gDeg / 180).toFixed(2);
-      setTxt("hudGlobalAngleVal", gDeg + "° (" + gRadPi + "π)");
-      setTxt("hudGlobalAnglePct", Math.round((gDeg / 360) * 100) + "% of 2π");
-
-      // 2. Completed 360° (2π) Combat Cycles
-      setTxt("hudCompletedCirclesVal", state.totalCompletedCircles + " Circles");
-      setTxt("hudCompletedCirclesRate", "3.14x Pulse");
-
-      // 3. Procedural Angular Impact (Torque τ_π & Incidence φ°)
-      setTxt("hudTorqueImpactVal", state.meanTorquePi + " N·m·π");
-      setTxt("hudIncidenceVal", "@ φ=" + Math.round(state.meanIncidenceDeg) + "°");
-
-      // 4. Active Command Sweep Arc (Δθ° & ω)
-      if (u) {
-        setTxt("hudSweepArcVal", u.verb + " Δ" + (u.arcDegrees || 180) + "°");
-        setTxt("hudAngularSpeedVal", "ω=" + Math.round(u.angularVelocityDeg || 120) + "°/s");
-        setTxt("hudResonanceHudVal", u.activeResonance.toFixed(2) + "x (" + u.coreArchetype.replace("ARCH_", "") + ")");
-        setTxt("hudOrbitRingHudVal", "r=" + (u.orbitRadiusPi || 2.0).toFixed(2) + "π");
+      // 1. Active Class & 15° Sector (Assigned -> Class Forge)
+      if (activeCls) {
+        setTxt("hudClassVal", activeCls.degree + "° " + activeCls.name.replace(/^\d+°\s*/, "").slice(0, 18));
+        setTxt("hudClassDomainVal", activeCls.modality.replace("PHYSICAL_", "").slice(0, 10) + " (×3.14=" + activeCls.degTimes314 + "°)");
+        setBar("hudBarClass", (activeCls.degree % 360 || 360) / 360 * 100);
       }
 
-      // 5. Pre-Thought Agency Auto-Tune Step every 6 intervals (~1.8s)
+      // 2. Selected Unit HP, Hit Damage & Concentric Ring (Assigned -> Shift Unit Ring)
+      if (u) {
+        const hpPct = Math.round((u.hp / Math.max(1, u.maxHp)) * 100);
+        setTxt("hudUnitVitalsVal", Math.round(u.hp) + " HP • " + Math.round(u.lastProceduralDmg || 165) + " DMG");
+        setTxt("hudUnitRingVal", "Ring " + (u.orbitRadiusPi || 2.0).toFixed(2) + "π [" + u.verb + "]");
+        setBar("hudBarVitals", hpPct);
+      }
+
+      // 3. Equipped Databank Loadout & Composite Power (Assigned -> Spawn Class in Arena)
+      if (activeCls && window.SovCommandEngine) {
+        const m = window.SovCommandEngine.computeClassProceduralMetrics(activeCls);
+        const wShort = m.wpn.name.split(" ").slice(0, 2).join(" ");
+        const sShort = m.spl.name.split(" ").slice(0, 2).join(" ");
+        setTxt("hudLoadoutVal", wShort + " + " + sShort);
+        setTxt("hudLoadoutPwrVal", "Pwr " + m.compositePowerScore + "π");
+        setBar("hudBarLoadout", Math.min(100, (m.compositePowerScore / 320) * 100));
+      }
+
+      // 4. Attack Angle & Flank Bonus (Assigned -> Test Angle Clash)
+      const phi = Math.round(state.meanIncidenceDeg || 135);
+      const zoneName = phi >= 135 ? "Rear Flank Crit" : (phi >= 45 ? "Side Orbit Shear" : "Frontal Shield");
+      const zoneMult = phi >= 135 ? "1.57x" : (phi >= 45 ? "1.31x" : "1.45x DEF");
+      setTxt("hudAngleAdvantageVal", "φ=" + phi + "° " + zoneName);
+      setTxt("hudTorqueMultVal", zoneMult + " (τ=" + Math.round(state.meanTorquePi || 60) + "π)");
+      setBar("hudBarAngle", (phi / 180) * 100);
+
+      // 5. 360° (3.14x) Finisher Meter (Assigned -> Fire 3.14x Finisher Pulse)
+      const gDeg = +(state.globalPhaseDeg || 0).toFixed(1);
+      const finPct = Math.round((gDeg / 360) * 100);
+      setTxt("hudGlobalAngleVal", finPct + "% to 360° Finisher (" + Math.round(gDeg) + "°)");
+      setTxt("hudCompletedCirclesVal", state.totalCompletedCircles + " Circles");
+      setBar("hudBar360", finPct);
+
+      // 6. 2v2 / 3v3 Coalition Record & ELO (Assigned -> Run 3v3 Coalition Clash)
+      if (activeCls) {
+        const wins = activeCls.wins || 18;
+        const losses = activeCls.losses || 4;
+        const winPct = Math.round((wins / Math.max(1, wins + losses)) * 100);
+        const lastMode = state.lastCoalitionResult ? state.lastCoalitionResult.mode : "3v3";
+        setTxt("hudCoalitionRecordVal", wins + "W–" + losses + "L (" + (activeCls.eloRating || 1650) + " ELO)");
+        setTxt("hudCoalitionWinPctVal", winPct + "% Win (" + lastMode + ")");
+        setBar("hudBarCoalition", winPct);
+      }
+
+      // 7. Pre-Thought Agency Auto-Tune Step every 6 intervals (~1.8s)
       if (window.SovAgencyEngine && window.SovAgencyEngine.isAutoTuneActive() && loopTick % 6 === 0) {
-        const stepRes = window.SovAgencyEngine.stepCircularAutoTune(G, false);
-        if (stepRes && stepRes.activeAgent) {
-          setTxt("hudAgencyGateVal", stepRes.activeAgent.shortName.split("(")[0].trim());
-          setTxt("hudAgencyCycleVal", "(" + stepRes.activeAgent.angleDeg + "° | #" + stepRes.completedCycles + ")");
-        }
+        window.SovAgencyEngine.stepCircularAutoTune(G, false);
         renderAgencyCouncilUI();
       }
 
-      // 6. Automated Databank Pool 2v2 / 3v3 Procedural Coalition Weighing every 12 intervals (~3.6s)
+      // 8. Automated Databank Pool 2v2 / 3v3 Procedural Coalition Weighing every 12 intervals (~3.6s)
       if (state.autoWeighPoolActive && loopTick % 12 === 0) {
         const modes = ["2v2", "3v3", "1v1"];
         const chosenMode = modes[(loopTick / 12) % modes.length | 0];
@@ -2111,7 +2165,7 @@
 
       if (window.SovCommandEngine) {
         const spc = window.SovCommandEngine.spcEngine;
-        setTxt("hudSpcBadgeVal", "S" + spc.stateIndex + " Cp=" + spc.cp + " σ=" + spc.sigma.toFixed(2));
+        setTxt("hudSpcBadgeVal", "S" + spc.stateIndex + " Cp=" + spc.cp);
       }
     }, 300);
 
