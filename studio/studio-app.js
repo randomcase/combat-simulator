@@ -3491,17 +3491,19 @@
     function resolveAutoHostPodVictory(pod, winningSide) {
       if (pod.winnerSide) return;
       pod.winnerSide = winningSide;
-      pod.intermissionSec = 2.4;
+      pod.intermissionSec = pod.intermissionDurationSec || 2.4;
 
       const winners = winningSide === "A" ? pod.fightersA : pod.fightersB;
       const losers = winningSide === "A" ? pod.fightersB : pod.fightersA;
       const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+      const winDelta = pod.eloWinDelta || 12;
+      const lossDelta = pod.eloLossDelta || 9;
 
       winners.forEach(f => {
         const cls = pool.find(c => c.id === f.id);
         if (cls) {
           cls.wins = (cls.wins || 14) + 1;
-          cls.eloRating = Math.min(2850, (cls.eloRating || 1650) + 12);
+          cls.eloRating = Math.min(2850, (cls.eloRating || 1650) + winDelta);
           f.eloRating = cls.eloRating;
         }
       });
@@ -3509,7 +3511,7 @@
         const cls = pool.find(c => c.id === f.id);
         if (cls) {
           cls.losses = (cls.losses || 4) + 1;
-          cls.eloRating = Math.max(1100, (cls.eloRating || 1650) - 9);
+          cls.eloRating = Math.max(1100, (cls.eloRating || 1650) - lossDelta);
           f.eloRating = cls.eloRating;
         }
       });
@@ -3522,7 +3524,7 @@
       const loseNames = losers.map(f => f.degree + "° " + f.name.split(" ")[0]).join(" + ");
       const logLine =
         "🏆 [Wave #" + pod.waveNumber + " " + pod.mode + "] Team " + winningSide + " (" + winNames + ") def. (" + loseNames + ") • ⭕ " +
-        pod.completedCircles.toFixed(1) + " (2π) • τ=" + Math.round(pod.meanTorquePi) + "π";
+        pod.completedCircles.toFixed(1) + " (2π) • τ=" + Math.round(pod.meanTorquePi) + "π (+" + winDelta + " ELO)";
 
       pod.historyLogs.unshift({
         wave: pod.waveNumber,
@@ -3543,7 +3545,7 @@
         vy: -18,
         alpha: 1.0,
         color: "#FDE68A",
-        text: "🏆 TEAM " + winningSide + " WINS " + pod.mode + " WAVE #" + pod.waveNumber + "! (+12 ELO)"
+        text: "🏆 TEAM " + winningSide + " WINS " + pod.mode + " WAVE #" + pod.waveNumber + "! (+" + winDelta + " ELO)"
       });
 
       renderAutomatedHostPodHTML(pod.mode);
@@ -3560,10 +3562,15 @@
         return;
       }
 
-      const effDt = dt * (state.autoHostConfig.speedMult || 1.0);
+      const effDt = dt * (pod.customSpeedMult || state.autoHostConfig.speedMult || 1.0);
+      const finisherDeg = pod.finisherDeg || 360;
+      const flankCritDeg = pod.flankCritDeg || 135;
+      const sideShearDeg = pod.sideShearDeg || 45;
+      const piAnchor = pod.piAnchor || 3.14;
+
       pod.globalPhaseDeg += effDt * 68;
-      if (pod.globalPhaseDeg >= 360) {
-        pod.globalPhaseDeg -= 360;
+      if (pod.globalPhaseDeg >= finisherDeg) {
+        pod.globalPhaseDeg -= finisherDeg;
         pod.completedCircles += 1;
         // 360° (2π) 3.14x Finisher Surge across all living fighters!
         pod.shockwaves.push({ r: 10, maxR: 105, alpha: 1.0, color: "#D4AF37" });
@@ -3573,7 +3580,7 @@
           vy: -16,
           alpha: 1.0,
           color: "#FDE68A",
-          text: "⭕ 360° (2π) 3.14x FINISHER SURGE! (Circle #" + pod.completedCircles + ")"
+          text: "⭕ " + finisherDeg + "° (2π) " + piAnchor.toFixed(2) + "x FINISHER SURGE! (Circle #" + pod.completedCircles + ")"
         });
       }
 
@@ -3596,8 +3603,8 @@
             const target = enemies[Math.floor(Math.random() * enemies.length)];
             const rawDiff = Math.abs(f.orbitAngleDeg - target.orbitAngleDeg) % 360;
             const phi = rawDiff > 180 ? 360 - rawDiff : rawDiff;
-            const zoneMult = phi >= 135 ? 1.57 : (phi >= 45 ? 1.31 : 0.92);
-            const surgeMult = pod.globalPhaseDeg >= 310 ? 1.45 : 1.0;
+            const zoneMult = phi >= flankCritDeg ? (piAnchor * 0.5) : (phi >= sideShearDeg ? 1.31 : 0.92);
+            const surgeMult = pod.globalPhaseDeg >= finisherDeg * 0.85 ? (pod.surgeMult || 1.45) : 1.0;
             const rawDmg = (f.atk * 1.18 * zoneMult * surgeMult) - target.def * 0.42;
             const dmg = Math.max(48, Math.round(rawDmg));
             target.hp = Math.max(0, target.hp - dmg);
@@ -3605,7 +3612,7 @@
             f.lastPhi = Math.round(phi);
             f.attackCooldown = 0.72 + (f.slotIdx * 0.14);
 
-            const torque = +(f.orbitRadiusPi * Math.PI * (f.atk * 0.24) * Math.max(0.35, Math.sin((phi * Math.PI) / 180))).toFixed(1);
+            const torque = +(f.orbitRadiusPi * piAnchor * (f.atk * 0.24) * Math.max(0.35, Math.sin((phi * Math.PI) / 180))).toFixed(1);
             pod.meanTorquePi = +(pod.meanTorquePi * 0.8 + torque * 0.2).toFixed(1);
 
             pod.clashBeams.push({
@@ -3969,6 +3976,545 @@
       addLog("📥 Promoted Automated " + pod.mode + " Wave #" + pod.waveNumber + " into Main Section 1 360° Roster Arena!", "#FDE68A");
     };
 
+    /* ============================================================================
+     * 🧬 W3C CUSTOM ELEMENT (<sov-combat-host>) & 8-LANGUAGE COMPONENT COMPILER
+     * ============================================================================ */
+    state.currentComponentLangIdx = 0;
+
+    function applyHostElementAttributesToPod(el) {
+      if (!el) return;
+      const mode = el.getAttribute("mode") === "2v2" ? "2v2" : "3v3";
+      const pod = state.autoHosts && state.autoHosts[mode];
+      if (!pod) return;
+
+      const piAnchor = parseFloat(el.getAttribute("pi-anchor") || "3.14") || 3.14;
+      const finisherDeg = parseFloat(el.getAttribute("finisher-deg") || "360") || 360;
+      const flankDeg = parseFloat(el.getAttribute("flank-deg") || "135") || 135;
+      const eloDelta = parseInt(el.getAttribute("elo-delta") || "12", 10) || 12;
+      const spd = parseFloat(el.getAttribute("speed") || "1") || 1;
+
+      pod.piAnchor = piAnchor;
+      pod.finisherDeg = finisherDeg;
+      pod.flankCritDeg = flankDeg;
+      pod.eloWinDelta = eloDelta;
+      pod.customSpeedMult = spd;
+
+      const tagReadout = document.getElementById("compLangLiveDomTagReadout");
+      const targetMode = document.getElementById("compLangTargetModeSelect")?.value || "3v3";
+      if (tagReadout && targetMode === mode) {
+        tagReadout.textContent =
+          '<sov-combat-host mode="' + mode +
+          '" league="' + (el.getAttribute("league") || state.autoHostConfig.matchmakingMode) +
+          '" speed="' + spd +
+          '" pi-anchor="' + piAnchor +
+          '" finisher-deg="' + finisherDeg +
+          '" flank-deg="' + flankDeg +
+          '" elo-delta="' + eloDelta + '">';
+      }
+    }
+
+    function registerSovCombatHostWebComponent() {
+      if (typeof window.customElements === "undefined") return;
+      if (window.customElements.get("sov-combat-host")) return;
+
+      class SovCombatHostElement extends HTMLElement {
+        static get observedAttributes() {
+          return ["mode", "league", "speed", "wing-a", "wing-b", "pi-anchor", "finisher-deg", "flank-deg", "elo-delta"];
+        }
+        connectedCallback() {
+          this.setAttribute("data-sov-upgraded", "true");
+          applyHostElementAttributesToPod(this);
+        }
+        attributeChangedCallback(name, oldVal, newVal) {
+          if (oldVal === newVal) return;
+          applyHostElementAttributesToPod(this);
+        }
+      }
+      window.customElements.define("sov-combat-host", SovCombatHostElement);
+    }
+
+    function generateComponentLanguageCode(langIdx, mode) {
+      const pod = (state.autoHosts && state.autoHosts[mode]) || state.autoHosts["3v3"];
+      if (!pod) return "";
+      const hostEl = document.getElementById(mode === "2v2" ? "sovHostPod2v2" : "sovHostPod3v3");
+      const league = (hostEl && hostEl.getAttribute("league")) || state.autoHostConfig.matchmakingMode || "BASTION_VS_BASTION";
+      const spd = pod.customSpeedMult || state.autoHostConfig.speedMult || 1;
+      const piAnchor = pod.piAnchor || 3.14;
+      const finisherDeg = pod.finisherDeg || 360;
+      const flankDeg = pod.flankCritDeg || 135;
+      const sideDeg = pod.sideShearDeg || 45;
+      const eloWin = pod.eloWinDelta || 12;
+      const eloLoss = pod.eloLossDelta || 9;
+      const intermission = pod.intermissionDurationSec || 2.4;
+
+      const teamALines = pod.fightersA.map((f, i) =>
+        '  slot_' + (i + 1) + ': { id: "' + f.id + '", deg: ' + f.degree + ', ring_pi: ' + f.orbitRadiusPi.toFixed(2) + ', hp: ' + f.hp + ', atk: ' + f.atk + ', def: ' + f.def + ', elo: ' + f.eloRating + ' }'
+      ).join("\n");
+      const teamBLines = pod.fightersB.map((f, i) =>
+        '  slot_' + (i + 1) + ': { id: "' + f.id + '", deg: ' + f.degree + ', ring_pi: ' + f.orbitRadiusPi.toFixed(2) + ', hp: ' + f.hp + ', atk: ' + f.atk + ', def: ' + f.def + ', elo: ' + f.eloRating + ' }'
+      ).join("\n");
+
+      if (langIdx === 0) {
+        // 1. .pi314 Declarative Component DSL (Two-Way Live Hot-Reloadable)
+        return (
+          '# ============================================================================\n' +
+          '# 📐 SOVEREIGN .pi314 DECLARATIVE COMPONENT LANGUAGE (TWO-WAY HOT-RELOAD DSL)\n' +
+          '# Edit any @component, @team_a, @team_b, @physics, or @persistence field below\n' +
+          '# and click [⚡ Compile & Hot-Reload Pods] to mutate the live 60 FPS ' + mode + ' Host!\n' +
+          '# ============================================================================\n\n' +
+          '@component SovAutomatedCombatHost {\n' +
+          '  mode: "' + mode + '"\n' +
+          '  league: "' + league + '"\n' +
+          '  speed: ' + spd + '\n' +
+          '  wave: ' + pod.waveNumber + '\n' +
+          '}\n\n' +
+          '@physics Circular314Engine {\n' +
+          '  pi_anchor: ' + piAnchor + '\n' +
+          '  finisher_deg: ' + finisherDeg + '\n' +
+          '  flank_crit_deg: ' + flankDeg + '\n' +
+          '  side_shear_deg: ' + sideDeg + '\n' +
+          '  surge_mult: ' + (pod.surgeMult || 1.45) + '\n' +
+          '}\n\n' +
+          '@persistence DatabankVaultSync {\n' +
+          '  storage_key: "SOV_DATABANK_PERSIST_V314"\n' +
+          '  elo_win_delta: ' + eloWin + '\n' +
+          '  elo_loss_delta: ' + eloLoss + '\n' +
+          '  intermission_sec: ' + intermission + '\n' +
+          '}\n\n' +
+          '@team_a CoalitionVanguard {\n' +
+          teamALines + '\n' +
+          '}\n\n' +
+          '@team_b BastilleChallengers {\n' +
+          teamBLines + '\n' +
+          '}'
+        );
+      }
+
+      if (langIdx === 1) {
+        // 2. W3C Web Component (<sov-combat-host>)
+        const idsA = pod.fightersA.map(f => f.id).join(",");
+        const idsB = pod.fightersB.map(f => f.id).join(",");
+        return (
+          '<!-- W3C Custom Element Markup (Live Reactive Attributes) -->\n' +
+          '<sov-combat-host\n' +
+          '  id="sovHostPod' + mode + '"\n' +
+          '  mode="' + mode + '"\n' +
+          '  league="' + league + '"\n' +
+          '  speed="' + spd + '"\n' +
+          '  pi-anchor="' + piAnchor + '"\n' +
+          '  finisher-deg="' + finisherDeg + '"\n' +
+          '  flank-deg="' + flankDeg + '"\n' +
+          '  elo-delta="' + eloWin + '"\n' +
+          '  team-a="' + idsA + '"\n' +
+          '  team-b="' + idsB + '">\n' +
+          '</sov-combat-host>\n\n' +
+          '<script type="module">\n' +
+          'export class SovCombatHostElement extends HTMLElement {\n' +
+          '  static observedAttributes = ["mode", "league", "speed", "pi-anchor", "finisher-deg", "flank-deg", "elo-delta", "team-a", "team-b"];\n' +
+          '  connectedCallback() {\n' +
+          '    window.SovGame?.compileAndHotReloadComponentDSL();\n' +
+          '  }\n' +
+          '  attributeChangedCallback(name, oldVal, newVal) {\n' +
+          '    if (oldVal !== newVal) window.SovGame?.syncComponentLanguageEditorFromLiveState();\n' +
+          '  }\n' +
+          '}\n' +
+          'if (!customElements.get("sov-combat-host")) {\n' +
+          '  customElements.define("sov-combat-host", SovCombatHostElement);\n' +
+          '}\n' +
+          '</script>'
+        );
+      }
+
+      if (langIdx === 2) {
+        // 3. React 19 / TypeScript (.tsx)
+        return (
+          'import React, { useEffect, useRef, useState } from "react";\n\n' +
+          'export interface Fighter314 {\n' +
+          '  id: string;\n' +
+          '  name: string;\n' +
+          '  degree: number;\n' +
+          '  side: "A" | "B";\n' +
+          '  orbitRadiusPi: number;\n' +
+          '  hp: number;\n' +
+          '  maxHp: number;\n' +
+          '  atk: number;\n' +
+          '  def: number;\n' +
+          '  eloRating: number;\n' +
+          '}\n\n' +
+          'export interface SovCombatHostProps {\n' +
+          '  mode: "' + mode + '";\n' +
+          '  league?: string;\n' +
+          '  piAnchor?: number;\n' +
+          '  finisherDeg?: number;\n' +
+          '  flankCritDeg?: number;\n' +
+          '}\n\n' +
+          'export const SovAutomatedCombatHost: React.FC<SovCombatHostProps> = ({\n' +
+          '  mode = "' + mode + '",\n' +
+          '  league = "' + league + '",\n' +
+          '  piAnchor = ' + piAnchor + ',\n' +
+          '  finisherDeg = ' + finisherDeg + ',\n' +
+          '  flankCritDeg = ' + flankDeg + '\n' +
+          '}) => {\n' +
+          '  const canvasRef = useRef<HTMLCanvasElement | null>(null);\n' +
+          '  const [teamA] = useState<Fighter314[]>(' + JSON.stringify(pod.fightersA.map(f => ({ id: f.id, name: f.name, degree: f.degree, side: "A", orbitRadiusPi: f.orbitRadiusPi, hp: f.hp, maxHp: f.maxHp, atk: f.atk, def: f.def, eloRating: f.eloRating })), null, 2) + ');\n' +
+          '  const [teamB] = useState<Fighter314[]>(' + JSON.stringify(pod.fightersB.map(f => ({ id: f.id, name: f.name, degree: f.degree, side: "B", orbitRadiusPi: f.orbitRadiusPi, hp: f.hp, maxHp: f.maxHp, atk: f.atk, def: f.def, eloRating: f.eloRating })), null, 2) + ');\n\n' +
+          '  useEffect(() => {\n' +
+          '    let rafId = 0;\n' +
+          '    const renderLoop = () => {\n' +
+          '      // 60 FPS 3.14π Circular Orbit & Torque τ_π Step\n' +
+          '      rafId = requestAnimationFrame(renderLoop);\n' +
+          '    };\n' +
+          '    rafId = requestAnimationFrame(renderLoop);\n' +
+          '    return () => cancelAnimationFrame(rafId);\n' +
+          '  }, [mode, league, piAnchor, finisherDeg, flankCritDeg]);\n\n' +
+          '  return (\n' +
+          '    <section className="sov-combat-host-card">\n' +
+          '      <header>{mode} Automated Archetype Host ({league}) — π={piAnchor}</header>\n' +
+          '      <canvas ref={canvasRef} width={560} height={225} />\n' +
+          '    </section>\n' +
+          '  );\n' +
+          '};'
+        );
+      }
+
+      if (langIdx === 3) {
+        // 4. Vue 3 SFC (.vue)
+        return (
+          '<script setup lang="ts">\n' +
+          'import { ref, onMounted, onUnmounted } from "vue";\n\n' +
+          'const props = withDefaults(defineProps<{\n' +
+          '  mode?: "' + mode + '";\n' +
+          '  league?: string;\n' +
+          '  piAnchor?: number;\n' +
+          '  finisherDeg?: number;\n' +
+          '}>(), {\n' +
+          '  mode: "' + mode + '",\n' +
+          '  league: "' + league + '",\n' +
+          '  piAnchor: ' + piAnchor + ',\n' +
+          '  finisherDeg: ' + finisherDeg + '\n' +
+          '});\n\n' +
+          'const canvasEl = ref<HTMLCanvasElement | null>(null);\n' +
+          'const teamA = ref(' + JSON.stringify(pod.fightersA.map(f => ({ id: f.id, deg: f.degree, hp: f.hp, elo: f.eloRating }))) + ');\n' +
+          'const teamB = ref(' + JSON.stringify(pod.fightersB.map(f => ({ id: f.id, deg: f.degree, hp: f.hp, elo: f.eloRating }))) + ');\n' +
+          '</script>\n\n' +
+          '<template>\n' +
+          '  <div class="sov-vue-combat-host">\n' +
+          '    <h4>{{ props.mode }} Automated Bastille Host ({{ props.league }})</h4>\n' +
+          '    <canvas ref="canvasEl" width="560" height="225"></canvas>\n' +
+          '  </div>\n' +
+          '</template>'
+        );
+      }
+
+      if (langIdx === 4) {
+        // 5. Svelte 5 Runes (.svelte)
+        return (
+          '<script lang="ts">\n' +
+          '  let { mode = "' + mode + '", league = "' + league + '", piAnchor = ' + piAnchor + ', finisherDeg = ' + finisherDeg + ' } = $props();\n' +
+          '  let globalPhaseDeg = $state(' + Math.round(pod.globalPhaseDeg) + ');\n' +
+          '  let completedCircles = $state(' + pod.completedCircles + ');\n' +
+          '  let teamA = $state(' + JSON.stringify(pod.fightersA.map(f => ({ id: f.id, deg: f.degree, hp: f.hp, elo: f.eloRating }))) + ');\n' +
+          '  let teamB = $state(' + JSON.stringify(pod.fightersB.map(f => ({ id: f.id, deg: f.degree, hp: f.hp, elo: f.eloRating }))) + ');\n' +
+          '  let totalTorquePi = $derived(+(teamA.length * piAnchor * 24.5).toFixed(2));\n' +
+          '</script>\n\n' +
+          '<div class="sov-svelte5-host">\n' +
+          '  <h4>{mode} Automated Host • ⭕ {completedCircles} ({globalPhaseDeg}°/{finisherDeg}°) • τ={totalTorquePi}π</h4>\n' +
+          '  <canvas width="560" height="225"></canvas>\n' +
+          '</div>'
+        );
+      }
+
+      if (langIdx === 5) {
+        // 6. Java 21 LTS JVM Record & Virtual Thread Component (.java)
+        return (
+          'package com.sovereign314.bastille.host;\n\n' +
+          'import java.util.List;\n' +
+          'import java.util.concurrent.Executors;\n\n' +
+          'public final class SovAutomatedCombatHostEngine {\n' +
+          '    public static final double PI_ANCHOR = ' + piAnchor + ';\n' +
+          '    public static final double FINISHER_DEG = ' + finisherDeg + '.0;\n\n' +
+          '    public record Fighter314(String id, int degree, double ringPi, int hp, int atk, int def, int elo) {}\n\n' +
+          '    public sealed interface HostMode permits DualVanguard2v2, EquilateralTriad3v3 {}\n' +
+          '    public record DualVanguard2v2(List<Fighter314> teamA, List<Fighter314> teamB) implements HostMode {}\n' +
+          '    public record EquilateralTriad3v3(List<Fighter314> teamA, List<Fighter314> teamB) implements HostMode {}\n\n' +
+          '    public void spawnVirtualThreadArena() {\n' +
+          '        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {\n' +
+          '            executor.submit(() -> {\n' +
+          '                var teamA = List.of(\n' +
+          pod.fightersA.map(f => '                    new Fighter314("' + f.id + '", ' + f.degree + ', ' + f.orbitRadiusPi.toFixed(2) + ', ' + f.hp + ', ' + f.atk + ', ' + f.def + ', ' + f.eloRating + ')').join(",\n") + '\n' +
+          '                );\n' +
+          '                var teamB = List.of(\n' +
+          pod.fightersB.map(f => '                    new Fighter314("' + f.id + '", ' + f.degree + ', ' + f.orbitRadiusPi.toFixed(2) + ', ' + f.hp + ', ' + f.atk + ', ' + f.def + ', ' + f.eloRating + ')').join(",\n") + '\n' +
+          '                );\n' +
+          '                System.out.printf("Hosted ' + mode + ' Wave #' + pod.waveNumber + ' (%s) @ π=%.2f%n", "' + league + '", PI_ANCHOR);\n' +
+          '            });\n' +
+          '        }\n' +
+          '    }\n' +
+          '}'
+        );
+      }
+
+      if (langIdx === 6) {
+        // 7. Go Concurrency Actor Component (.go)
+        return (
+          'package bastille314\n\n' +
+          'import (\n' +
+          '\t"context"\n' +
+          '\t"math"\n' +
+          '\t"time"\n' +
+          ')\n\n' +
+          'type Fighter314 struct {\n' +
+          '\tID       string\n' +
+          '\tDegree   int\n' +
+          '\tRingPi   float64\n' +
+          '\tHP, ATK  int\n' +
+          '\tDEF, ELO int\n' +
+          '}\n\n' +
+          'type AutomatedCombatHost struct {\n' +
+          '\tMode        string\n' +
+          '\tLeague      string\n' +
+          '\tPiAnchor    float64\n' +
+          '\tFinisherDeg float64\n' +
+          '\tTeamA       []Fighter314\n' +
+          '\tTeamB       []Fighter314\n' +
+          '}\n\n' +
+          'func NewAutomatedHost' + mode + '() *AutomatedCombatHost {\n' +
+          '\treturn &AutomatedCombatHost{\n' +
+          '\t\tMode:        "' + mode + '",\n' +
+          '\t\tLeague:      "' + league + '",\n' +
+          '\t\tPiAnchor:    ' + piAnchor + ',\n' +
+          '\t\tFinisherDeg: ' + finisherDeg + ',\n' +
+          '\t\tTeamA: []Fighter314{\n' +
+          pod.fightersA.map(f => '\t\t\t{ID: "' + f.id + '", Degree: ' + f.degree + ', RingPi: ' + f.orbitRadiusPi.toFixed(2) + ', HP: ' + f.hp + ', ATK: ' + f.atk + ', DEF: ' + f.def + ', ELO: ' + f.eloRating + '},').join("\n") + '\n' +
+          '\t\t},\n' +
+          '\t\tTeamB: []Fighter314{\n' +
+          pod.fightersB.map(f => '\t\t\t{ID: "' + f.id + '", Degree: ' + f.degree + ', RingPi: ' + f.orbitRadiusPi.toFixed(2) + ', HP: ' + f.hp + ', ATK: ' + f.atk + ', DEF: ' + f.def + ', ELO: ' + f.eloRating + '},').join("\n") + '\n' +
+          '\t\t},\n' +
+          '\t}\n' +
+          '}\n\n' +
+          'func (h *AutomatedCombatHost) Run60FPS(ctx context.Context) {\n' +
+          '\tticker := time.NewTicker(16 * time.Millisecond)\n' +
+          '\tdefer ticker.Stop()\n' +
+          '\tfor {\n' +
+          '\t\tselect {\n' +
+          '\t\tcase <-ctx.Done():\n' +
+          '\t\t\treturn\n' +
+          '\t\tcase <-ticker.C:\n' +
+          '\t\t\t_ = math.Pi * h.PiAnchor\n' +
+          '\t\t}\n' +
+          '\t}\n' +
+          '}'
+        );
+      }
+
+      // 8. Rust / WASM Systems Struct (.rs)
+      return (
+        'use wasm_bindgen::prelude::*;\n\n' +
+        '#[repr(C)]\n' +
+        '#[derive(Clone, Copy, Debug)]\n' +
+        'pub struct Fighter314 {\n' +
+        '    pub degree: u16,\n' +
+        '    pub ring_pi: f64,\n' +
+        '    pub hp: i32,\n' +
+        '    pub atk: i32,\n' +
+        '    pub def: i32,\n' +
+        '    pub elo: i32,\n' +
+        '}\n\n' +
+        '#[wasm_bindgen]\n' +
+        'pub struct SovAutomatedCombatHost {\n' +
+        '    pi_anchor: f64,\n' +
+        '    finisher_deg: f64,\n' +
+        '    flank_crit_deg: f64,\n' +
+        '    elo_win_delta: i32,\n' +
+        '}\n\n' +
+        '#[wasm_bindgen]\n' +
+        'impl SovAutomatedCombatHost {\n' +
+        '    #[wasm_bindgen(constructor)]\n' +
+        '    pub fn new() -> Self {\n' +
+        '        Self {\n' +
+        '            pi_anchor: ' + piAnchor + ',\n' +
+        '            finisher_deg: ' + finisherDeg + '.0,\n' +
+        '            flank_crit_deg: ' + flankDeg + '.0,\n' +
+        '            elo_win_delta: ' + eloWin + ',\n' +
+        '        }\n' +
+        '    }\n\n' +
+        '    pub fn step_circular_torque(&self, ring_pi: f64, atk: f64, phi_deg: f64) -> f64 {\n' +
+        '        let rad = phi_deg.to_radians();\n' +
+        '        ring_pi * self.pi_anchor * (atk * 0.24) * rad.sin().max(0.35)\n' +
+        '    }\n' +
+        '}'
+      );
+    }
+
+    const COMP_LANG_META = [
+      { name: "Language #1: .pi314 Declarative 3.14π Component DSL (Two-Way Hot-Reloadable)", ext: "pi314" },
+      { name: "Language #2: W3C Custom Element Web Component (<sov-combat-host>)", ext: "html" },
+      { name: "Language #3: TypeScript / React 19 Component (SovAutomatedCombatHost.tsx)", ext: "tsx" },
+      { name: "Language #4: Vue 3 Single-File Component (SovAutomatedCombatHost.vue)", ext: "vue" },
+      { name: "Language #5: Svelte 5 Runes Component (SovAutomatedCombatHost.svelte)", ext: "svelte" },
+      { name: "Language #6: Java 21 LTS Virtual-Thread & Record Engine (SovAutomatedCombatHostEngine.java)", ext: "java" },
+      { name: "Language #7: Go Concurrency Actor Component (bastille_host.go)", ext: "go" },
+      { name: "Language #8: Rust / WebAssembly Systems Struct (sov_combat_host.rs)", ext: "rs" }
+    ];
+
+    G.getCurrentComponentLangIdx = function () {
+      return state.currentComponentLangIdx || 0;
+    };
+
+    G.selectComponentLanguage = function (langIdx) {
+      state.currentComponentLangIdx = typeof langIdx === "number" ? langIdx : 0;
+      for (let i = 0; i < 8; i++) {
+        const b = document.getElementById("compLangBtn_" + i);
+        if (b) b.classList.toggle("active", i === state.currentComponentLangIdx);
+      }
+      const mode = document.getElementById("compLangTargetModeSelect")?.value || "3v3";
+      const metaEl = document.getElementById("compLangMetaLabel");
+      if (metaEl && COMP_LANG_META[state.currentComponentLangIdx]) {
+        metaEl.textContent = COMP_LANG_META[state.currentComponentLangIdx].name;
+      }
+      const area = document.getElementById("compLangCodeTextarea");
+      if (area) {
+        area.value = generateComponentLanguageCode(state.currentComponentLangIdx, mode);
+      }
+      const hostEl = document.getElementById(mode === "2v2" ? "sovHostPod2v2" : "sovHostPod3v3");
+      if (hostEl) applyHostElementAttributesToPod(hostEl);
+    };
+
+    G.syncComponentLanguageEditorFromLiveState = function () {
+      G.selectComponentLanguage(state.currentComponentLangIdx || 0);
+      addLog("🔄 Synced 8-Language Component Inspector from live 60 FPS <sov-combat-host> state.", "#6EE7B7");
+    };
+
+    G.compileAndHotReloadComponentDSL = function () {
+      const area = document.getElementById("compLangCodeTextarea");
+      if (!area) return;
+      const src = area.value || "";
+      const pool = window.SOV_ARCHETYPE_DATABANK_POOL || [];
+
+      // Parse mode ("2v2" or "3v3") from DSL or HTML tag
+      const modeMatch = src.match(/mode\s*[:=]\s*["']?(2v2|3v3)["']?/i);
+      const targetMode = (modeMatch && modeMatch[1]) || document.getElementById("compLangTargetModeSelect")?.value || "3v3";
+      const pod = state.autoHosts[targetMode];
+      if (!pod) return;
+
+      const parseNum = (regex, fallback) => {
+        const m = src.match(regex);
+        return m ? parseFloat(m[1]) : fallback;
+      };
+      const parseStr = (regex, fallback) => {
+        const m = src.match(regex);
+        return m ? m[1] : fallback;
+      };
+
+      const newLeague = parseStr(/league\s*[:=]\s*["']([A-Z0-9_]+)["']/i, state.autoHostConfig.matchmakingMode);
+      const newSpeed = parseNum(/speed\s*[:=]\s*["']?([0-9.]+)["']?/i, pod.customSpeedMult || 1);
+      const newPi = parseNum(/pi[-_]anchor\s*[:=]\s*["']?([0-9.]+)["']?/i, pod.piAnchor || 3.14);
+      const newFinisher = parseNum(/finisher[-_]deg\s*[:=]\s*["']?([0-9.]+)["']?/i, pod.finisherDeg || 360);
+      const newFlank = parseNum(/flank[-_](?:crit[-_])?deg\s*[:=]\s*["']?([0-9.]+)["']?/i, pod.flankCritDeg || 135);
+      const newSide = parseNum(/side[-_]shear[-_]deg\s*[:=]\s*["']?([0-9.]+)["']?/i, pod.sideShearDeg || 45);
+      const newSurge = parseNum(/surge[-_]mult\s*[:=]\s*["']?([0-9.]+)["']?/i, pod.surgeMult || 1.45);
+      const newEloWin = Math.round(parseNum(/elo[-_](?:win[-_])?delta\s*[:=]\s*["']?([0-9.]+)["']?/i, pod.eloWinDelta || 12));
+      const newEloLoss = Math.round(parseNum(/elo[-_]loss[-_]delta\s*[:=]\s*["']?([0-9.]+)["']?/i, pod.eloLossDelta || 9));
+      const newIntermission = parseNum(/intermission[-_]sec\s*[:=]\s*["']?([0-9.]+)["']?/i, pod.intermissionDurationSec || 2.4);
+
+      pod.piAnchor = newPi;
+      pod.finisherDeg = newFinisher;
+      pod.flankCritDeg = newFlank;
+      pod.sideShearDeg = newSide;
+      pod.surgeMult = newSurge;
+      pod.eloWinDelta = newEloWin;
+      pod.eloLossDelta = newEloLoss;
+      pod.intermissionDurationSec = newIntermission;
+      pod.customSpeedMult = newSpeed;
+
+      // Parse @team_a and @team_b slot overrides if present in .pi314 DSL
+      const teamABlock = src.match(/@team_a[\s\S]*?\{([\s\S]*?)\}/);
+      const teamBBlock = src.match(/@team_b[\s\S]*?\{([\s\S]*?)\}/);
+      const count = targetMode === "2v2" ? 2 : 3;
+
+      const parseTeamBlock = (blockText, side) => {
+        if (!blockText) return null;
+        const idMatches = Array.from(blockText.matchAll(/id\s*:\s*["']([^"']+)["']/g));
+        if (!idMatches.length) return null;
+        const ringMatches = Array.from(blockText.matchAll(/ring_pi\s*:\s*([0-9.]+)/g));
+        const hpMatches = Array.from(blockText.matchAll(/hp\s*:\s*([0-9]+)/g));
+        const fighters = [];
+        for (let i = 0; i < count; i++) {
+          const cid = idMatches[i] ? idMatches[i][1] : idMatches[0][1];
+          const cls = pool.find(c => c.id === cid) || pool[i];
+          const f = createAutoHostFighter(cls, side, i, count);
+          if (ringMatches[i]) f.orbitRadiusPi = parseFloat(ringMatches[i][1]) || f.orbitRadiusPi;
+          if (hpMatches[i]) f.hp = Math.max(50, parseInt(hpMatches[i][1], 10) || f.hp);
+          fighters.push(f);
+        }
+        return fighters;
+      };
+
+      const parsedA = parseTeamBlock(teamABlock && teamABlock[1], "A");
+      const parsedB = parseTeamBlock(teamBBlock && teamBBlock[1], "B");
+      if (parsedA) pod.fightersA = parsedA;
+      if (parsedB) pod.fightersB = parsedB;
+      pod.winnerSide = null;
+
+      // Update W3C Custom Element <sov-combat-host> attributes
+      const hostEl = document.getElementById(targetMode === "2v2" ? "sovHostPod2v2" : "sovHostPod3v3");
+      if (hostEl) {
+        hostEl.setAttribute("league", newLeague);
+        hostEl.setAttribute("speed", String(newSpeed));
+        hostEl.setAttribute("pi-anchor", String(newPi));
+        hostEl.setAttribute("finisher-deg", String(newFinisher));
+        hostEl.setAttribute("flank-deg", String(newFlank));
+        hostEl.setAttribute("elo-delta", String(newEloWin));
+      }
+
+      pod.shockwaves.push({ r: 10, maxR: 115, alpha: 1.0, color: "#FDE68A" });
+      pod.floatingTexts.push({
+        x: 280,
+        y: 64,
+        vy: -18,
+        alpha: 1.0,
+        color: "#FDE68A",
+        text: "⚡ HOT-RELOADED <sov-combat-host mode=\"" + targetMode + "\"> (π=" + newPi + " • " + newFinisher + "°)"
+      });
+
+      const statusBadge = document.getElementById("compLangCompilerStatusBadge");
+      if (statusBadge) {
+        statusBadge.textContent = "⚡ HOT-RELOADED " + targetMode + " @ π=" + newPi + " (" + newFinisher + "°)";
+      }
+
+      renderAutomatedHostPodHTML(targetMode);
+      addLog("⚡ Compiled & Hot-Reloaded .pi314 Component DSL into live <sov-combat-host mode=\"" + targetMode + "\"> (π=" + newPi + ", Finisher=" + newFinisher + "°, Flank=" + newFlank + "°).", "#FDE68A");
+    };
+
+    G.copyComponentLangSource = function () {
+      const area = document.getElementById("compLangCodeTextarea");
+      if (!area) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(area.value);
+      } else {
+        area.select();
+        document.execCommand("copy");
+      }
+      addLog("📋 Copied " + COMP_LANG_META[state.currentComponentLangIdx || 0].name + " source to clipboard!", "#6EE7B7");
+    };
+
+    G.downloadComponentLangFile = function () {
+      const area = document.getElementById("compLangCodeTextarea");
+      if (!area) return;
+      const mode = document.getElementById("compLangTargetModeSelect")?.value || "3v3";
+      const meta = COMP_LANG_META[state.currentComponentLangIdx || 0] || COMP_LANG_META[0];
+      const blob = new Blob([area.value], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "sov-automated-combat-host-" + mode + "." + meta.ext;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      addLog("💾 Downloaded Component file [sov-automated-combat-host-" + mode + "." + meta.ext + "].", "#FDE68A");
+    };
+
     // Initial Pre-Thought Gate & Data-Driven Render
     renderAbstractedStudioChrome();
     renderAgencyCouncilUI();
@@ -3993,6 +4539,8 @@
     renderBastilleOfArchetypesUI();
     initOrSpawnAutoHostPod("2v2");
     initOrSpawnAutoHostPod("3v3");
+    registerSovCombatHostWebComponent();
+    G.selectComponentLanguage(0);
 
     // Live Program-Assigned Telemetry & Pre-Thought Auto-Tune Loop (Every 300ms)
     let loopTick = 0;
